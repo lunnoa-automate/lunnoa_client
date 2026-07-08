@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "@lunnoa/client": ["./src/index.ts"]
+    }
+  },
+  "include": ["../.tmp-codegen/**/*.ts", "../src/**/*.ts"]
+}

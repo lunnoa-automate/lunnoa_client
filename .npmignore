@@ -1,0 +1,12 @@
+src/
+spec/
+tests/
+examples/
+tsconfig.json
+tsconfig*.json
+tsup.config.ts
+vitest.config.ts
+node_modules/
+.pnpm-store/
+*.ts
+!dist/**

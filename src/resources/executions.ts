@@ -142,10 +142,12 @@ export class ExecutionsResource {
 
   /**
    * Resumes an execution paused in `NEEDS_INPUT` by submitting values for the
-   * waiting node. Identify the waiting node via the `executionPath` expansion
-   * (steps with status `NEEDS_INPUT` carry the `nodeId`). The server
-   * acknowledges immediately and resumes asynchronously — follow up with
-   * {@link waitUntilFinished}.
+   * waiting node. Identify the waiting node and its field schema via
+   * `expansion: ['pendingInput', 'executionPath']` (prefer `pendingInput` for
+   * the form contract; `executionPath` steps with status `NEEDS_INPUT` also
+   * carry the `nodeId`). Required fields from the schema must be present.
+   * The server acknowledges immediately and resumes asynchronously — follow
+   * up with {@link waitUntilFinished}.
    */
   async submitInput(
     executionId: string,

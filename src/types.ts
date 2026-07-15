@@ -49,13 +49,6 @@ export type ImportTemplate = Schemas['ImportTemplateResponseDto'];
 // Entity types
 export type EntityType = Schemas['ObjectTypeResponseDto'];
 
-// Context blueprints
-export type ContextBlueprint = Schemas['ContextBlueprintResponseDto'];
-export type ContextBlueprintDetail =
-  Schemas['ContextBlueprintDetailResponseDto'];
-export type AvailableContextBlueprint =
-  Schemas['AvailableContextBlueprintResponseDto'];
-
 // Knowledge
 export type Knowledge = Schemas['KnowledgeResponseDto'];
 export type CreateKnowledgeInput = Schemas['CreateKnowledgeDto'];

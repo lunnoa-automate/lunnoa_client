@@ -2,10 +2,10 @@ import { HttpClient, type LunnoaClientOptions } from './core/http';
 import { AgentChatClient } from './streaming/agent-chat';
 import { AgentsResource } from './resources/agents';
 import { ConnectionsResource } from './resources/connections';
-import { ContextBlueprintsResource } from './resources/context-blueprints';
 import { DiscoveryResource } from './resources/discovery';
 import { EntitiesResource } from './resources/entities';
 import { EntityTypesResource } from './resources/entity-types';
+import { ApprovalsResource } from './resources/approvals';
 import { ExecutionsResource } from './resources/executions';
 import { KnowledgeResource } from './resources/knowledge';
 import { ProjectsResource } from './resources/projects';
@@ -48,9 +48,10 @@ export class LunnoaClient {
   readonly agentChat: AgentChatClient;
   readonly workflows: WorkflowsResource;
   readonly executions: ExecutionsResource;
+  /** Authenticated Approvals inbox (workspace API). */
+  readonly approvals: ApprovalsResource;
   readonly entities: EntitiesResource;
   readonly entityTypes: EntityTypesResource;
-  readonly contextBlueprints: ContextBlueprintsResource;
   readonly knowledge: KnowledgeResource;
   readonly queues: QueuesResource;
   readonly queueItems: QueueItemsResource;
@@ -67,10 +68,10 @@ export class LunnoaClient {
     this.tasks = new TasksResource(this.http);
     this.agentChat = new AgentChatClient(this.http);
     this.executions = new ExecutionsResource(this.http);
+    this.approvals = new ApprovalsResource(this.http);
     this.workflows = new WorkflowsResource(this.http, this.executions);
     this.entities = new EntitiesResource(this.http);
     this.entityTypes = new EntityTypesResource(this.http);
-    this.contextBlueprints = new ContextBlueprintsResource(this.http);
     this.knowledge = new KnowledgeResource(this.http);
     this.queues = new QueuesResource(this.http);
     this.queueItems = new QueueItemsResource(this.http);

@@ -159,6 +159,32 @@ export class ExecutionsResource {
       { body: values },
     );
   }
+
+  /**
+   * Submit an approve/reject decision for a Request Approval node.
+   * Uses the authenticated Approvals API (not the public input webhook).
+   * Partial approvals keep the execution paused; terminal decisions resume it.
+   */
+  async submitApproval(
+    executionId: string,
+    nodeId: string,
+    body: {
+      decision: 'approved' | 'rejected';
+      comment?: string;
+    },
+  ): Promise<{
+    executionId: string;
+    nodeId: string;
+    approvalId?: string;
+    terminal: boolean;
+    canDecide: boolean;
+    approval: Record<string, unknown>;
+  }> {
+    return this.http.post(
+      `/api/executions/${executionId}/nodes/${nodeId}/approvals`,
+      { body },
+    );
+  }
 }
 
 function defaultSleep(ms: number): Promise<void> {

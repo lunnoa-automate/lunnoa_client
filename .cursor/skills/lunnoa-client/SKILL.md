@@ -279,12 +279,47 @@ await lunnoa.queueItems.updateStatus(queueId, itemId, 'COMPLETED');
 
 ---
 
-## 9. Checklist for a new custom UI
+## 9. Recipe: Approvals inbox (Request Approval nodes)
+
+`lunnoa.approvals` mirrors Automate **Approvals** (`/approvals`). It uses the
+workspace API (`/api/approvals/...`), not Public API v1. The inbox is filtered
+to requests where the **current user** is eligible and has not decided yet.
+Prefer pattern B (user JWT). Role needs `approvals:read` / `approvals:decide`.
+
+```typescript
+const { items } = await lunnoa.approvals.inbox(); // pending + partially_approved
+
+for (const person of items[0]?.eligibleApprovers ?? []) {
+  // person.workspaceUserId, email, name?
+  console.log(person.email);
+}
+
+await lunnoa.approvals.decide(items[0]!.approvalId, {
+  decision: 'approved', // or 'rejected'
+  comment: 'Within policy limits.',
+});
+
+// Or when you already have executionId + nodeId:
+await lunnoa.executions.submitApproval(executionId, nodeId, {
+  decision: 'rejected',
+  comment: 'Amount exceeds limit.',
+});
+```
+
+Do **not** use `submitInput` for Request Approval nodes; that is for generic
+`NEEDS_INPUT` forms. Partial approvals keep the execution paused; terminal
+decisions resume it. `eligibleApprovers` is current-stage membership with
+emails (capped; not Azure object IDs).
+
+---
+
+## 10. Checklist for a new custom UI
 
 1. Confirm base URL + credential pattern (A or B); wire the key server-side only.
 2. Run `npx @lunnoa/client codegen` against the deployment; commit the output.
 3. Call `discovery.enabledFeatures()` and hide unsupported areas.
 4. Build forms/tables from `attributeSchema` / `customInputConfig` (or the generated types).
 5. Render workflow progress from `executionPath`; handle `NEEDS_INPUT` with `submitInput`.
-6. Chat: stream via SSE, handle resume (reconnects) and stop, load history from the task.
-7. Handle `LunnoaApiError`: 401 → re-auth; 403 → hide the capability; 429 → back off.
+6. For Request Approval nodes, use `approvals.inbox` / `approvals.decide` (or `executions.submitApproval`).
+7. Chat: stream via SSE, handle resume (reconnects) and stop, load history from the task.
+8. Handle `LunnoaApiError`: 401 → re-auth; 403 → hide the capability; 429 → back off.

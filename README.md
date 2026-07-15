@@ -64,9 +64,11 @@ For Pattern B the deployment must allow your origin via its `CORS_ALLOWED_ORIGIN
 
 ## Resources
 
-Every namespace maps to the Public API surface (`openapi.public.json`):
+Most namespaces map to the Public API surface (`openapi.public.json`):
 
-`agents` · `tasks` · `agentChat` (SSE streaming) · `workflows` · `executions` · `entities` · `entityTypes` · `contextBlueprints` · `knowledge` · `queues` · `queueItems` · `variables` · `connections` · `projects` · `workflowApps` · `discovery`
+`agents` · `tasks` · `agentChat` (SSE streaming) · `workflows` · `executions` · `entities` · `entityTypes` · `knowledge` · `queues` · `queueItems` · `variables` · `connections` · `projects` · `workflowApps` · `discovery`
+
+`approvals` uses the authenticated **workspace** API (`/api/approvals/...`), not Public API v1. The inbox is filtered to requests where the current user is an eligible approver.
 
 Errors are `LunnoaApiError` with `status`, `body`, and convenience flags (`isUnauthorized`, `isForbidden`, `isRateLimited`). Paginated lists have async iteration (`entities.iterate(...)`, `queueItems.iterate(...)`).
 
@@ -121,6 +123,31 @@ const finished = await lunnoa.executions.waitUntilFinished(executionId);
 ```
 
 The `executionPath` expansion is the business-readable step list (labels, per-step status, timings, loop iterations) custom UIs render progress from.
+
+### Approvals inbox (Request Approval nodes)
+
+List pending approvals the authenticated user can decide, then approve or reject. Prefer a user JWT (pattern B) so eligibility matches a real person. Requires `approvals:read` / `approvals:decide`.
+
+```typescript
+const { items } = await lunnoa.approvals.inbox(); // pending + partially_approved
+
+for (const person of items[0]?.eligibleApprovers ?? []) {
+  console.log(person.email, person.name); // who can still decide
+}
+
+await lunnoa.approvals.decide(items[0]!.approvalId, {
+  decision: 'approved',
+  comment: 'Within policy limits.',
+});
+
+// Or by execution + node when you already have those IDs:
+await lunnoa.executions.submitApproval(executionId, nodeId, {
+  decision: 'rejected',
+  comment: 'Amount exceeds limit.',
+});
+```
+
+Do not use `submitInput` for Request Approval nodes; that path is for generic `NEEDS_INPUT` forms.
 
 ### Stream agent chat
 
@@ -218,3 +245,19 @@ Releases are fully automated with [semantic-release](https://github.com/semantic
 | `fix:` | Patch |
 | `feat:` | Minor |
 | `feat!:` / `BREAKING CHANGE:` | Major |
+
+### npm trusted publishing (OIDC)
+
+Publishing uses [npm trusted publishers](https://docs.npmjs.com/trusted-publishers/) via GitHub Actions OIDC — no `NPM_TOKEN` secret is required.
+
+Before the first release, configure a **Trusted Publisher** on [npmjs.com](https://www.npmjs.com) (org admin login for `@lunnoa`):
+
+| Field | Value |
+| --- | --- |
+| Package | `@lunnoa/client` |
+| Organization / user | `lunnoa-automate` |
+| Repository | `lunnoa_client` |
+| Workflow filename | `release.yml` |
+| Environment | *(leave empty)* |
+
+The release workflow grants `id-token: write` and uses **semantic-release v25** with Node 24.

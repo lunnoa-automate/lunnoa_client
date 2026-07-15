@@ -34,6 +34,11 @@ export {
   ExecutionsResource,
   type WaitUntilFinishedOptions,
 } from './resources/executions';
+export {
+  ApprovalsResource,
+  type ApprovalInboxItem,
+  type EligibleApprover,
+} from './resources/approvals';
 export { AgentsResource } from './resources/agents';
 export { TasksResource } from './resources/tasks';
 export { WorkflowsResource } from './resources/workflows';
@@ -47,7 +52,6 @@ export {
   EntityTypesResource,
   type EntityTypeReadOptions,
 } from './resources/entity-types';
-export { ContextBlueprintsResource } from './resources/context-blueprints';
 export { KnowledgeResource } from './resources/knowledge';
 export { QueuesResource } from './resources/queues';
 export {

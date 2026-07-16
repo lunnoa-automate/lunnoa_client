@@ -31,6 +31,13 @@ export type Execution = Schemas['ExecutionResponseDto'];
 export type ExecutionPathStep = Schemas['ExecutionPathStepDto'];
 export type ExecuteWorkflowResult = Schemas['ExecuteWorkflowResponseDto'];
 export type ExecutionStatus = NonNullable<Execution['status']>;
+export type PendingInput = Schemas['PendingInputDto'];
+export type PendingInputField = Schemas['PendingInputFieldDto'];
+export type RunActionResult = Schemas['RunActionResponseDto'];
+export type RunActionInput = Schemas['RunActionDto'];
+export type StartRunInputDto = Schemas['StartRunDto'];
+export type UpsertWorkflowBySlugInputDto = Schemas['UpsertWorkflowBySlugDto'];
+export type UpsertAgentBySlugInputDto = Schemas['UpsertAgentBySlugDto'];
 
 // Entities (objects)
 export type Entity = Schemas['ObjectResponseDto'];

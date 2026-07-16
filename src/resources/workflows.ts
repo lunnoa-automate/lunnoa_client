@@ -1,10 +1,60 @@
 import type { HttpClient } from '../core/http';
 import type { ExecuteWorkflowResult, Execution, Workflow } from '../types';
+import type { WorkflowDefinition, WorkflowStepDefinition } from '../define';
+import { resolveActionAppId, resolveActionId } from '../define';
 import { serializeListQuery, type ListQueryOptions } from './common';
 import type {
   ExecutionsResource,
   WaitUntilFinishedOptions,
 } from './executions';
+
+export interface UpsertWorkflowStepInput {
+  appId: string;
+  actionId: string;
+  connectionId?: string;
+  input?: Record<string, unknown>;
+  name?: string;
+  description?: string;
+}
+
+export interface UpsertWorkflowBySlugInput {
+  slug: string;
+  name?: string;
+  description?: string;
+  isActive?: boolean;
+  steps: UpsertWorkflowStepInput[];
+  managedByCode?: boolean;
+}
+
+function stepToUpsertInput(
+  step: WorkflowStepDefinition,
+): UpsertWorkflowStepInput {
+  const use = step.use;
+  return {
+    appId: resolveActionAppId(use),
+    actionId: resolveActionId(use),
+    connectionId: use.connection?.id,
+    input: {
+      ...(use.input ?? {}),
+      ...(step.input ?? {}),
+    },
+    name: step.name ?? use.name,
+    description: use.description,
+  };
+}
+
+export function workflowDefinitionToUpsert(
+  def: WorkflowDefinition,
+): UpsertWorkflowBySlugInput {
+  return {
+    slug: def.slug,
+    name: def.name,
+    description: def.description,
+    isActive: def.isActive,
+    managedByCode: true,
+    steps: def.steps.map(stepToUpsertInput),
+  };
+}
 
 export class WorkflowsResource {
   constructor(
@@ -30,6 +80,24 @@ export class WorkflowsResource {
     return this.http.get<Workflow>(`/api/workflows/${workflowId}`, {
       query: serializeListQuery(options),
     });
+  }
+
+  /**
+   * Upsert a workflow by project-scoped slug from a linear step list.
+   * Prefer the CLI (`npx @lunnoa/client workflows deploy`) for happy-path deploy.
+   */
+  upsertBySlug(
+    projectId: string,
+    body: UpsertWorkflowBySlugInput | WorkflowDefinition,
+  ): Promise<Workflow> {
+    const payload =
+      'kind' in body && body.kind === 'workflow'
+        ? workflowDefinitionToUpsert(body)
+        : body;
+    return this.http.post<Workflow>(
+      `/api/projects/${projectId}/workflows/upsert`,
+      { body: payload },
+    );
   }
 
   /**

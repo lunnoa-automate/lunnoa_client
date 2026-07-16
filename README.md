@@ -9,9 +9,9 @@ TypeScript SDK for building applications **on top of** [Lunnoa Automate](https:/
 
 `@lunnoa/client` is the official consumption SDK for the Lunnoa Automate **Public API**: a typed client for agents and chat (with SSE streaming), workflows and executions, entities (Objects), knowledge, queues, variables, connections, and projects — plus a codegen command that types the SDK against **your** deployment's entity types, workflows, and agents.
 
-**The boundary with the other Lunnoa SDK:** [`@lunnoa/toolkit`](https://github.com/lunnoa-automate/lunnoa_toolkit) is for building integration apps that run *inside* the platform; **`@lunnoa/client` is for building applications *on top of* the platform** — your own portals, internal tools, and product features backed by Lunnoa agents and workflows.
+**The boundary with the other Lunnoa SDK:** [`@lunnoa/toolkit`](https://github.com/lunnoa-automate/lunnoa_toolkit) is for building integration apps that run *inside* the platform (`createAction` / `createApp`); **`@lunnoa/client` is for building applications *on top of* the platform** — including `define*` factories, `runs.start`, and CLI deploy of workflows/agents.
 
-The SDK is deliberately **presentation-free**: no components, no hooks, no widgets. You build fully custom UIs in your own design system; the SDK encodes the platform knowledge (protocols, schemas, conventions). A frontend-authoring skill for AI coding agents ships with the package (see [`.cursor/skills/lunnoa-client/SKILL.md`](./.cursor/skills/lunnoa-client/SKILL.md)).
+The SDK is deliberately **presentation-free** at the core: no components or widgets. Optional **headless** React hooks ship as `@lunnoa/client/react`. You build fully custom UIs in your own design system; the SDK encodes the platform knowledge (protocols, schemas, conventions). A frontend-authoring skill for AI coding agents ships with the package (see [`.cursor/skills/lunnoa-client/SKILL.md`](./.cursor/skills/lunnoa-client/SKILL.md)).
 
 ## Installation
 
@@ -44,29 +44,72 @@ A SuperAdmin creates API keys in **Adminspace → API keys**, choosing the works
 
 | Pattern | Credential | Where |
 |---|---|---|
-| **A. Backend holds the key** | `apiKey: 'lna_...'` | Your server, background jobs, server-rendered pages. The key acts as a workspace-scoped service account. |
-| **B. End users are Lunnoa users** | `accessToken: <user JWT>` | Browser apps. Users log in via the deployment's `/api/auth` or `/api/sso` flow; per-user permissions, agent shares, and task history apply. |
+| **A. Backend holds the key** | `apiKey: 'lna_...'` via `createServerClient` | Your server, background jobs, server-rendered pages. The key acts as a workspace-scoped service account. |
+| **B. End users are Lunnoa users** | User JWT via `createBrowserClient` + `lunnoa.auth.*` | Browser apps. Login, 2FA, refresh, and SSO discovery are wrapped; per-user permissions apply. |
 
 ```typescript
-// Pattern A — server-side
-const lunnoa = new LunnoaClient({ baseUrl, apiKey: process.env.LUNNOA_API_KEY });
+import {
+  createBrowserClient,
+  createServerClient,
+  isLoginRequires2FA,
+} from '@lunnoa/client';
 
-// Pattern B — browser (token resolved per request, so refreshes are picked up)
-const lunnoa = new LunnoaClient({
+// Pattern A — server-side
+const server = createServerClient({
   baseUrl,
-  accessToken: () => localStorage.getItem('accessToken')!,
+  apiKey: process.env.LUNNOA_API_KEY!,
 });
+
+// Pattern B — browser (tokens in localStorage by default; auto-refresh on 401)
+const lunnoa = createBrowserClient({ baseUrl });
+const result = await lunnoa.auth.login({ email, password });
+if (isLoginRequires2FA(result)) {
+  await lunnoa.auth.verify2faLogin({
+    sessionToken: result.sessionToken,
+    token: totpCode,
+  });
+}
+const me = await lunnoa.auth.me();
 ```
 
 **API keys never ship to browsers.** The SDK enforces this: constructing a client with an `lna_` key while `window` exists throws immediately. Browser apps either use Pattern B or call your own backend, which holds the key (backend-for-frontend).
 
-For Pattern B the deployment must allow your origin via its `CORS_ALLOWED_ORIGINS` configuration.
+For Pattern B the deployment must allow your origin via its `CORS_ALLOWED_ORIGINS` configuration. See the Authentication guide under `guides/develop/client/auth` in Lunnoa Docs for SSO redirect constraints and token stores.
+
+### React (optional)
+
+```tsx
+import {
+  LunnoaAuthProvider,
+  useLunnoaAuth,
+  useLunnoaClient,
+  useExecutionProgress,
+  useNeedsInput,
+  useAgentChat,
+  useApprovalsInbox,
+  useEntityList,
+} from '@lunnoa/client/react';
+
+<LunnoaAuthProvider baseUrl={baseUrl}>
+  <App />
+</LunnoaAuthProvider>
+
+const { user, status, login, logout } = useLunnoaAuth();
+const lunnoa = useLunnoaClient();
+const { progress, status: progressStatus } = useExecutionProgress(executionId);
+const { waiting, pendingInput, submitInput } = useNeedsInput(progress);
+const { messages, send, stop, taskId } = useAgentChat(agentId); // needs @ai-sdk/react
+const { items, decide } = useApprovalsInbox({ pollIntervalMs: 15_000 });
+const { data, page, setPage } = useEntityList({ objectTypeSlug: 'invoice' });
+```
+
+Peers: `react` ≥ 18 (required for `/react`); `@ai-sdk/react` only for `useAgentChat`. Core `@lunnoa/client` stays headless.
 
 ## Resources
 
 Most namespaces map to the Public API surface (`openapi.public.json`):
 
-`agents` · `tasks` · `agentChat` (SSE streaming) · `workflows` · `executions` · `entities` · `entityTypes` · `knowledge` · `queues` · `queueItems` · `variables` · `connections` · `projects` · `workflowApps` · `discovery`
+`auth` · `agents` · `tasks` · `agentChat` (SSE streaming) · `workflows` · `executions` · `actions` · `entities` · `entityTypes` · `knowledge` · `queues` · `queueItems` · `variables` · `connections` · `projects` · `workflowApps` · `discovery`
 
 `approvals` uses the authenticated **workspace** API (`/api/approvals/...`), not Public API v1. The inbox is filtered to requests where the current user is an eligible approver.
 
@@ -103,6 +146,25 @@ console.log(execution.status, execution.output);
 
 // or in one call:
 const done = await lunnoa.workflows.executeAndWait(workflowId, inputs);
+```
+
+### Run a single app action (ad-hoc Execution)
+
+Creates a one-step Execution with `source: SDK` (same inbox as workflow runs). Discover `appId` / `actionId` / `inputConfig` via `workflowApps.list()`. Pass `connectionId` (the Connection instance UUID from Connections) when the action needs a connection and more than one exists for the app.
+
+```typescript
+const result = await lunnoa.actions.run({
+  appId: 'http',
+  actionId: 'http_action_send-request',
+  // connectionId: '...', // Connection.id UUID when needed
+  input: { method: 'GET', url: 'https://example.com' },
+});
+console.log(result.status, result.output, result.executionPath);
+
+// Same record via the Executions API:
+const again = await lunnoa.executions.get(result.id, {
+  expansion: ['status', 'source', 'executionPath'],
+});
 ```
 
 ### Resume a NEEDS_INPUT execution from a custom form
@@ -201,6 +263,19 @@ const stream = await lunnoa.agents.supportAgent.streamMessage(taskId, 'Hi');
 ```
 
 Re-run codegen whenever entity types, workflows, or agents change on the deployment.
+
+## Define, run, and CLI deploy
+
+Author local definitions with `defineWorkflow` / `defineAgent`, run linear chains with `lunnoa.runs.start`, and upsert into a project with the CLI (prefer CLI over calling upsert from app code):
+
+```bash
+npx @lunnoa/client workflows deploy ./workflows/sync-orders.ts \
+  --url https://lunnoa.example --api-key lna_... --project-id <uuid>
+npx @lunnoa/client agents deploy ./agents/triage.ts \
+  --url https://lunnoa.example --api-key lna_... --project-id <uuid>
+```
+
+`defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
 
 ## Regenerating the API types
 

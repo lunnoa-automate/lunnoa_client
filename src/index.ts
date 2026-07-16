@@ -27,11 +27,20 @@ export {
   type StopStreamOptions,
   type StreamMessageOptions,
 } from './streaming/agent-chat';
-export { parseSseStream } from './streaming/sse';
+export { parseSseStream, parseSseEvents, type SseEvent } from './streaming/sse';
+export {
+  ExecutionProgressStream,
+  type ExecutionProgressPayload,
+  type ExecutionStreamEvent,
+  type ExecutionStreamEventType,
+  type WatchProgressOptions,
+} from './streaming/execution-progress';
 
 export {
   ExecutionTimeoutError,
   ExecutionsResource,
+  type ExecutionProgress,
+  type ExecutionProgressStep,
   type WaitUntilFinishedOptions,
 } from './resources/executions';
 export {
@@ -39,9 +48,49 @@ export {
   type ApprovalInboxItem,
   type EligibleApprover,
 } from './resources/approvals';
+export {
+  AuthResource,
+  SsoAuthResource,
+} from './resources/auth';
 export { AgentsResource } from './resources/agents';
+export type {
+  UpsertAgentBySlugInput,
+  UpsertAgentToolInput,
+} from './resources/agents';
 export { TasksResource } from './resources/tasks';
 export { WorkflowsResource } from './resources/workflows';
+export type {
+  UpsertWorkflowBySlugInput,
+  UpsertWorkflowStepInput,
+} from './resources/workflows';
+export {
+  ActionsResource,
+  type RunActionOptions,
+} from './resources/actions';
+export {
+  RunsResource,
+  type StartRunInput,
+  type StartRunOptions,
+  type StartRunStep,
+} from './resources/runs';
+export {
+  defineAction,
+  defineAgent,
+  defineAiConnection,
+  defineConnection,
+  defineWorkflow,
+  DEFINE_KINDS,
+  resolveActionAppId,
+  resolveActionId,
+  type ActionDefinition,
+  type AgentDefinition,
+  type AgentToolDefinition,
+  type AiConnectionDefinition,
+  type ConnectionDefinition,
+  type DefineKind,
+  type WorkflowDefinition,
+  type WorkflowStepDefinition,
+} from './define';
 export {
   EntitiesResource,
   type ExportEntitiesInput,
@@ -64,6 +113,25 @@ export { ProjectsResource } from './resources/projects';
 export { WorkflowAppsResource } from './resources/workflow-apps';
 export { DiscoveryResource } from './resources/discovery';
 export { type ListQueryOptions } from './resources/common';
+
+export {
+  createBrowserClient,
+  createServerClient,
+  createLocalStorageTokenStore,
+  createMemoryTokenStore,
+  isLoginRequires2FA,
+  type AuthTokens,
+  type CreateBrowserClientOptions,
+  type CreateServerClientOptions,
+  type CurrentUser,
+  type LocalStorageTokenStoreOptions,
+  type LoginRequires2FA,
+  type LoginResult,
+  type LoginSuccess,
+  type SsoProviderSummary,
+  type SsoProvidersResponse,
+  type TokenStore,
+} from './auth';
 
 export * from './types';
 

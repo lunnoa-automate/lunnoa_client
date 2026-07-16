@@ -1,6 +1,6 @@
 {
   "name": "@lunnoa/client",
-  "version": "0.0.0-development",
+  "version": "0.0.1",
   "description": "TypeScript SDK for building applications on top of Lunnoa Automate — typed client for the Public API (agents, workflows, executions, entities, knowledge, queues), SSE agent chat streaming, and deployment-specific codegen",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -20,10 +20,11 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "lunnoa-client": "./dist/cli.js"
+    "lunnoa-client": "dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "scripts": {
     "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup",

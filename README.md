@@ -11,7 +11,7 @@ TypeScript SDK for building applications **on top of** [Lunnoa Automate](https:/
 
 **The boundary with the other Lunnoa SDK:** [`@lunnoa/toolkit`](https://github.com/lunnoa-automate/lunnoa_toolkit) is for building integration apps that run *inside* the platform (`createAction` / `createApp`); **`@lunnoa/client` is for building applications *on top of* the platform** — including `define*` factories, `runs.start`, and CLI deploy of workflows/agents.
 
-The SDK is deliberately **presentation-free** at the core: no components or widgets. Optional **headless** React hooks ship as `@lunnoa/client/react`. You build fully custom UIs in your own design system; the SDK encodes the platform knowledge (protocols, schemas, conventions). A frontend-authoring skill for AI coding agents ships with the package (see [`.cursor/skills/lunnoa-client/SKILL.md`](./.cursor/skills/lunnoa-client/SKILL.md)).
+The SDK is deliberately **presentation-free** at the core: no components or widgets. Optional **headless** React hooks ship as `@lunnoa/client/react`. You build fully custom UIs in your own design system; the SDK encodes the platform knowledge (protocols, schemas, conventions). Agent skills for Cursor / Claude Code ship in [`skills/`](./skills/) (see [AI-assisted building](#ai-assisted-building)).
 
 ## Installation
 
@@ -285,9 +285,26 @@ The generic types are generated from the deployment's public OpenAPI spec (`spec
 npm run codegen:spec
 ```
 
-## AI-assisted UI building
+## AI-assisted building
 
-The repo ships a frontend-authoring skill at [`.cursor/skills/lunnoa-client/SKILL.md`](./.cursor/skills/lunnoa-client/SKILL.md) that teaches coding agents (Cursor, Claude) how to build custom UIs against this SDK: auth patterns, discovery, codegen, and the four worked recipes above. Copy it into your app's `.cursor/skills/` folder.
+Two Cursor / Claude Code skills ship in the published package under `skills/`:
+
+| Skill | Path | Role |
+|---|---|---|
+| **lunnoa-solution-design** | [`skills/lunnoa-solution-design/SKILL.md`](./skills/lunnoa-solution-design/SKILL.md) | Interview the human, map intent to Lunnoa primitives, produce a build brief |
+| **lunnoa-client** | [`skills/lunnoa-client/SKILL.md`](./skills/lunnoa-client/SKILL.md) | Implement with auth, discovery, codegen, `define*` / `runs` / CLI deploy, React hooks |
+
+After install, copy or enable them from `node_modules/@lunnoa/client/skills/` into your app’s `.cursor/skills/` (or Claude Code skills directory). Prefer **solution-design** first when requirements are unclear, then **lunnoa-client**.
+
+Partner paste block:
+
+```text
+Use @lunnoa/client skills: lunnoa-solution-design then lunnoa-client.
+LUNNOA_URL=… LUNNOA_API_KEY=lna_… (server only). Project ID=…
+Start by interviewing me, then workflowApps.list() / codegen.
+```
+
+Docs quickstart: [For agents](https://docs.lunnoa.com/guides/develop/client/for-agents) (or your deployment’s docs site).
 
 ## Versioning and stability
 

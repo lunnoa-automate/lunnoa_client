@@ -438,13 +438,31 @@ for await (const chunk of stream) {
 
 ## 8. Human-in-the-loop queues
 
-Queues are the platform's work-item surface for review UIs:
+Queues are the platform's work-item surface for review UIs. Items can
+optionally link to an **Object** (entity) via `objectId` — the business
+record the work is about. Creating a queue item does **not** create an Object.
 
 ```typescript
 const queues = await lunnoa.queues.list();
 const { items } = await lunnoa.queueItems.list(queueId, { limit: 50 });
 for await (const item of lunnoa.queueItems.iterate(queueId)) { ... }
-await lunnoa.queueItems.updateStatus(queueId, itemId, 'COMPLETED');
+await lunnoa.queueItems.updateStatus(queueId, itemId, 'SUCCESS');
+
+// Restrict which ObjectTypes a queue accepts (empty = any)
+await lunnoa.queues.create({
+  name: 'IT triage',
+  allowedObjectTypeIds: [ticketType.id],
+});
+
+// Link work to an existing Object
+await lunnoa.queueItems.create(triageQueueId, {
+  objectId: ticket.id,
+  externalId: ticket.id,
+  data: { priority: 'high' },
+});
+
+// Work panel for that Object (across all queues)
+const { items: work } = await lunnoa.queueItems.listByObject(ticket.id);
 ```
 
 ---

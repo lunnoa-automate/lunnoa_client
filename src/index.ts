@@ -106,6 +106,7 @@ export { QueuesResource } from './resources/queues';
 export {
   QueueItemsResource,
   type ListQueueItemsOptions,
+  type ListQueueItemsByObjectOptions,
 } from './resources/queue-items';
 export { VariablesResource } from './resources/variables';
 export { ConnectionsResource } from './resources/connections';

@@ -70,10 +70,12 @@ export type Queue = Schemas['QueueResponseDto'];
 export type CreateQueueInput = Schemas['CreateQueueDto'];
 export type UpdateQueueInput = Schemas['UpdateQueueDto'];
 export type QueueStats = Schemas['QueueStatsResponseDto'];
+export type QueueAllowedObjectType = Schemas['QueueAllowedObjectTypeDto'];
 
 // Queue items
 export type QueueItem = Schemas['QueueItemResponseDto'];
 export type QueueItemFull = Schemas['QueueItemFullResponseDto'];
+export type QueueItemCreated = Schemas['QueueItemCreateResponseDto'];
 export type CreateQueueItemInput = Schemas['CreateQueueItemDto'];
 export type UpdateQueueItemInput = Schemas['UpdateQueueItemDto'];
 export type QueueItemList = Schemas['QueueItemListResponseDto'];
@@ -82,6 +84,7 @@ export type BulkCreateQueueItemsInput = Schemas['BulkCreateQueueItemsDto'];
 export type BulkCreateQueueItemsResult =
   Schemas['BulkCreateQueueItemsResponseDto'];
 export type QueueItemErrorEntry = Schemas['QueueItemErrorEntryResponseDto'];
+export type QueueItemObjectSummary = Schemas['QueueItemObjectSummaryDto'];
 
 // Variables
 export type Variable = Schemas['VariableResponseDto'];

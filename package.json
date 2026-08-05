@@ -1,6 +1,6 @@
 {
   "name": "@lunnoa/client",
-  "version": "0.0.0-development",
+  "version": "1.0.0",
   "description": "TypeScript SDK for building applications on top of Lunnoa Automate — typed client for the Public API (agents, workflows, executions, entities, knowledge, queues), SSE agent chat streaming, and deployment-specific codegen",
   "type": "module",
   "main": "./dist/index.cjs",

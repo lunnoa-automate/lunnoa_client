@@ -326,7 +326,7 @@ pnpm test
 pnpm build
 ```
 
-Build output (ESM + CJS + type declarations) is written to `dist/`. Only `dist/` is included in the published npm tarball.
+Build output (ESM + CJS + type declarations) is written to `dist/`. The published npm tarball includes `dist/` and `skills/`.
 
 ## Publishing
 
@@ -340,9 +340,12 @@ Releases are fully automated with [semantic-release](https://github.com/semantic
 
 ### npm trusted publishing (OIDC)
 
-Publishing uses [npm trusted publishers](https://docs.npmjs.com/trusted-publishers/) via GitHub Actions OIDC — no `NPM_TOKEN` secret is required.
+Publishing uses [npm trusted publishers](https://docs.npmjs.com/trusted-publishers/) via GitHub Actions OIDC — no long-lived `NPM_TOKEN` is required after the package exists.
 
-Before the first release, configure a **Trusted Publisher** on [npmjs.com](https://www.npmjs.com) (org admin login for `@lunnoa`):
+**Chicken-and-egg for the first publish:** npm only lets you attach a Trusted Publisher to a package that already exists. Bootstrap once (token or placeholder publish), then configure OIDC and prefer that for all later releases.
+
+1. Publish the initial version (e.g. via the `Bootstrap lunnoa_client publish` workflow in `lunnoa_automate`, or `NPM_TOKEN` on the Release workflow).
+2. On [npmjs.com](https://www.npmjs.com) (org admin for `@lunnoa`), open the package **Access** tab and add a Trusted Publisher:
 
 | Field | Value |
 | --- | --- |
@@ -352,4 +355,18 @@ Before the first release, configure a **Trusted Publisher** on [npmjs.com](https
 | Workflow filename | `release.yml` |
 | Environment | *(leave empty)* |
 
+3. After OIDC works, you can remove `NPM_TOKEN` from the Release workflow env.
+
 The release workflow grants `id-token: write` and uses **semantic-release v25** with Node 24.
+
+### Acceptance soak
+
+Against a real deployment (service-account API key with at least `entities:read`, `entities:create`, `agents:use`):
+
+```bash
+LUNNOA_URL=https://your-deployment \
+LUNNOA_API_KEY=lna_... \
+AGENT_ID=<agent-uuid> \
+ENTITY_TYPE_SLUG=<optional-slug> \
+pnpm exec tsx scripts/acceptance-soak.ts
+```

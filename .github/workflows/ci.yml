@@ -40,5 +40,13 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name: Validate publish tarball
-        run: npm pack --dry-run
+      - name: Validate publish tarball includes dist + skills
+        run: |
+          set -euo pipefail
+          tarball=$(npm pack)
+          echo "Packed $tarball"
+          tar -tzf "$tarball" | tee /tmp/tarball-files.txt
+          grep -q 'package/dist/index.js' /tmp/tarball-files.txt
+          grep -q 'package/skills/lunnoa-client/SKILL.md' /tmp/tarball-files.txt
+          grep -q 'package/skills/lunnoa-solution-design/SKILL.md' /tmp/tarball-files.txt
+          rm -f "$tarball"

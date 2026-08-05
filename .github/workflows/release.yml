@@ -51,4 +51,6 @@ jobs:
         run: pnpm exec semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Fallback for the first publish before Trusted Publisher is configured
+          # (OIDC requires the package to already exist on npm). Prefer OIDC after that.
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

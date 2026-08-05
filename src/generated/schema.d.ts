@@ -480,6 +480,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/objects/{objectId}/queue-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List queue items for an Object
+         * @description Returns work items linked to the given Object across all queues in the workspace. Use this for an Object detail "Work" panel.
+         */
+        get: operations["ObjectQueueItemsController_listForObject"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/workflows": {
         parameters: {
             query?: never;
@@ -514,6 +534,86 @@ export interface paths {
         get: operations["WorkflowsController_findOne"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{projectId}/workflows/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upsert a workflow by slug from a linear step list
+         * @description Creates or updates a workflow identified by project-scoped `slug`. Builds a minimal valid graph (manual trigger → linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.
+         */
+        post: operations["ProjectWorkflowsController_upsertBySlug"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List agents in current workspace
+         * @description Lists every agent in the caller's active workspace, most recently updated first. By default each item carries only `id`, `name`, and `FK_aiConnectionId`; request additional fields with the `expansion` query parameter.
+         */
+        get: operations["AgentsController_findAllForWorkspace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get agent by ID
+         * @description Returns a single agent. By default only `id`, `name`, and `FK_aiConnectionId` are returned; request additional fields with the `expansion` query parameter. Access is gated by the `agents:use` permission, so agents reachable via a share grant can also be fetched.
+         */
+        get: operations["AgentsController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{projectId}/agents/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upsert an agent by slug
+         * @description Creates or updates an agent identified by project-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.
+         */
+        post: operations["ProjectAgentsController_upsertBySlug"];
         delete?: never;
         options?: never;
         head?: never;
@@ -555,122 +655,6 @@ export interface paths {
          */
         post: operations["WorkflowAppsController_connectApp"];
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/knowledge": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List knowledge bases in workspace
-         * @description Returns all knowledge bases in the current workspace, ordered by most recently updated.
-         */
-        get: operations["KnowledgeController_findAllForWorkspace"];
-        put?: never;
-        /**
-         * Create knowledge base
-         * @description Creates a workspace-wide knowledge base with a dedicated vector index. Embedding model, provider and dimensions default to the platform configuration when omitted.
-         */
-        post: operations["KnowledgeController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/knowledge/{knowledgeId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get knowledge base by ID
-         * @description Returns a single knowledge base.
-         */
-        get: operations["KnowledgeController_findOne"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete knowledge base
-         * @description Deletes a knowledge base, its stored files and its vector index. This action cannot be undone.
-         */
-        delete: operations["KnowledgeController_delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update knowledge base
-         * @description Updates knowledge base properties. All body fields are optional; only provided fields are changed.
-         */
-        patch: operations["KnowledgeController_update"];
-        trace?: never;
-    };
-    "/api/knowledge/{knowledgeId}/saveUploadedText": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Save uploaded text to knowledge base
-         * @description Chunks the provided text, generates embeddings and stores them in the knowledge base. Multi-chunk uploads are grouped into a single document.
-         */
-        post: operations["KnowledgeController_saveUploadedTextToKnowledge"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/knowledge/{knowledgeId}/documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List documents for knowledge base
-         * @description Returns a grouped document view of the knowledge base. Multi-part uploads appear as a single group document; single-part uploads appear as standalone documents.
-         */
-        get: operations["KnowledgeController_getDocuments"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/knowledge/{knowledgeId}/documents/{groupId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get knowledge document group
-         * @description Returns a document group with all of its parts (vector references), ordered by part number.
-         */
-        get: operations["KnowledgeController_getDocumentGroup"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete knowledge document group
-         * @description Deletes a document group and all of its parts, including stored files and vector index entries. This action cannot be undone.
-         */
-        delete: operations["KnowledgeController_deleteDocumentGroup"];
         options?: never;
         head?: never;
         patch?: never;
@@ -896,7 +880,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/context-blueprints/available": {
+    "/api/knowledge": {
         parameters: {
             query?: never;
             header?: never;
@@ -904,10 +888,82 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List published context blueprints for tool dropdown
-         * @description Returns all published context blueprints in the workspace, sorted by entity type name and blueprint name. Draft and archived blueprints are excluded.
+         * List knowledge bases in workspace
+         * @description Returns all knowledge bases in the current workspace, ordered by most recently updated.
          */
-        get: operations["ContextBlueprintsController_findAvailable"];
+        get: operations["KnowledgeController_findAllForWorkspace"];
+        put?: never;
+        /**
+         * Create knowledge base
+         * @description Creates a workspace-wide knowledge base with a dedicated vector index. Embedding model, provider and dimensions default to the platform configuration when omitted.
+         */
+        post: operations["KnowledgeController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge/{knowledgeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get knowledge base by ID
+         * @description Returns a single knowledge base.
+         */
+        get: operations["KnowledgeController_findOne"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete knowledge base
+         * @description Deletes a knowledge base, its stored files and its vector index. This action cannot be undone.
+         */
+        delete: operations["KnowledgeController_delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update knowledge base
+         * @description Updates knowledge base properties. All body fields are optional; only provided fields are changed.
+         */
+        patch: operations["KnowledgeController_update"];
+        trace?: never;
+    };
+    "/api/knowledge/{knowledgeId}/saveUploadedText": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Save uploaded text to knowledge base
+         * @description Chunks the provided text, generates embeddings and stores them in the knowledge base. Multi-chunk uploads are grouped into a single document.
+         */
+        post: operations["KnowledgeController_saveUploadedTextToKnowledge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge/{knowledgeId}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List documents for knowledge base
+         * @description Returns a grouped document view of the knowledge base. Multi-part uploads appear as a single group document; single-part uploads appear as standalone documents.
+         */
+        get: operations["KnowledgeController_getDocuments"];
         put?: never;
         post?: never;
         delete?: never;
@@ -916,35 +972,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/context-blueprints": {
+    "/api/knowledge/{knowledgeId}/documents/{groupId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List context blueprints for an object type */
-        get: operations["ContextBlueprintsController_findAll"];
+        /**
+         * Get knowledge document group
+         * @description Returns a document group with all of its parts (vector references), ordered by part number.
+         */
+        get: operations["KnowledgeController_getDocumentGroup"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/context-blueprints/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a context blueprint by ID */
-        get: operations["ContextBlueprintsController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
+        /**
+         * Delete knowledge document group
+         * @description Deletes a document group and all of its parts, including stored files and vector index entries. This action cannot be undone.
+         */
+        delete: operations["KnowledgeController_deleteDocumentGroup"];
         options?: never;
         head?: never;
         patch?: never;
@@ -999,11 +1045,71 @@ export interface paths {
         };
         /**
          * Get execution by ID
-         * @description Returns a single execution. The ID and startedAt timestamp are always returned; use the expansion query parameter to include further fields. Request the executionPath expansion to receive the business-readable step list (step labels, per-step status including NEEDS_INPUT, timings, and loop iterations) that custom UIs render progress from.
+         * @description Returns a single execution. The ID and startedAt timestamp are always returned; use the expansion query parameter to include further fields. Request the executionPath expansion to receive the business-readable step list (step labels, per-step status including NEEDS_INPUT, timings, and loop iterations) that custom UIs render progress from. Request the pendingInput expansion to receive the field schemas for steps currently waiting for user input.
          */
         get: operations["ExecutionsController_findOne"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/executions/{executionId}/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stream execution updates (SSE)
+         * @description Server-Sent Events stream for real-time execution updates. Emits `execution.progress` snapshots (status + executionPath + pendingInput) as steps change, `loop.progress` while For Each / Repeat loops run, `execution.finished` on terminal status, and periodic heartbeats. Use fetch with Authorization header (EventSource cannot send Bearer tokens). Ideal for custom timeline / progress UIs.
+         */
+        get: operations["ExecutionsController_streamExecution"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/actions/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run a single app action as an ad-hoc Execution
+         * @description Creates a one-step Execution with `source: SDK`, runs the catalogue action via the same prepareAndRunAction path used by workflows, then finalises the Execution. Discover `appId` / `actionId` / `inputConfig` via GET /workflow-apps. Pass `connectionId` (Connection instance UUID) when the action needs a connection and more than one exists for the app. Poll GET /executions/{id} with expansion=executionPath for the same record.
+         */
+        post: operations["ActionsController_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a multi-step ad-hoc Execution
+         * @description Creates one Execution with `source: SDK` and a linear multi-step `executionPath`. Each step is a catalogue action run via prepareAndRunAction (same path as workflows and POST /actions/run). Connection resolution per step: sole usable connection, else workspace default (`isDefault`), else 400 with candidates. Poll GET /executions/{id} with expansion=executionPath for the same record.
+         */
+        post: operations["RunsController_start"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1141,49 +1247,9 @@ export interface paths {
         put?: never;
         /**
          * Submit input to a workflow execution step
-         * @description Unauthenticated endpoint implementing the pause-for-user-input pattern: it resumes an execution paused in the NEEDS_INPUT status by submitting values for the node that is waiting. Identify the waiting node via the executionPath expansion on GET /executions/{executionId} (steps with status NEEDS_INPUT). The endpoint acknowledges receipt immediately and the execution resumes asynchronously.
+         * @description Unauthenticated endpoint implementing the pause-for-user-input pattern: it resumes an execution paused in the NEEDS_INPUT status by submitting values for the node that is waiting. Identify the waiting node and its field schema via GET /executions/{executionId}?expansion=pendingInput,executionPath (steps with status NEEDS_INPUT, or the pendingInput array). Required fields from the schema must be present; missing required values return 400. The endpoint acknowledges receipt immediately and the execution resumes asynchronously.
          */
         post: operations["WebhookController_executionStepEventPOST"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/agents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List agents in current workspace
-         * @description Lists every agent in the caller's active workspace, most recently updated first. By default each item carries only `id`, `name`, and `FK_aiConnectionId`; request additional fields with the `expansion` query parameter.
-         */
-        get: operations["AgentsController_findAllForWorkspace"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/agents/{agentId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get agent by ID
-         * @description Returns a single agent. By default only `id`, `name`, and `FK_aiConnectionId` are returned; request additional fields with the `expansion` query parameter. Access is gated by the `agents:use` permission, so agents reachable via a share grant can also be fetched.
-         */
-        get: operations["AgentsController_findOne"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1329,6 +1395,8 @@ export interface components {
         AuthMethodFlagsDto: {
             /** @description True when password-based login is disabled for this deployment (via AUTH_DISABLED_METHODS). */
             passwordDisabled: boolean;
+            /** @description True when Google sign-in is disabled for this deployment (via AUTH_DISABLED_METHODS). */
+            googleDisabled: boolean;
         };
         EnabledFeaturesResponseDto: {
             /** @description Whether the Workflows feature is enabled. Always enabled. */
@@ -1361,6 +1429,8 @@ export interface components {
             CODE_EXECUTION: boolean;
             /** @description Whether SSO (OIDC) login is enabled. Requires at least one enabled SSO provider. */
             SSO: boolean;
+            /** @description Whether SCIM provisioning is configured. True when at least one active (non-revoked) SCIM bearer token exists. */
+            SCIM: boolean;
             /** @description Availability of authentication methods for this deployment. */
             AUTH_METHODS: components["schemas"]["AuthMethodFlagsDto"];
         };
@@ -1425,6 +1495,8 @@ export interface components {
         CreateQueueDto: {
             /** @description Human-readable name for the queue. */
             name: string;
+            /** @description ObjectType IDs this queue accepts for linked items. Empty/omitted = any ObjectType (and untyped items) allowed. */
+            allowedObjectTypeIds?: string[];
             /** @description Description of what the queue is used for. */
             description?: string;
             /** @description Maximum number of retry attempts per item. Defaults to 3. */
@@ -1465,6 +1537,14 @@ export interface components {
         QueueItemCountsDto: {
             /** @description Number of items in the queue. */
             items: number;
+        };
+        QueueAllowedObjectTypeDto: {
+            /** @description Object type ID. */
+            id: string;
+            /** @description Object type name. */
+            name: string;
+            /** @description Object type slug. */
+            slug: string;
         };
         QueueResponseDto: {
             /** @description Queue ID. */
@@ -1511,6 +1591,8 @@ export interface components {
             createdByWorkspaceUser?: components["schemas"]["QueueCreatedByWorkspaceUserDto"];
             /** @description Relation counts. Included when `expansion=itemCounts` is requested. */
             _count?: components["schemas"]["QueueItemCountsDto"];
+            /** @description ObjectTypes this queue accepts for linked items. Empty means any type is allowed. Included when `expansion=allowedObjectTypes` is requested. */
+            allowedObjectTypes?: components["schemas"]["QueueAllowedObjectTypeDto"][];
         };
         QueueStatsResponseDto: {
             /** @description Total number of items in the queue. */
@@ -1529,6 +1611,8 @@ export interface components {
         UpdateQueueDto: {
             /** @description Human-readable name for the queue. */
             name?: string;
+            /** @description ObjectType IDs this queue accepts for linked items. Empty/omitted = any ObjectType (and untyped items) allowed. */
+            allowedObjectTypeIds?: string[];
             /** @description Description of what the queue is used for. */
             description?: string;
             /** @description Maximum number of retry attempts per item. Defaults to 3. */
@@ -1549,6 +1633,8 @@ export interface components {
         CreateQueueItemDto: {
             /** @description External identifier used to deduplicate items within the queue. */
             externalId?: string;
+            /** @description Optional Object (entity) this work item is about. Must belong to the same workspace. If the queue has allowed ObjectTypes configured, the Object type must be one of them. */
+            objectId?: string;
             /** @description Arbitrary JSON payload for the item. Maximum size 64KB. */
             data?: {
                 [key: string]: unknown;
@@ -1595,11 +1681,31 @@ export interface components {
             /** @description Workflow the execution belongs to. */
             workflow: components["schemas"]["QueueItemExecutionWorkflowDto"];
         };
+        QueueItemObjectTypeSummaryDto: {
+            /** @description Object type ID. */
+            id: string;
+            /** @description Object type name. */
+            name: string;
+            /** @description Object type slug. */
+            slug: string;
+        };
+        QueueItemObjectSummaryDto: {
+            /** @description Object ID. */
+            id: string;
+            /** @description Object display name. */
+            name: string;
+            /** @description Current object state ID. */
+            state: string | null;
+            /** @description Object type summary. */
+            objectType: components["schemas"]["QueueItemObjectTypeSummaryDto"];
+        };
         QueueItemCreateResponseDto: {
             /** @description Queue item ID. */
             id: string;
             /** @description External identifier used for deduplication. */
             externalId: string | null;
+            /** @description Linked Object (entity) ID this work item is about, if any. */
+            objectId: string | null;
             /** @description JSON payload for the item. */
             data: {
                 [key: string]: unknown;
@@ -1662,6 +1768,8 @@ export interface components {
             queue?: components["schemas"]["QueueItemQueueSummaryDto"];
             /** @description Most recently linked workflow execution. Included when `expansion=lastExecution` is requested. */
             lastExecution?: components["schemas"]["QueueItemLastExecutionDto"] | null;
+            /** @description Linked Object summary. Included when `expansion=object` is requested. */
+            object?: components["schemas"]["QueueItemObjectSummaryDto"] | null;
             /** @description True when an existing item with the same externalId was returned instead of creating a new one. */
             isDuplicate: boolean;
         };
@@ -1682,6 +1790,8 @@ export interface components {
             id: string;
             /** @description External identifier used for deduplication. */
             externalId: string | null;
+            /** @description Linked Object (entity) ID this work item is about, if any. */
+            objectId: string | null;
             /** @description JSON payload for the item. */
             data: {
                 [key: string]: unknown;
@@ -1744,6 +1854,8 @@ export interface components {
             queue?: components["schemas"]["QueueItemQueueSummaryDto"];
             /** @description Most recently linked workflow execution. Included when `expansion=lastExecution` is requested. */
             lastExecution?: components["schemas"]["QueueItemLastExecutionDto"] | null;
+            /** @description Linked Object summary. Included when `expansion=object` is requested. */
+            object?: components["schemas"]["QueueItemObjectSummaryDto"] | null;
         };
         BulkCreateQueueItemsSummaryDto: {
             /** @description Number of items created. */
@@ -1794,6 +1906,8 @@ export interface components {
             updatedAt: string;
             /** @description External identifier used for deduplication. */
             externalId: string | null;
+            /** @description Linked Object (entity) ID this work item is about, if any. */
+            FK_objectId: string | null;
             /** @description JSON payload for the item. */
             data: {
                 [key: string]: unknown;
@@ -1884,6 +1998,8 @@ export interface components {
         UpdateQueueItemDto: {
             /** @description External identifier used to deduplicate items within the queue. */
             externalId?: string;
+            /** @description Optional Object (entity) this work item is about. Must belong to the same workspace. If the queue has allowed ObjectTypes configured, the Object type must be one of them. */
+            objectId?: string;
             /** @description Arbitrary JSON payload for the item. Maximum size 64KB. */
             data?: {
                 [key: string]: unknown;
@@ -1956,8 +2072,16 @@ export interface components {
             id: string;
             /** @description Workflow name */
             name: string;
+            /** @description Stable project-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
+            slug?: string | null;
+            /** @description True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested. */
+            managedByCode?: boolean;
             /** @description Workflow description. Included when `expansion=description` is requested. */
             description?: string | null;
+            /** @description Declared output schema from the workflow's Output Workflow Data node. Shape is a map of field ID to `{ type, description? }`. Included when `expansion=output` is requested. Null when the workflow has no declared output schema. */
+            output?: {
+                [key: string]: unknown;
+            } | null;
             /**
              * Format: date-time
              * @description Creation timestamp. Included when `expansion=createdAt` is requested.
@@ -2004,6 +2128,324 @@ export interface components {
             workflowOrientation?: "HORIZONTAL" | "VERTICAL";
             /** @description The project the workflow belongs to. Included when `expansion=project` is requested. */
             project?: components["schemas"]["WorkflowProjectSummaryDto"];
+            /** @description AI provider connection used by the workflow builder chat. Always returned on GET /workflows/{workflowId}. */
+            aiConnectionId?: string | null;
+            /** @description Selected model ID within the AI provider connection for workflow builder chat. Always returned on GET /workflows/{workflowId}. */
+            selectedModelId?: string | null;
+        };
+        UpsertWorkflowStepDto: {
+            /** @description Workflow app id (catalogue slug). */
+            appId: string;
+            /** @description Catalogue action id. */
+            actionId: string;
+            /** @description Connection instance UUID for this step. */
+            connectionId?: string;
+            /** @description Action input / config fields. */
+            input?: {
+                [key: string]: unknown;
+            };
+            /** @description Display name for the step node. */
+            name?: string;
+            /** @description Step description. */
+            description?: string;
+        };
+        UpsertWorkflowBySlugDto: {
+            /**
+             * @description Stable project-scoped slug (lowercase, digits, hyphens). Used as the upsert key.
+             * @example sync-orders
+             */
+            slug: string;
+            /** @description Display name. Defaults to the slug when omitted. */
+            name?: string;
+            description?: string;
+            /** @description Whether the workflow is active. */
+            isActive?: boolean;
+            /** @description Linear catalogue-action steps (v1; no branches). */
+            steps: components["schemas"]["UpsertWorkflowStepDto"][];
+            /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
+            managedByCode?: boolean;
+        };
+        AgentResponseDto: {
+            /**
+             * @description Agent ID (UUID)
+             * @example 4f7c9d2e-8a1b-4c3d-9e5f-6a7b8c9d0e1f
+             */
+            id: string;
+            /**
+             * @description Agent name
+             * @example Invoice Triage Agent
+             */
+            name: string;
+            /** @description Stable project-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
+            slug?: string | null;
+            /** @description True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested. */
+            managedByCode?: boolean;
+            /** @description ID of the AI provider connection assigned to the agent. Always included. Null when the agent falls back to the workspace default connection. */
+            FK_aiConnectionId: string | null;
+            /** @description Agent description. Included when `expansion=description` is requested. */
+            description?: string | null;
+            /** @description Public URL of the agent profile image. Included when `expansion=profileImageUrl` is requested. */
+            profileImageUrl?: string | null;
+            /**
+             * Format: date-time
+             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
+             */
+            updatedAt?: string;
+            /** @description System instructions authored for the agent. Included when `expansion=instructions` is requested. */
+            instructions?: string | null;
+            /**
+             * @description Model temperature. Included when `expansion=temperature` is requested.
+             * @example 1
+             */
+            temperature?: number;
+            /** @description Maximum output tokens per turn. Included when `expansion=maxOutputTokens` is requested. */
+            maxOutputTokens?: number | null;
+            /**
+             * @description Top-p sampling. Included when `expansion=topP` is requested.
+             * @example 1
+             */
+            topP?: number;
+            /**
+             * @description Frequency penalty. Included when `expansion=frequencyPenalty` is requested.
+             * @example 0
+             */
+            frequencyPenalty?: number;
+            /**
+             * @description Presence penalty. Included when `expansion=presencePenalty` is requested.
+             * @example 0
+             */
+            presencePenalty?: number;
+            /**
+             * @description Maximum retries for a failed model call. Included when `expansion=maxRetries` is requested.
+             * @example 0
+             */
+            maxRetries?: number;
+            /** @description Fixed sampling seed. Included when `expansion=seed` is requested. */
+            seed?: number | null;
+            /**
+             * @description Maximum tool roundtrips per turn. Included when `expansion=maxToolRoundtrips` is requested.
+             * @example 5
+             */
+            maxToolRoundtrips?: number;
+            /**
+             * @description How many previous messages are sent to the model. Included when `expansion=messageLookbackLimit` is requested.
+             * @example 40
+             */
+            messageLookbackLimit?: number;
+            /** @description Configured tool nodes (app actions) for the agent. Included when `expansion=tools` is requested. */
+            tools?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** @description Action IDs of the configured tools. Included when `expansion=toolIds` is requested. */
+            toolIds?: string[];
+            /** @description Instructions used when auto-naming new tasks. Included when `expansion=taskNamingInstructions` is requested. */
+            taskNamingInstructions?: string | null;
+            /** @description IDs of enabled provider built-in tools. Included when `expansion=enabledBuiltInTools` is requested. */
+            enabledBuiltInTools?: string[];
+            /** @description IDs of enabled platform tools. Included when `expansion=enabledPlatformTools` is requested. */
+            enabledPlatformTools?: string[];
+            /** @description Whether dynamic workflow-app action discovery is enabled. Included when `expansion=dynamicActionDiscoveryEnabled` is requested. */
+            dynamicActionDiscoveryEnabled?: boolean;
+            /** @description Whether dynamic MCP server discovery is enabled. Included when `expansion=dynamicMcpDiscoveryEnabled` is requested. */
+            dynamicMcpDiscoveryEnabled?: boolean;
+            /** @description Whether the agent maintains its own instructions. Included when `expansion=dynamicSelfInstructionsEnabled` is requested. */
+            dynamicSelfInstructionsEnabled?: boolean;
+            /** @description Whether long-term memory is enabled. Included when `expansion=memoryEnabled` is requested. */
+            memoryEnabled?: boolean;
+            /**
+             * @description Memory partitioning scope. Included when `expansion=memoryScope` is requested.
+             * @enum {string}
+             */
+            memoryScope?: "PER_USER" | "PER_AGENT" | "PER_USER_PER_AGENT";
+            /**
+             * @description Days memories are retained. Included when `expansion=memoryRetentionDays` is requested.
+             * @example 90
+             */
+            memoryRetentionDays?: number;
+            /** @description Suggested prompts shown to users starting a conversation. Included when `expansion=suggestedPrompts` is requested. */
+            suggestedPrompts?: string[];
+            /**
+             * Format: date-time
+             * @description When the first-time builder setup wizard was completed. Included when `expansion=builderSetupCompletedAt` is requested.
+             */
+            builderSetupCompletedAt?: string | null;
+            /** @description Saved canvas node positions for the agent builder. Included when `expansion=builderCanvasPositions` is requested. */
+            builderCanvasPositions?: {
+                [key: string]: unknown;
+            } | null;
+            /** @description Selected model ID within the AI provider connection. Included when `expansion=selectedModelId` is requested. */
+            selectedModelId?: string | null;
+            /** @description Assigned AI provider connection. Included when `expansion=aiConnection` is requested. */
+            aiConnection?: {
+                id?: string;
+                name?: string;
+                providerConfig?: {
+                    id?: string;
+                    providerSlug?: string;
+                };
+            } | null;
+            /** @description Knowledge notebooks attached to the agent. Included when `expansion=knowledge` is requested. */
+            agentKnowledge?: {
+                id?: string;
+                knowledge?: {
+                    id?: string;
+                    name?: string;
+                };
+            }[];
+            /** @description Object types attached to the agent. Included when `expansion=objectTypes` is requested. */
+            agentObjectTypes?: {
+                id?: string;
+                scope?: string;
+                objectType?: {
+                    id?: string;
+                    name?: string;
+                    slug?: string;
+                    icon?: string | null;
+                    color?: string | null;
+                };
+            }[];
+            /** @description Objects attached to the agent. Included when `expansion=objects` is requested. */
+            agentObjects?: {
+                id?: string;
+                scope?: string;
+                object?: {
+                    id?: string;
+                    name?: string;
+                    state?: string;
+                    objectType?: {
+                        id?: string;
+                        name?: string;
+                        slug?: string;
+                        icon?: string | null;
+                        color?: string | null;
+                    };
+                };
+            }[];
+            /** @description App connections available to the agent. Included when `expansion=connections` is requested. */
+            connections?: {
+                id?: string;
+                name?: string;
+            }[];
+            /** @description Variables attached to the agent. Included when `expansion=variables` is requested. */
+            agentVariables?: {
+                id?: string;
+                variable?: {
+                    id?: string;
+                    name?: string;
+                };
+            }[];
+            /** @description Workflows the agent can trigger. Included when `expansion=workflows` is requested. */
+            agentWorkflows?: {
+                id?: string;
+                workflow?: {
+                    id?: string;
+                    name?: string;
+                };
+            }[];
+            /** @description Sub-agent links for the agent. Included when `expansion=subAgents` is requested. */
+            agentSubAgents?: {
+                id?: string;
+                subagent?: {
+                    id?: string;
+                    name?: string;
+                };
+                parentAgent?: {
+                    id?: string;
+                    name?: string;
+                };
+            }[];
+            /** @description MCP servers attached to the agent, with per-tool overrides. Included when `expansion=mcpServers` is requested. */
+            agentMcpServers?: {
+                id?: string;
+                mcpServer?: {
+                    id?: string;
+                    slug?: string;
+                    name?: string;
+                    provider?: string;
+                    logoUrl?: string | null;
+                    description?: string | null;
+                };
+                toolOverrides?: {
+                    id?: string;
+                    toolName?: string;
+                    enabled?: boolean;
+                    requireApproval?: boolean;
+                }[];
+            }[];
+            /** @description A2A (agent-to-agent) endpoints attached to the agent. Included when `expansion=a2aAgents` is requested. */
+            agentA2aAgents?: {
+                id?: string;
+                a2aAgent?: {
+                    id?: string;
+                    slug?: string;
+                    name?: string;
+                    logoUrl?: string | null;
+                    description?: string | null;
+                    authType?: string;
+                };
+            }[];
+            /** @description Web access configuration. Included when `expansion=webAccess` is requested. */
+            agentWebAccess?: {
+                service?: string;
+                webSearchEnabled?: boolean;
+                websiteAccessEnabled?: boolean;
+            } | null;
+            /** @description Phone access configuration. Included when `expansion=phoneAccess` is requested. */
+            agentPhoneAccess?: {
+                service?: string;
+                outboundCallsEnabled?: boolean;
+                inboundCallsEnabled?: boolean;
+            } | null;
+            /** @description Project the agent belongs to. Included when `expansion=project` is requested. */
+            project?: {
+                id?: string;
+                name?: string;
+            };
+        };
+        UpsertAgentToolDto: {
+            /** @description Workflow app id (catalogue slug). */
+            appId: string;
+            /** @description Catalogue action id. */
+            actionId: string;
+            /** @description Connection instance UUID pre-bound on the tool. */
+            connectionId?: string;
+            /** @description Tool display name for the model. */
+            name?: string;
+            /** @description Tool description shown to the model. */
+            description?: string;
+            /** @description Pre-filled tool config (fields left empty are filled by the model). */
+            input?: {
+                [key: string]: unknown;
+            };
+        };
+        UpsertAgentBySlugDto: {
+            /**
+             * @description Stable project-scoped slug (lowercase, digits, hyphens). Used as the upsert key.
+             * @example support-triage
+             */
+            slug: string;
+            /** @description Display name. Defaults to the slug when omitted. */
+            name?: string;
+            description?: string;
+            /** @description System instructions / prompt for the agent. */
+            instructions: string;
+            /** @description Selected model id on the AI provider connection (e.g. `gpt-4o`). */
+            model: string;
+            /** @description AiProviderConnection UUID. When omitted, platform AI defaults apply. */
+            aiConnectionId?: string;
+            /** @description App Connection UUIDs the agent may use for tools. */
+            connectionIds?: string[];
+            /** @description Workflow UUIDs the agent may run (AgentWorkflow links). */
+            workflowIds?: string[];
+            /** @description Catalogue action tools (WorkflowNodeForRunner-shaped). */
+            tools?: components["schemas"]["UpsertAgentToolDto"][];
+            /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
+            managedByCode?: boolean;
         };
         WorkflowAppResponseDto: {
             /** @description App ID, e.g. `gmail`. Matches the appId used in workflow execution steps. */
@@ -2032,154 +2474,6 @@ export interface components {
             connections: {
                 [key: string]: unknown;
             }[];
-        };
-        CreateKnowledgeDto: {
-            /** @description Name of the knowledge base. */
-            name: string;
-            /** @description Description of the knowledge base. */
-            description?: string;
-            /** @description Default chunk overlap in words. Must be provided together with chunkSize and cannot exceed 50% of it. */
-            chunkOverlap?: number;
-            /** @description Default chunk size in words (50 to 2000). Must be provided together with chunkOverlap. */
-            chunkSize?: number;
-            /** @description Embedding model to use. Defaults to the platform-configured embedding model. */
-            embeddingModel?: string;
-            /** @description Embedding provider to use. Defaults to the platform-configured embedding provider. */
-            embeddingProvider?: string;
-            /** @description Embedding vector dimensions. Defaults to the platform-configured dimensions. */
-            dimensions?: number;
-        };
-        KnowledgeCountDto: {
-            /** @description Number of vector references stored in this knowledge base. */
-            vectorRefs: number;
-        };
-        KnowledgeVectorRefSummaryDto: {
-            /** @description Vector reference ID. */
-            id: string;
-            /** @description ID of the knowledge base the vector reference belongs to. */
-            FK_knowledgeId: string;
-        };
-        KnowledgeUsageDto: {
-            /** @description Total prompt tokens consumed when embedding content into this knowledge base. */
-            promptTokens: number;
-        };
-        KnowledgeWorkspaceDto: {
-            /** @description Workspace ID. */
-            id: string;
-            /** @description Workspace name. */
-            name: string;
-        };
-        KnowledgeResponseDto: {
-            /** @description Knowledge base ID. */
-            id: string;
-            /** @description Knowledge base name. */
-            name: string;
-            /** @description Knowledge base description. Included when `expansion=description` is requested. */
-            description?: string;
-            /**
-             * Format: date-time
-             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
-             */
-            updatedAt?: string;
-            /** @description Name of the underlying vector index collection. Included when `expansion=indexName` is requested. */
-            indexName?: string;
-            /** @description Default chunk size in words used when uploading text. Included when `expansion=chunkSize` is requested. */
-            chunkSize?: number;
-            /** @description Default chunk overlap in words used when uploading text. Included when `expansion=chunkOverlap` is requested. */
-            chunkOverlap?: number;
-            /** @description Embedding model used for this knowledge base. Included when `expansion=embeddingModel` is requested. */
-            embeddingModel?: string;
-            /** @description Embedding provider used for this knowledge base. Included when `expansion=embeddingProvider` is requested. */
-            embeddingProvider?: string;
-            /** @description Embedding vector dimensions. Included when `expansion=dimensions` is requested. */
-            dimensions?: number;
-            /** @description Aggregate counts. Included when `expansion=countVectorRefs` is requested. */
-            _count?: components["schemas"]["KnowledgeCountDto"];
-            /** @description Vector references stored in this knowledge base. Included when `expansion=vectorRefs` is requested. */
-            vectorRefs?: components["schemas"]["KnowledgeVectorRefSummaryDto"][];
-            /** @description Embedding token usage. Included when `expansion=usage` is requested. */
-            usage?: components["schemas"]["KnowledgeUsageDto"];
-            /** @description Owning workspace. Included when `expansion=workspace` is requested. */
-            workspace?: components["schemas"]["KnowledgeWorkspaceDto"];
-        };
-        UpdateKnowledgeDto: {
-            /** @description Name of the knowledge base. */
-            name?: string;
-            /** @description Description of the knowledge base. */
-            description?: string;
-            /** @description Default chunk overlap in words. Must be provided together with chunkSize and cannot exceed 50% of it. */
-            chunkOverlap?: number;
-            /** @description Default chunk size in words (50 to 2000). Must be provided together with chunkOverlap. */
-            chunkSize?: number;
-            /** @description Embedding model to use. Defaults to the platform-configured embedding model. */
-            embeddingModel?: string;
-            /** @description Embedding provider to use. Defaults to the platform-configured embedding provider. */
-            embeddingProvider?: string;
-            /** @description Embedding vector dimensions. Defaults to the platform-configured dimensions. */
-            dimensions?: number;
-        };
-        SaveUploadedTextToKnowledgeDto: {
-            /** @description Name of the document. Multi-part uploads are suffixed with the part number. */
-            name: string;
-            /** @description Raw text content to embed into the knowledge base. */
-            text: string;
-            /** @description Chunk overlap in words. Roughly 10% of chunkSize is recommended. */
-            chunkOverlap: number;
-            /** @description Chunk size in words used to split the text before embedding. */
-            chunkSize: number;
-        };
-        KnowledgeDocumentResponseDto: {
-            /** @description Document ID. For `group` documents this is the vector reference group ID; for `standalone` documents it is the vector reference ID. */
-            id: string;
-            /** @description Document name. */
-            name: string;
-            /**
-             * Format: date-time
-             * @description Creation timestamp.
-             */
-            createdAt: string;
-            /** @description Number of parts (chunks) the document was split into. */
-            partCount: number;
-            /**
-             * @description Whether the document is a multi-part group or a standalone single-part upload.
-             * @enum {string}
-             */
-            type: "group" | "standalone";
-        };
-        KnowledgeDocumentGroupVectorRefDto: {
-            /** @description Vector reference ID. */
-            id: string;
-            /** @description Vector reference name, including the part suffix for multi-part uploads. */
-            name: string;
-            /**
-             * Format: date-time
-             * @description Creation timestamp.
-             */
-            createdAt: string;
-            /** @description Part number within the group, or null for single-part uploads. */
-            part: number | null;
-            /** @description Storage path of the raw text for this part. */
-            s3Link: string | null;
-        };
-        KnowledgeDocumentGroupResponseDto: {
-            /** @description Document group ID. */
-            id: string;
-            /** @description Document group name, or null for legacy groups without a stored name. */
-            name: string | null;
-            /**
-             * Format: date-time
-             * @description Creation timestamp.
-             */
-            createdAt: string;
-            /** @description ID of the knowledge base the group belongs to, or null for legacy groups. */
-            FK_knowledgeId: string | null;
-            /** @description Vector references (parts) in the group, ordered by part number. */
-            vectorRefs: components["schemas"]["KnowledgeDocumentGroupVectorRefDto"][];
         };
         ObjectTypeUserSummaryDto: {
             /** @description User ID. */
@@ -2490,109 +2784,153 @@ export interface components {
                 [key: string]: string;
             };
         };
-        ContextBlueprintObjectTypeSummaryDto: {
-            /** @description Entity type ID. */
-            id: string;
-            /** @description Singular display name of the entity type. */
+        CreateKnowledgeDto: {
+            /** @description Name of the knowledge base. */
             name: string;
-            /** @description URL-safe slug of the entity type. */
-            slug: string;
+            /** @description Description of the knowledge base. */
+            description?: string;
+            /** @description Default chunk overlap in words. Must be provided together with chunkSize and cannot exceed 50% of it. */
+            chunkOverlap?: number;
+            /** @description Default chunk size in words (50 to 2000). Must be provided together with chunkOverlap. */
+            chunkSize?: number;
+            /** @description Embedding model to use. Defaults to the platform-configured embedding model. */
+            embeddingModel?: string;
+            /** @description Embedding provider to use. Defaults to the platform-configured embedding provider. */
+            embeddingProvider?: string;
+            /** @description Embedding vector dimensions. Defaults to the platform-configured dimensions. */
+            dimensions?: number;
         };
-        AvailableContextBlueprintResponseDto: {
-            /** @description Context blueprint ID. */
-            id: string;
-            /** @description Display name of the blueprint. */
-            name: string;
-            /** @description Description of the blueprint, if any. */
-            description: string | null;
-            /** @description Whether this blueprint is the default for its entity type. */
-            isDefault: boolean;
-            /** @description Version number of the published definition. */
-            publishedVersion: number;
-            objectType: components["schemas"]["ContextBlueprintObjectTypeSummaryDto"];
+        KnowledgeCountDto: {
+            /** @description Number of vector references stored in this knowledge base. */
+            vectorRefs: number;
         };
-        ContextBlueprintResponseDto: {
-            /** @description Context blueprint ID. */
+        KnowledgeVectorRefSummaryDto: {
+            /** @description Vector reference ID. */
             id: string;
-            /** @description Display name of the blueprint. */
+            /** @description ID of the knowledge base the vector reference belongs to. */
+            FK_knowledgeId: string;
+        };
+        KnowledgeUsageDto: {
+            /** @description Total prompt tokens consumed when embedding content into this knowledge base. */
+            promptTokens: number;
+        };
+        KnowledgeWorkspaceDto: {
+            /** @description Workspace ID. */
+            id: string;
+            /** @description Workspace name. */
             name: string;
-            /** @description Description of the blueprint, if any. */
-            description: string | null;
-            /**
-             * @description Lifecycle status of the blueprint.
-             * @enum {string}
-             */
-            status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
-            /** @description Whether this blueprint is the default for its entity type. */
-            isDefault: boolean;
-            /** @description Version number of the published definition. Zero when never published. */
-            publishedVersion: number;
-            /** @description Draft blueprint definition. */
-            definition: {
-                [key: string]: unknown;
-            };
-            /** @description Definition snapshot taken at publish time. Null when never published. */
-            publishedDefinition: {
-                [key: string]: unknown;
-            } | null;
+        };
+        KnowledgeResponseDto: {
+            /** @description Knowledge base ID. */
+            id: string;
+            /** @description Knowledge base name. */
+            name: string;
+            /** @description Knowledge base description. Included when `expansion=description` is requested. */
+            description?: string;
             /**
              * Format: date-time
-             * @description When the blueprint was created.
+             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
+             */
+            updatedAt?: string;
+            /** @description Name of the underlying vector index collection. Included when `expansion=indexName` is requested. */
+            indexName?: string;
+            /** @description Default chunk size in words used when uploading text. Included when `expansion=chunkSize` is requested. */
+            chunkSize?: number;
+            /** @description Default chunk overlap in words used when uploading text. Included when `expansion=chunkOverlap` is requested. */
+            chunkOverlap?: number;
+            /** @description Embedding model used for this knowledge base. Included when `expansion=embeddingModel` is requested. */
+            embeddingModel?: string;
+            /** @description Embedding provider used for this knowledge base. Included when `expansion=embeddingProvider` is requested. */
+            embeddingProvider?: string;
+            /** @description Embedding vector dimensions. Included when `expansion=dimensions` is requested. */
+            dimensions?: number;
+            /** @description Aggregate counts. Included when `expansion=countVectorRefs` is requested. */
+            _count?: components["schemas"]["KnowledgeCountDto"];
+            /** @description Vector references stored in this knowledge base. Included when `expansion=vectorRefs` is requested. */
+            vectorRefs?: components["schemas"]["KnowledgeVectorRefSummaryDto"][];
+            /** @description Embedding token usage. Included when `expansion=usage` is requested. */
+            usage?: components["schemas"]["KnowledgeUsageDto"];
+            /** @description Owning workspace. Included when `expansion=workspace` is requested. */
+            workspace?: components["schemas"]["KnowledgeWorkspaceDto"];
+        };
+        UpdateKnowledgeDto: {
+            /** @description Name of the knowledge base. */
+            name?: string;
+            /** @description Description of the knowledge base. */
+            description?: string;
+            /** @description Default chunk overlap in words. Must be provided together with chunkSize and cannot exceed 50% of it. */
+            chunkOverlap?: number;
+            /** @description Default chunk size in words (50 to 2000). Must be provided together with chunkOverlap. */
+            chunkSize?: number;
+            /** @description Embedding model to use. Defaults to the platform-configured embedding model. */
+            embeddingModel?: string;
+            /** @description Embedding provider to use. Defaults to the platform-configured embedding provider. */
+            embeddingProvider?: string;
+            /** @description Embedding vector dimensions. Defaults to the platform-configured dimensions. */
+            dimensions?: number;
+        };
+        SaveUploadedTextToKnowledgeDto: {
+            /** @description Name of the document. Multi-part uploads are suffixed with the part number. */
+            name: string;
+            /** @description Raw text content to embed into the knowledge base. */
+            text: string;
+            /** @description Chunk overlap in words. Roughly 10% of chunkSize is recommended. */
+            chunkOverlap: number;
+            /** @description Chunk size in words used to split the text before embedding. */
+            chunkSize: number;
+        };
+        KnowledgeDocumentResponseDto: {
+            /** @description Document ID. For `group` documents this is the vector reference group ID; for `standalone` documents it is the vector reference ID. */
+            id: string;
+            /** @description Document name. */
+            name: string;
+            /**
+             * Format: date-time
+             * @description Creation timestamp.
              */
             createdAt: string;
+            /** @description Number of parts (chunks) the document was split into. */
+            partCount: number;
             /**
-             * Format: date-time
-             * @description When the blueprint was last updated.
-             */
-            updatedAt: string;
-            objectType: components["schemas"]["ContextBlueprintObjectTypeSummaryDto"];
-        };
-        ContextBlueprintDetailResponseDto: {
-            /** @description Context blueprint ID. */
-            id: string;
-            /** @description Display name of the blueprint. */
-            name: string;
-            /** @description Description of the blueprint, if any. */
-            description: string | null;
-            /**
-             * @description Lifecycle status of the blueprint.
+             * @description Whether the document is a multi-part group or a standalone single-part upload.
              * @enum {string}
              */
-            status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
-            /** @description Whether this blueprint is the default for its entity type. */
-            isDefault: boolean;
-            /** @description Version number of the published definition. Zero when never published. */
-            publishedVersion: number;
-            /** @description Draft blueprint definition. */
-            definition: {
-                [key: string]: unknown;
-            };
-            /** @description Definition snapshot taken at publish time. Null when never published. */
-            publishedDefinition: {
-                [key: string]: unknown;
-            } | null;
+            type: "group" | "standalone";
+        };
+        KnowledgeDocumentGroupVectorRefDto: {
+            /** @description Vector reference ID. */
+            id: string;
+            /** @description Vector reference name, including the part suffix for multi-part uploads. */
+            name: string;
             /**
              * Format: date-time
-             * @description When the blueprint was created.
+             * @description Creation timestamp.
              */
             createdAt: string;
+            /** @description Part number within the group, or null for single-part uploads. */
+            part: number | null;
+            /** @description Storage path of the raw text for this part. */
+            s3Link: string | null;
+        };
+        KnowledgeDocumentGroupResponseDto: {
+            /** @description Document group ID. */
+            id: string;
+            /** @description Document group name, or null for legacy groups without a stored name. */
+            name: string | null;
             /**
              * Format: date-time
-             * @description When the blueprint was last updated.
+             * @description Creation timestamp.
              */
-            updatedAt: string;
-            objectType: components["schemas"]["ContextBlueprintObjectTypeSummaryDto"];
-            /**
-             * Format: date-time
-             * @description When the blueprint was archived. Null when active.
-             */
-            deletedAt: string | null;
-            /** @description ID of the owning workspace. */
-            FK_workspaceId: string;
-            /** @description ID of the entity type the blueprint targets. */
-            FK_objectTypeId: string;
-            /** @description ID of the workspace member who created the blueprint. */
-            FK_createdById: string;
+            createdAt: string;
+            /** @description ID of the knowledge base the group belongs to, or null for legacy groups. */
+            FK_knowledgeId: string | null;
+            /** @description Vector references (parts) in the group, ordered by part number. */
+            vectorRefs: components["schemas"]["KnowledgeDocumentGroupVectorRefDto"][];
         };
         ManuallyRunWorkflowInputDataDto: {
             /**
@@ -2660,6 +2998,44 @@ export interface components {
             iterationIndex?: number;
             /** @description On the collapsed loop parent entry: how many times the loop ran (or is planned to run) */
             iterationCount?: number;
+            /**
+             * @description Approval status when this step is a Request Approval node awaiting or past a decision
+             * @enum {string}
+             */
+            approvalStatus?: "pending" | "partially_approved" | "approved" | "rejected" | "expired";
+            /** @description Number of approve decisions received so far */
+            approvalsReceived?: number;
+            /** @description Number of approvals required for quorum / current stage */
+            approvalsRequired?: number;
+        };
+        PendingInputFieldDto: {
+            /** @description Field ID used as the key when submitting input */
+            id: string;
+            /** @description Human-readable field label */
+            label: string;
+            /** @description Field input type from the workflow builder (e.g. text, number, select) */
+            inputType: string;
+            /** @description Whether the field must be provided to resume */
+            required: boolean;
+            /** @description Optional helper text for the field */
+            description?: string;
+            /** @description Selectable options when the field is a select-like input */
+            options?: {
+                label?: string;
+                value?: string;
+            }[];
+        };
+        PendingInputDto: {
+            /** @description ID of the waiting workflow node */
+            nodeId: string;
+            /** @description Human-friendly node name */
+            label: string;
+            /** @description Action ID of the waiting node, when it is an action step */
+            actionId?: string;
+            /** @description Optional instructions configured on the waiting node */
+            instructions?: string;
+            /** @description Fields the custom UI should collect. Submit values keyed by field `id` to POST /api/webhooks/executions/{executionId}/nodes/{nodeId}/input. */
+            fields: components["schemas"]["PendingInputFieldDto"][];
         };
         ExecutionResponseDto: {
             /** @description Execution ID */
@@ -2723,6 +3099,70 @@ export interface components {
             workflow?: components["schemas"]["ExecutionWorkflowSummaryDto"];
             /** @description Business-readable, ordered representation of the executed (or queued) steps, derived from the raw node and edge state: step labels, per-step status (including NEEDS_INPUT for steps paused awaiting user input), start and end timings, and loop iteration metadata. Custom UIs render execution progress from this field. Included when `expansion=executionPath` is requested. Only returned by GET /executions/{executionId}. */
             executionPath?: components["schemas"]["ExecutionPathStepDto"][];
+            /** @description Field schemas for steps currently paused in NEEDS_INPUT. Each entry includes the waiting nodeId, label, optional instructions, and the fields to collect. Submit values keyed by field id to POST /api/webhooks/executions/{executionId}/nodes/{nodeId}/input. Included when `expansion=pendingInput` is requested. Only returned by GET /executions/{executionId}. Null when no step is waiting for input. */
+            pendingInput?: components["schemas"]["PendingInputDto"][] | null;
+            /**
+             * @description How the execution was started. `WORKFLOW` for graph runs; `SDK` for ad-hoc single-action runs from the Public API / client SDK. Included when `expansion=source` is requested.
+             * @enum {string}
+             */
+            source?: "WORKFLOW" | "SDK";
+            /** @description Optional display name (set for ad-hoc SDK runs). Included when `expansion=name` is requested. */
+            name?: string | null;
+        };
+        RunActionDto: {
+            /** @description Workflow app id (catalogue slug), e.g. `http`, `gmail`. */
+            appId: string;
+            /** @description Action id within the app, e.g. `http_action_send-request`. Discover via GET /workflow-apps (`actions[].id` / `inputConfig`). */
+            actionId: string;
+            /** @description Connection instance UUID (`Connection.id`). Required when the action needs a connection and the workspace has more than one connection for the app with no single workspace default. When omitted: sole usable connection for the app is used; else the workspace default (`isDefault`); else 400 with candidates. Never silently picks among multiple non-default connections. */
+            connectionId?: string;
+            /** @description Project UUID used for variable/project scoping. When omitted and the workspace has exactly one project, that project is used; otherwise the request fails with 400. */
+            projectId?: string;
+            /** @description Action input fields (mirrors the action `inputConfig` keys). Combined with `connectionId` into the action configValue. */
+            input?: {
+                [key: string]: unknown;
+            };
+            /** @description Optional display name for the ad-hoc Execution. */
+            name?: string;
+        };
+        RunActionResponseDto: {
+            /** @description ID of the ad-hoc Execution. Use GET /executions/{executionId} (with expansion=executionPath) to re-read progress. */
+            id: string;
+            /**
+             * @description Final execution status after the single action step.
+             * @enum {string}
+             */
+            status: "RUNNING" | "SUCCESS" | "FAILED" | "NEEDS_INPUT" | "SCHEDULED" | "CANCELLED" | "WAITING";
+            /** @description Human-readable status detail. */
+            statusMessage?: string | null;
+            /** @description Action output on success (same shape as a workflow step output). Null on failure or when the run paused. */
+            output?: {
+                [key: string]: unknown;
+            } | null;
+            /** @description Single-step executionPath for the ad-hoc run (label, status, timings). */
+            executionPath?: components["schemas"]["ExecutionPathStepDto"][];
+        };
+        RunStepDto: {
+            /** @description Workflow app id (catalogue slug), e.g. `http`, `gmail`. */
+            appId: string;
+            /** @description Action id within the app, e.g. `http_action_send-request`. Discover via GET /workflow-apps. */
+            actionId: string;
+            /** @description Connection instance UUID. When omitted, the platform resolves: sole usable connection for the app, else the workspace default (`isDefault`), else 400 with candidates. */
+            connectionId?: string;
+            /** @description Action input fields (mirrors the action `inputConfig` keys). */
+            input?: {
+                [key: string]: unknown;
+            };
+            /** @description Optional display name for this step. */
+            name?: string;
+        };
+        StartRunDto: {
+            /** @description Linear catalogue-action steps. Executed as one multi-step Execution with `source: SDK` (not a soft batch / correlation id). */
+            steps: components["schemas"]["RunStepDto"][];
+            /** @description Project UUID for variable/project scoping. When omitted and the workspace has exactly one project, that project is used. */
+            projectId?: string;
+            /** @description Optional display name for the ad-hoc Execution. */
+            name?: string;
         };
         CreateVariableDto: {
             /** @description Name of the variable. */
@@ -2841,250 +3281,6 @@ export interface components {
             };
             /** @description Owning workspace. Included when `expansion=workspace` is requested. */
             workspace?: components["schemas"]["ConnectionWorkspaceDto"];
-        };
-        AgentResponseDto: {
-            /**
-             * @description Agent ID (UUID)
-             * @example 4f7c9d2e-8a1b-4c3d-9e5f-6a7b8c9d0e1f
-             */
-            id: string;
-            /**
-             * @description Agent name
-             * @example Invoice Triage Agent
-             */
-            name: string;
-            /** @description ID of the AI provider connection assigned to the agent. Always included. Null when the agent falls back to the workspace default connection. */
-            FK_aiConnectionId: string | null;
-            /** @description Agent description. Included when `expansion=description` is requested. */
-            description?: string | null;
-            /** @description Public URL of the agent profile image. Included when `expansion=profileImageUrl` is requested. */
-            profileImageUrl?: string | null;
-            /**
-             * Format: date-time
-             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
-             */
-            updatedAt?: string;
-            /** @description System instructions authored for the agent. Included when `expansion=instructions` is requested. */
-            instructions?: string | null;
-            /**
-             * @description Model temperature. Included when `expansion=temperature` is requested.
-             * @example 1
-             */
-            temperature?: number;
-            /** @description Maximum output tokens per turn. Included when `expansion=maxOutputTokens` is requested. */
-            maxOutputTokens?: number | null;
-            /**
-             * @description Top-p sampling. Included when `expansion=topP` is requested.
-             * @example 1
-             */
-            topP?: number;
-            /**
-             * @description Frequency penalty. Included when `expansion=frequencyPenalty` is requested.
-             * @example 0
-             */
-            frequencyPenalty?: number;
-            /**
-             * @description Presence penalty. Included when `expansion=presencePenalty` is requested.
-             * @example 0
-             */
-            presencePenalty?: number;
-            /**
-             * @description Maximum retries for a failed model call. Included when `expansion=maxRetries` is requested.
-             * @example 0
-             */
-            maxRetries?: number;
-            /** @description Fixed sampling seed. Included when `expansion=seed` is requested. */
-            seed?: number | null;
-            /**
-             * @description Maximum tool roundtrips per turn. Included when `expansion=maxToolRoundtrips` is requested.
-             * @example 5
-             */
-            maxToolRoundtrips?: number;
-            /**
-             * @description How many previous messages are sent to the model. Included when `expansion=messageLookbackLimit` is requested.
-             * @example 40
-             */
-            messageLookbackLimit?: number;
-            /** @description Configured tool nodes (app actions) for the agent. Included when `expansion=tools` is requested. */
-            tools?: {
-                [key: string]: unknown;
-            }[] | null;
-            /** @description Action IDs of the configured tools. Included when `expansion=toolIds` is requested. */
-            toolIds?: string[];
-            /** @description Instructions used when auto-naming new tasks. Included when `expansion=taskNamingInstructions` is requested. */
-            taskNamingInstructions?: string | null;
-            /** @description IDs of enabled provider built-in tools. Included when `expansion=enabledBuiltInTools` is requested. */
-            enabledBuiltInTools?: string[];
-            /** @description IDs of enabled platform tools. Included when `expansion=enabledPlatformTools` is requested. */
-            enabledPlatformTools?: string[];
-            /** @description Whether dynamic workflow-app action discovery is enabled. Included when `expansion=dynamicActionDiscoveryEnabled` is requested. */
-            dynamicActionDiscoveryEnabled?: boolean;
-            /** @description Whether dynamic MCP server discovery is enabled. Included when `expansion=dynamicMcpDiscoveryEnabled` is requested. */
-            dynamicMcpDiscoveryEnabled?: boolean;
-            /** @description Whether the agent maintains its own instructions. Included when `expansion=dynamicSelfInstructionsEnabled` is requested. */
-            dynamicSelfInstructionsEnabled?: boolean;
-            /** @description Whether long-term memory is enabled. Included when `expansion=memoryEnabled` is requested. */
-            memoryEnabled?: boolean;
-            /**
-             * @description Memory partitioning scope. Included when `expansion=memoryScope` is requested.
-             * @enum {string}
-             */
-            memoryScope?: "PER_USER" | "PER_AGENT" | "PER_USER_PER_AGENT";
-            /**
-             * @description Days memories are retained. Included when `expansion=memoryRetentionDays` is requested.
-             * @example 90
-             */
-            memoryRetentionDays?: number;
-            /** @description Suggested prompts shown to users starting a conversation. Included when `expansion=suggestedPrompts` is requested. */
-            suggestedPrompts?: string[];
-            /**
-             * Format: date-time
-             * @description When the first-time builder setup wizard was completed. Included when `expansion=builderSetupCompletedAt` is requested.
-             */
-            builderSetupCompletedAt?: string | null;
-            /** @description Saved canvas node positions for the agent builder. Included when `expansion=builderCanvasPositions` is requested. */
-            builderCanvasPositions?: {
-                [key: string]: unknown;
-            } | null;
-            /** @description Selected model ID within the AI provider connection. Included when `expansion=selectedModelId` is requested. */
-            selectedModelId?: string | null;
-            /** @description Assigned AI provider connection. Included when `expansion=aiConnection` is requested. */
-            aiConnection?: {
-                id?: string;
-                name?: string;
-                providerConfig?: {
-                    id?: string;
-                    providerSlug?: string;
-                };
-            } | null;
-            /** @description Assigned persona. Included when `expansion=persona` is requested. */
-            persona?: {
-                id?: string;
-                name?: string;
-                rolePrompt?: string;
-            } | null;
-            /** @description Knowledge notebooks attached to the agent. Included when `expansion=knowledge` is requested. */
-            agentKnowledge?: {
-                id?: string;
-                knowledge?: {
-                    id?: string;
-                    name?: string;
-                };
-            }[];
-            /** @description Object types attached to the agent. Included when `expansion=objectTypes` is requested. */
-            agentObjectTypes?: {
-                id?: string;
-                scope?: string;
-                objectType?: {
-                    id?: string;
-                    name?: string;
-                    slug?: string;
-                    icon?: string | null;
-                    color?: string | null;
-                };
-            }[];
-            /** @description Objects attached to the agent. Included when `expansion=objects` is requested. */
-            agentObjects?: {
-                id?: string;
-                scope?: string;
-                object?: {
-                    id?: string;
-                    name?: string;
-                    state?: string;
-                    objectType?: {
-                        id?: string;
-                        name?: string;
-                        slug?: string;
-                        icon?: string | null;
-                        color?: string | null;
-                    };
-                };
-            }[];
-            /** @description App connections available to the agent. Included when `expansion=connections` is requested. */
-            connections?: {
-                id?: string;
-                name?: string;
-            }[];
-            /** @description Variables attached to the agent. Included when `expansion=variables` is requested. */
-            agentVariables?: {
-                id?: string;
-                variable?: {
-                    id?: string;
-                    name?: string;
-                };
-            }[];
-            /** @description Workflows the agent can trigger. Included when `expansion=workflows` is requested. */
-            agentWorkflows?: {
-                id?: string;
-                workflow?: {
-                    id?: string;
-                    name?: string;
-                };
-            }[];
-            /** @description Sub-agent links for the agent. Included when `expansion=subAgents` is requested. */
-            agentSubAgents?: {
-                id?: string;
-                subagent?: {
-                    id?: string;
-                    name?: string;
-                };
-                parentAgent?: {
-                    id?: string;
-                    name?: string;
-                };
-            }[];
-            /** @description MCP servers attached to the agent, with per-tool overrides. Included when `expansion=mcpServers` is requested. */
-            agentMcpServers?: {
-                id?: string;
-                mcpServer?: {
-                    id?: string;
-                    slug?: string;
-                    name?: string;
-                    provider?: string;
-                    logoUrl?: string | null;
-                    description?: string | null;
-                };
-                toolOverrides?: {
-                    id?: string;
-                    toolName?: string;
-                    enabled?: boolean;
-                    requireApproval?: boolean;
-                }[];
-            }[];
-            /** @description A2A (agent-to-agent) endpoints attached to the agent. Included when `expansion=a2aAgents` is requested. */
-            agentA2aAgents?: {
-                id?: string;
-                a2aAgent?: {
-                    id?: string;
-                    slug?: string;
-                    name?: string;
-                    logoUrl?: string | null;
-                    description?: string | null;
-                    authType?: string;
-                };
-            }[];
-            /** @description Web access configuration. Included when `expansion=webAccess` is requested. */
-            agentWebAccess?: {
-                service?: string;
-                webSearchEnabled?: boolean;
-                websiteAccessEnabled?: boolean;
-            } | null;
-            /** @description Phone access configuration. Included when `expansion=phoneAccess` is requested. */
-            agentPhoneAccess?: {
-                service?: string;
-                outboundCallsEnabled?: boolean;
-                inboundCallsEnabled?: boolean;
-            } | null;
-            /** @description Project the agent belongs to. Included when `expansion=project` is requested. */
-            project?: {
-                id?: string;
-                name?: string;
-            };
         };
         TaskListItemResponseDto: {
             /**
@@ -3630,9 +3826,9 @@ export interface operations {
                 limit?: number;
                 /** @description Number of items to skip for pagination. */
                 offset?: number;
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
-                /** @description Comma-separated key:value filter pairs. Available keys: status, externalId, priority, scheduledFor, search, createdAfter, createdBefore. */
+                /** @description Comma-separated key:value filter pairs. Available keys: status, externalId, objectId, priority, scheduledFor, search, createdAfter, createdBefore. */
                 filterBy?: string;
             };
             header?: never;
@@ -3657,7 +3853,7 @@ export interface operations {
     QueueItemsController_create: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -3686,7 +3882,7 @@ export interface operations {
     QueueItemsController_bulkCreate: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -3741,7 +3937,7 @@ export interface operations {
     QueueItemsController_bulkUpdate: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -3851,7 +4047,7 @@ export interface operations {
     QueueItemsController_findByExternalId: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -3881,9 +4077,9 @@ export interface operations {
                 limit?: number;
                 /** @description Number of items to skip for pagination. */
                 offset?: number;
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
-                /** @description Comma-separated key:value filter pairs. Available keys: status, externalId, priority, scheduledFor, search, createdAfter, createdBefore. */
+                /** @description Comma-separated key:value filter pairs. Available keys: status, externalId, objectId, priority, scheduledFor, search, createdAfter, createdBefore. */
                 filterBy?: string;
             };
             header?: never;
@@ -3930,7 +4126,7 @@ export interface operations {
     QueueItemsController_findOne: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -3979,7 +4175,7 @@ export interface operations {
     QueueItemsController_update: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -4032,7 +4228,7 @@ export interface operations {
     QueueItemsController_updateStatus: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -4062,7 +4258,7 @@ export interface operations {
     QueueItemsController_linkExecution: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -4092,7 +4288,7 @@ export interface operations {
     QueueItemsController_retryItem: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -4118,7 +4314,7 @@ export interface operations {
     QueueItemsController_addError: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor). */
                 expansion?: string;
             };
             header?: never;
@@ -4145,6 +4341,38 @@ export interface operations {
             };
         };
     };
+    ObjectQueueItemsController_listForObject: {
+        parameters: {
+            query?: {
+                /** @description Optional status filter */
+                status?: "PENDING" | "PROCESSING" | "SUCCESS" | "FAILED" | "RETRYING";
+                /** @description Maximum number of items to return. */
+                limit?: number;
+                /** @description Number of items to skip for pagination. */
+                offset?: number;
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Defaults include queue and object. */
+                expansion?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Object (entity) ID */
+                objectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Queue items linked to the Object. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueueItemListResponseDto"];
+                };
+            };
+        };
+    };
     WorkflowsController_findAllForWorkspace: {
         parameters: {
             query?: {
@@ -4152,7 +4380,7 @@ export interface operations {
                 includeType?: string;
                 /** @description Comma-separated key:value filters. Available: projectId, agentCanTrigger. Example: filterBy=projectId:proj_123 */
                 filterBy?: string;
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, project, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive,project */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive,project */
                 expansion?: string;
             };
             header?: never;
@@ -4175,7 +4403,7 @@ export interface operations {
     WorkflowsController_findOne: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, project, nodes, edges, triggerNode, triggerAndActionIds, subWorkflowIds, agentIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,nodes,edges */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, subWorkflowIds, agentIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,nodes,edges */
                 expansion?: string;
             };
             header?: never;
@@ -4193,6 +4421,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WorkflowResponseDto"];
+                };
+            };
+        };
+    };
+    ProjectWorkflowsController_upsertBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertWorkflowBySlugDto"];
+            };
+        };
+        responses: {
+            /** @description The created or updated workflow. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkflowResponseDto"];
+                };
+            };
+        };
+    };
+    AgentsController_findAllForWorkspace: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated include flags, e.g. `includeType=all`. Available: all */
+                includeType?: string;
+                /** @description Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId */
+                filterBy?: string;
+                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
+                expansion?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Agents in the current workspace */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentResponseDto"][];
+                };
+            };
+        };
+    };
+    AgentsController_findOne: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
+                expansion?: string;
+            };
+            header?: never;
+            path: {
+                agentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested agent */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentResponseDto"];
+                };
+            };
+        };
+    };
+    ProjectAgentsController_upsertBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertAgentBySlugDto"];
+            };
+        };
+        responses: {
+            /** @description The created or updated agent. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentResponseDto"];
                 };
             };
         };
@@ -4244,225 +4576,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-        };
-    };
-    KnowledgeController_findAllForWorkspace: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions */
-                expansion?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Knowledge bases in the workspace. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeResponseDto"][];
-                };
-            };
-        };
-    };
-    KnowledgeController_create: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions */
-                expansion?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateKnowledgeDto"];
-            };
-        };
-        responses: {
-            /** @description The created knowledge base. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeResponseDto"];
-                };
-            };
-        };
-    };
-    KnowledgeController_findOne: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions */
-                expansion?: string;
-            };
-            header?: never;
-            path: {
-                knowledgeId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The requested knowledge base. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeResponseDto"];
-                };
-            };
-        };
-    };
-    KnowledgeController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                knowledgeId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns true when the knowledge base was deleted. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": boolean;
-                };
-            };
-        };
-    };
-    KnowledgeController_update: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions */
-                expansion?: string;
-            };
-            header?: never;
-            path: {
-                knowledgeId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateKnowledgeDto"];
-            };
-        };
-        responses: {
-            /** @description The updated knowledge base. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeResponseDto"];
-                };
-            };
-        };
-    };
-    KnowledgeController_saveUploadedTextToKnowledge: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                knowledgeId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SaveUploadedTextToKnowledgeDto"];
-            };
-        };
-        responses: {
-            /** @description Returns true when the text was embedded and stored. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": boolean;
-                };
-            };
-        };
-    };
-    KnowledgeController_getDocuments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                knowledgeId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Documents in the knowledge base, newest first. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeDocumentResponseDto"][];
-                };
-            };
-        };
-    };
-    KnowledgeController_getDocumentGroup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                groupId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The requested document group. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeDocumentGroupResponseDto"];
-                };
-            };
-        };
-    };
-    KnowledgeController_deleteDocumentGroup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                knowledgeId: string;
-                groupId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns true when the document group was deleted. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": boolean;
                 };
             };
         };
@@ -4877,31 +4990,11 @@ export interface operations {
             };
         };
     };
-    ContextBlueprintsController_findAvailable: {
+    KnowledgeController_findAllForWorkspace: {
         parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Published context blueprints in the workspace. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AvailableContextBlueprintResponseDto"][];
-                };
-            };
-        };
-    };
-    ContextBlueprintsController_findAll: {
-        parameters: {
-            query: {
-                /** @description ID of the entity type to list blueprints for. */
-                objectTypeId: string;
+            query?: {
+                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions */
+                expansion?: string;
             };
             header?: never;
             path?: never;
@@ -4909,35 +5002,209 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Context blueprints for the entity type, defaults first, then most recently updated. */
+            /** @description Knowledge bases in the workspace. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ContextBlueprintResponseDto"][];
+                    "application/json": components["schemas"]["KnowledgeResponseDto"][];
                 };
             };
         };
     };
-    ContextBlueprintsController_findOne: {
+    KnowledgeController_create: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions */
+                expansion?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateKnowledgeDto"];
+            };
+        };
+        responses: {
+            /** @description The created knowledge base. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeResponseDto"];
+                };
+            };
+        };
+    };
+    KnowledgeController_findOne: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions */
+                expansion?: string;
+            };
+            header?: never;
+            path: {
+                knowledgeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested knowledge base. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeResponseDto"];
+                };
+            };
+        };
+    };
+    KnowledgeController_delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                knowledgeId: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description The requested context blueprint. */
+            /** @description Returns true when the knowledge base was deleted. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ContextBlueprintDetailResponseDto"];
+                    "application/json": boolean;
+                };
+            };
+        };
+    };
+    KnowledgeController_update: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions */
+                expansion?: string;
+            };
+            header?: never;
+            path: {
+                knowledgeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateKnowledgeDto"];
+            };
+        };
+        responses: {
+            /** @description The updated knowledge base. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeResponseDto"];
+                };
+            };
+        };
+    };
+    KnowledgeController_saveUploadedTextToKnowledge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                knowledgeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveUploadedTextToKnowledgeDto"];
+            };
+        };
+        responses: {
+            /** @description Returns true when the text was embedded and stored. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": boolean;
+                };
+            };
+        };
+    };
+    KnowledgeController_getDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                knowledgeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Documents in the knowledge base, newest first. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeDocumentResponseDto"][];
+                };
+            };
+        };
+    };
+    KnowledgeController_getDocumentGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested document group. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeDocumentGroupResponseDto"];
+                };
+            };
+        };
+    };
+    KnowledgeController_deleteDocumentGroup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                knowledgeId: string;
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns true when the document group was deleted. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": boolean;
                 };
             };
         };
@@ -4973,9 +5240,9 @@ export interface operations {
             query?: {
                 /** @description Comma-separated inclusion flags. Available: all, internal. Pass internal to include executions of internal workflows, which are excluded by default. */
                 includeType?: string;
-                /** @description Comma-separated key:value filters. Available: projectId, workflowId. Example: filterBy=workflowId:wf_123 */
+                /** @description Comma-separated key:value filters. Available: projectId, workflowId, source (WORKFLOW|SDK). Example: filterBy=workflowId:wf_123 or filterBy=source:SDK */
                 filterBy?: string;
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, source, name. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow,source */
                 expansion?: string;
             };
             header?: never;
@@ -4998,7 +5265,7 @@ export interface operations {
     ExecutionsController_findOne: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, executionPath. executionPath is the derived, ordered list of executed (or queued) steps with labels, per-step status, timings, and loop iteration metadata. Example: expansion=status,executionPath */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, executionPath, pendingInput, source, name. executionPath is the derived, ordered list of executed (or queued) steps with labels, per-step status, timings, and loop iteration metadata. pendingInput is the field schema for steps paused in NEEDS_INPUT. Example: expansion=status,executionPath,pendingInput,source */
                 expansion?: string;
             };
             header?: never;
@@ -5016,6 +5283,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExecutionResponseDto"];
+                };
+            };
+        };
+    };
+    ExecutionsController_streamExecution: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                executionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description SSE stream of execution progress, loop progress, finished, and heartbeat events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
+                };
+            };
+        };
+    };
+    ActionsController_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunActionDto"];
+            };
+        };
+        responses: {
+            /** @description The ad-hoc Execution id plus the synchronous action result (status, output, single-step executionPath). */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunActionResponseDto"];
+                };
+            };
+        };
+    };
+    RunsController_start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartRunDto"];
+            };
+        };
+        responses: {
+            /** @description The ad-hoc Execution id plus the synchronous multi-step result (status, last-step output, executionPath). */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunActionResponseDto"];
                 };
             };
         };
@@ -5313,58 +5650,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-        };
-    };
-    AgentsController_findAllForWorkspace: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated include flags, e.g. `includeType=all`. Available: all */
-                includeType?: string;
-                /** @description Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId */
-                filterBy?: string;
-                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, persona, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions */
-                expansion?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Agents in the current workspace */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AgentResponseDto"][];
-                };
-            };
-        };
-    };
-    AgentsController_findOne: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, persona, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions */
-                expansion?: string;
-            };
-            header?: never;
-            path: {
-                agentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The requested agent */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AgentResponseDto"];
                 };
             };
         };

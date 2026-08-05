@@ -3,6 +3,7 @@
     "target": "es2022",
     "module": "esnext",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "declaration": true,
     "sourceMap": true,
     "rootDir": ".",
@@ -10,11 +11,20 @@
     "skipLibCheck": true,
     "strict": true,
     "paths": {
-      "@lunnoa/client": ["./src/index.ts"]
+      "@lunnoa/client": ["./src/index.ts"],
+      "@lunnoa/client/react": ["./src/react/index.ts"]
     },
     "noEmit": true,
     "types": ["node"],
     "lib": ["es2022", "dom"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "examples/**/*.ts", "tsup.config.ts", "vitest.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "examples/**/*.ts",
+    "tsup.config.ts",
+    "vitest.config.ts"
+  ]
 }

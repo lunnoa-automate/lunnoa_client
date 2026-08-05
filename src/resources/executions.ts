@@ -2,9 +2,18 @@ import type { HttpClient } from '../core/http';
 import type {
   ExecuteWorkflowResult,
   Execution,
+  ExecutionPathStep,
   ExecutionStatus,
+  WorkflowApp,
 } from '../types';
+import {
+  openExecutionStream,
+  type ExecutionProgressPayload,
+  type ExecutionProgressStream,
+  type WatchProgressOptions,
+} from '../streaming/execution-progress';
 import { serializeListQuery, type ListQueryOptions } from './common';
+import type { WorkflowAppsResource } from './workflow-apps';
 
 /** Execution statuses that end an execution. */
 const TERMINAL_STATUSES: ReadonlySet<string> = new Set([
@@ -46,8 +55,39 @@ export class ExecutionTimeoutError extends Error {
   }
 }
 
+/** One step in a timeline-ready progress snapshot. */
+export interface ExecutionProgressStep extends ExecutionPathStep {
+  /** App logo URL from the workflow-apps catalogue, when resolvable. */
+  appLogoUrl?: string | null;
+  /** Action/trigger icon URL from the catalogue, when resolvable. */
+  iconUrl?: string | null;
+  /** Duration in ms when both startTime and endTime are present. */
+  durationMs?: number | null;
+}
+
+/** Timeline-ready progress for a custom UI (status bar / step list). */
+export interface ExecutionProgress {
+  executionId: string;
+  status?: ExecutionStatus | string;
+  statusMessage?: string | null;
+  name?: string | null;
+  source?: string | null;
+  startedAt?: string;
+  stoppedAt?: string | null;
+  steps: ExecutionProgressStep[];
+  pendingInput?: unknown;
+  output?: unknown;
+  /** Index of the first non-terminal step, or -1 when all done / unknown. */
+  activeStepIndex: number;
+}
+
 export class ExecutionsResource {
-  constructor(private readonly http: HttpClient) {}
+  private catalogCache: WorkflowApp[] | null = null;
+
+  constructor(
+    private readonly http: HttpClient,
+    private readonly workflowApps?: WorkflowAppsResource,
+  ) {}
 
   /**
    * Starts a new execution of a workflow. Only the execution ID is returned;
@@ -81,6 +121,67 @@ export class ExecutionsResource {
     return this.http.get<Execution>(`/api/executions/${executionId}`, {
       query: serializeListQuery(options),
     });
+  }
+
+  /**
+   * Timeline-ready progress: `executionPath` plus catalogue icons/logos.
+   * Use this for a custom status bar / step list (not raw nodes/edges).
+   */
+  async getProgress(executionId: string): Promise<ExecutionProgress> {
+    const execution = await this.get(executionId, {
+      expansion: [
+        'status',
+        'statusMessage',
+        'executionPath',
+        'pendingInput',
+        'source',
+        'name',
+        'startedAt',
+        'stoppedAt',
+        'output',
+      ],
+    });
+    return this.#toProgress(execution);
+  }
+
+  /**
+   * Opens the Public API SSE stream (`GET /executions/:id/stream`).
+   * Yields `execution.progress`, `loop.progress`, `execution.finished`, etc.
+   * For a simple timeline, prefer {@link watchProgress}.
+   */
+  stream(
+    executionId: string,
+    options?: WatchProgressOptions,
+  ): Promise<ExecutionProgressStream> {
+    return openExecutionStream(this.http, executionId, options);
+  }
+
+  /**
+   * Live progress snapshots for a custom timeline UI.
+   * Subscribes to SSE `execution.progress` events (and enriches steps with icons).
+   * Completes when the execution reaches a terminal status or the signal aborts.
+   */
+  async *watchProgress(
+    executionId: string,
+    options?: WatchProgressOptions,
+  ): AsyncGenerator<ExecutionProgress, void, undefined> {
+    const stream = await this.stream(executionId, options);
+    for await (const frame of stream) {
+      if (frame.event === 'execution.progress') {
+        const payload = frame.data as unknown as ExecutionProgressPayload;
+        yield await this.#progressFromPayload(payload);
+      } else if (frame.event === 'execution.finished') {
+        // Ensure a final enriched snapshot even if the last progress was skipped.
+        yield await this.getProgress(executionId);
+        return;
+      } else if (frame.event === 'execution.error') {
+        throw new Error(
+          typeof frame.data.message === 'string'
+            ? frame.data.message
+            : `Execution stream error for ${executionId}`,
+        );
+      }
+    }
   }
 
   /**
@@ -185,6 +286,112 @@ export class ExecutionsResource {
       { body },
     );
   }
+
+  async #toProgress(execution: Execution): Promise<ExecutionProgress> {
+    const path = (execution.executionPath ?? []) as ExecutionPathStep[];
+    const steps = await this.#enrichSteps(path);
+    return {
+      executionId: execution.id,
+      status: execution.status,
+      statusMessage: execution.statusMessage ?? null,
+      name: (execution as { name?: string | null }).name ?? null,
+      source: (execution as { source?: string | null }).source ?? null,
+      startedAt: execution.startedAt,
+      stoppedAt: execution.stoppedAt ?? null,
+      steps,
+      pendingInput: (execution as { pendingInput?: unknown }).pendingInput,
+      output: execution.output,
+      activeStepIndex: findActiveStepIndex(steps),
+    };
+  }
+
+  async #progressFromPayload(
+    payload: ExecutionProgressPayload,
+  ): Promise<ExecutionProgress> {
+    const steps = await this.#enrichSteps(payload.executionPath ?? []);
+    return {
+      executionId: payload.executionId,
+      status: payload.status ?? undefined,
+      statusMessage: payload.statusMessage,
+      name: payload.name,
+      source: payload.source,
+      startedAt: payload.startedAt,
+      stoppedAt: payload.stoppedAt,
+      steps,
+      pendingInput: payload.pendingInput,
+      output: payload.output,
+      activeStepIndex: findActiveStepIndex(steps),
+    };
+  }
+
+  async #enrichSteps(
+    path: ExecutionPathStep[],
+  ): Promise<ExecutionProgressStep[]> {
+    const catalog = await this.#loadCatalog();
+    return path.map((step) => {
+      const app = catalog?.find((a) => a.id === step.appId);
+      const action =
+        step.actionId && Array.isArray(app?.actions)
+          ? (app!.actions as Record<string, unknown>[]).find(
+              (a) => a && typeof a === 'object' && a.id === step.actionId,
+            )
+          : undefined;
+      const trigger =
+        step.triggerId && Array.isArray(app?.triggers)
+          ? (app!.triggers as Record<string, unknown>[]).find(
+              (t) => t && typeof t === 'object' && t.id === step.triggerId,
+            )
+          : undefined;
+      const iconUrl =
+        (typeof action?.iconUrl === 'string' && action.iconUrl) ||
+        (typeof trigger?.iconUrl === 'string' && trigger.iconUrl) ||
+        null;
+      const durationMs = computeDurationMs(step.startTime, step.endTime);
+      return {
+        ...step,
+        appLogoUrl: app?.logoUrl ?? null,
+        iconUrl,
+        durationMs,
+      };
+    });
+  }
+
+  async #loadCatalog(): Promise<WorkflowApp[] | null> {
+    if (!this.workflowApps) {
+      return null;
+    }
+    if (!this.catalogCache) {
+      try {
+        this.catalogCache = await this.workflowApps.list();
+      } catch {
+        return null;
+      }
+    }
+    return this.catalogCache;
+  }
+}
+
+function findActiveStepIndex(steps: ExecutionProgressStep[]): number {
+  const idx = steps.findIndex(
+    (s) =>
+      s.status === 'RUNNING' ||
+      s.status === 'NEEDS_INPUT' ||
+      s.status === 'RETRYING' ||
+      s.status === 'WAITING' ||
+      s.status === 'SCHEDULED',
+  );
+  return idx;
+}
+
+function computeDurationMs(
+  start?: string,
+  end?: string,
+): number | null {
+  if (!start || !end) return null;
+  const a = Date.parse(start);
+  const b = Date.parse(end);
+  if (Number.isNaN(a) || Number.isNaN(b) || b < a) return null;
+  return b - a;
 }
 
 function defaultSleep(ms: number): Promise<void> {

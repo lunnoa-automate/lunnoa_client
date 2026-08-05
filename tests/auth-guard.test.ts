@@ -71,6 +71,21 @@ describe('browser API-key guard', () => {
   it('requires some credential', () => {
     expect(
       () => new LunnoaClient({ baseUrl: 'https://lunnoa.example' }),
-    ).toThrow(/apiKey|accessToken/);
+    ).toThrow(/apiKey|accessToken|tokenStore/);
+  });
+
+  it('allows tokenStore without accessToken (Pattern B)', () => {
+    expect(
+      () =>
+        new LunnoaClient({
+          baseUrl: 'https://lunnoa.example',
+          tokenStore: {
+            getAccessToken: () => null,
+            getRefreshToken: () => null,
+            setTokens: () => undefined,
+            clear: () => undefined,
+          },
+        }),
+    ).not.toThrow();
   });
 });

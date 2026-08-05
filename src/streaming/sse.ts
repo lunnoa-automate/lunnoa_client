@@ -9,6 +9,27 @@
 export async function* parseSseStream(
   stream: ReadableStream<Uint8Array>,
 ): AsyncGenerator<string, void, undefined> {
+  for await (const event of parseSseEvents(stream)) {
+    if (event.data !== null) {
+      yield event.data;
+    }
+  }
+}
+
+export interface SseEvent {
+  /** SSE `event:` field, or `"message"` when omitted. */
+  event: string;
+  /** Joined `data:` payload, or null when the frame had no data lines. */
+  data: string | null;
+}
+
+/**
+ * Like {@link parseSseStream}, but preserves the SSE event name.
+ * Used by execution progress streams (`execution.progress`, `loop.progress`, …).
+ */
+export async function* parseSseEvents(
+  stream: ReadableStream<Uint8Array>,
+): AsyncGenerator<SseEvent, void, undefined> {
   const reader = stream.getReader();
   const decoder = new TextDecoder('utf-8', { fatal: false });
   let buffer = '';
@@ -29,9 +50,9 @@ export async function* parseSseStream(
         buffer = buffer.slice(boundary + 2);
         boundary = buffer.indexOf('\n\n');
 
-        const data = extractData(rawEvent);
-        if (data !== null) {
-          yield data;
+        const parsed = extractEvent(rawEvent);
+        if (parsed.data !== null || parsed.event !== 'message') {
+          yield parsed;
         }
       }
     }
@@ -39,9 +60,9 @@ export async function* parseSseStream(
     // Flush a trailing event without a final blank line (lenient).
     const remaining = buffer.trim();
     if (remaining) {
-      const data = extractData(remaining);
-      if (data !== null) {
-        yield data;
+      const parsed = extractEvent(remaining);
+      if (parsed.data !== null || parsed.event !== 'message') {
+        yield parsed;
       }
     }
   } finally {
@@ -49,11 +70,23 @@ export async function* parseSseStream(
   }
 }
 
-function extractData(rawEvent: string): string | null {
+function extractEvent(rawEvent: string): SseEvent {
   const dataLines: string[] = [];
+  let eventName = 'message';
+
   for (const line of rawEvent.split('\n')) {
     if (line.startsWith(':')) {
       continue; // SSE comment (keep-alive)
+    }
+    if (line.startsWith('event:')) {
+      let value = line.slice('event:'.length);
+      if (value.startsWith(' ')) {
+        value = value.slice(1);
+      }
+      if (value) {
+        eventName = value;
+      }
+      continue;
     }
     if (line.startsWith('data:')) {
       let value = line.slice('data:'.length);
@@ -63,8 +96,9 @@ function extractData(rawEvent: string): string | null {
       dataLines.push(value);
     }
   }
-  if (dataLines.length === 0) {
-    return null;
-  }
-  return dataLines.join('\n');
+
+  return {
+    event: eventName,
+    data: dataLines.length === 0 ? null : dataLines.join('\n'),
+  };
 }

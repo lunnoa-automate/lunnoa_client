@@ -1,5 +1,6 @@
 import { API_KEY_PREFIX, assertApiKeyAllowedInEnvironment } from './auth';
 import { LunnoaApiError } from './errors';
+import type { TokenStore } from '../auth/token-store';
 
 export type FetchLike = (
   input: string | URL,
@@ -18,11 +19,24 @@ export interface LunnoaClientOptions {
    */
   apiKey?: string;
   /**
-   * User JWT obtained from the deployment's `/api/auth` or `/api/sso` login
-   * flow. The supported credential for browser applications. May be a
-   * function so refreshed tokens are picked up per request.
+   * User JWT obtained from login / SSO. The supported credential for browser
+   * applications. May be a function so refreshed tokens are picked up per request.
+   *
+   * Prefer {@link tokenStore} for Pattern B so login/refresh can persist tokens
+   * and optionally auto-refresh on 401.
    */
   accessToken?: string | (() => string | Promise<string>);
+  /**
+   * Optional JWT store for Pattern B. When set, authenticated requests read
+   * the access token from the store. Login / refresh helpers write back into it.
+   */
+  tokenStore?: TokenStore;
+  /**
+   * When true (default if `tokenStore` is set), a 401 triggers one
+   * `POST /api/auth/refresh-token` attempt using the stored refresh token,
+   * then retries the original request.
+   */
+  autoRefresh?: boolean;
   /** Custom fetch implementation (testing, polyfills, interceptors). */
   fetch?: FetchLike;
   /** Extra headers sent with every request. */
@@ -41,6 +55,13 @@ export interface RequestOptions {
    * module and endpoints that may legitimately return 204.
    */
   raw?: boolean;
+  /**
+   * Skip the Authorization header. Used for public auth endpoints
+   * (login, refresh, SSO providers).
+   */
+  skipAuth?: boolean;
+  /** Internal: set after an auto-refresh retry so we do not loop. */
+  _retriedAfterRefresh?: boolean;
 }
 
 /**
@@ -49,18 +70,22 @@ export interface RequestOptions {
  */
 export class HttpClient {
   readonly baseUrl: string;
+  readonly tokenStore?: TokenStore;
+  /** Underlying fetch (shared with AI SDK transports when needed). */
+  readonly fetch: FetchLike;
   private readonly apiKey?: string;
   private readonly accessToken?: string | (() => string | Promise<string>);
-  private readonly fetchImpl: FetchLike;
+  private readonly autoRefresh: boolean;
   private readonly defaultHeaders: Record<string, string>;
+  private refreshInFlight: Promise<boolean> | null = null;
 
   constructor(options: LunnoaClientOptions) {
     if (!options.baseUrl) {
       throw new Error('LunnoaClient requires a baseUrl.');
     }
-    if (!options.apiKey && !options.accessToken) {
+    if (!options.apiKey && !options.accessToken && !options.tokenStore) {
       throw new Error(
-        'LunnoaClient requires either an apiKey (server-side) or an accessToken (user JWT).',
+        'LunnoaClient requires an apiKey (server-side), an accessToken (user JWT), or a tokenStore (Pattern B).',
       );
     }
     if (options.apiKey) {
@@ -79,7 +104,10 @@ export class HttpClient {
     this.baseUrl = options.baseUrl.replace(/\/+$/, '');
     this.apiKey = options.apiKey;
     this.accessToken = options.accessToken;
-    this.fetchImpl =
+    this.tokenStore = options.tokenStore;
+    this.autoRefresh =
+      options.autoRefresh ?? Boolean(options.tokenStore && !options.apiKey);
+    this.fetch =
       options.fetch ?? (globalThis.fetch.bind(globalThis) as FetchLike);
     this.defaultHeaders = options.headers ?? {};
   }
@@ -88,10 +116,23 @@ export class HttpClient {
     if (this.apiKey) {
       return `Bearer ${this.apiKey}`;
     }
+    if (this.tokenStore) {
+      const fromStore = await this.tokenStore.getAccessToken();
+      if (!fromStore) {
+        throw new Error(
+          'No access token in the token store. Call lunnoa.auth.login(...) first, ' +
+            'or seed the store with setTokens / createMemoryTokenStore({ accessToken }).',
+        );
+      }
+      return `Bearer ${fromStore}`;
+    }
     const token =
       typeof this.accessToken === 'function'
         ? await this.accessToken()
         : this.accessToken;
+    if (!token) {
+      throw new Error('accessToken resolved to an empty value.');
+    }
     return `Bearer ${token}`;
   }
 
@@ -124,10 +165,13 @@ export class HttpClient {
   ): Promise<T | Response> {
     const url = this.buildUrl(path, options.query);
     const headers: Record<string, string> = {
-      Authorization: await this.resolveAuthHeader(),
       ...this.defaultHeaders,
       ...options.headers,
     };
+
+    if (!options.skipAuth) {
+      headers.Authorization = await this.resolveAuthHeader();
+    }
 
     const init: RequestInit = { method, headers, signal: options.signal };
     if (options.body !== undefined) {
@@ -135,7 +179,25 @@ export class HttpClient {
       init.body = JSON.stringify(options.body);
     }
 
-    const response = await this.fetchImpl(url, init);
+    const response = await this.fetch(url, init);
+
+    if (
+      !response.ok &&
+      response.status === 401 &&
+      !options.skipAuth &&
+      !options._retriedAfterRefresh &&
+      this.autoRefresh &&
+      this.tokenStore &&
+      !this.apiKey
+    ) {
+      const refreshed = await this.tryRefreshAccessToken();
+      if (refreshed) {
+        return this.request<T>(method, path, {
+          ...options,
+          _retriedAfterRefresh: true,
+        });
+      }
+    }
 
     if (!response.ok) {
       const body = await parseBodySafely(response);
@@ -176,6 +238,54 @@ export class HttpClient {
 
   delete<T>(path: string, options?: RequestOptions): Promise<T> {
     return this.request<T>('DELETE', path, options);
+  }
+
+  /**
+   * Single-flight refresh using the token store. Returns false when refresh
+   * is impossible or fails (store is cleared on failure).
+   */
+  async tryRefreshAccessToken(): Promise<boolean> {
+    if (!this.tokenStore) {
+      return false;
+    }
+    if (!this.refreshInFlight) {
+      this.refreshInFlight = this.performRefresh().finally(() => {
+        this.refreshInFlight = null;
+      });
+    }
+    return this.refreshInFlight;
+  }
+
+  private async performRefresh(): Promise<boolean> {
+    const refreshToken = await this.tokenStore!.getRefreshToken();
+    if (!refreshToken) {
+      return false;
+    }
+
+    try {
+      const url = this.buildUrl('/api/auth/refresh-token');
+      const response = await this.fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!response.ok) {
+        await this.tokenStore!.clear();
+        return false;
+      }
+      const body = (await parseBodySafely(response)) as {
+        access_token?: string;
+      };
+      if (!body?.access_token) {
+        await this.tokenStore!.clear();
+        return false;
+      }
+      await this.tokenStore!.setTokens({ accessToken: body.access_token });
+      return true;
+    } catch {
+      await this.tokenStore!.clear();
+      return false;
+    }
   }
 }
 

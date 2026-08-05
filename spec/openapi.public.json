@@ -582,7 +582,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -655,7 +655,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -664,7 +664,7 @@
             "name": "filterBy",
             "required": false,
             "in": "query",
-            "description": "Comma-separated key:value filter pairs. Available keys: status, externalId, priority, scheduledFor, search, createdAfter, createdBefore.",
+            "description": "Comma-separated key:value filter pairs. Available keys: status, externalId, objectId, priority, scheduledFor, search, createdAfter, createdBefore.",
             "schema": {
               "type": "string"
             }
@@ -711,7 +711,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -766,7 +766,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1061,7 +1061,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1126,7 +1126,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1135,7 +1135,7 @@
             "name": "filterBy",
             "required": false,
             "in": "query",
-            "description": "Comma-separated key:value filter pairs. Available keys: status, externalId, priority, scheduledFor, search, createdAfter, createdBefore.",
+            "description": "Comma-separated key:value filter pairs. Available keys: status, externalId, objectId, priority, scheduledFor, search, createdAfter, createdBefore.",
             "schema": {
               "type": "string"
             }
@@ -1228,7 +1228,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1281,7 +1281,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1439,7 +1439,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1504,7 +1504,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1569,7 +1569,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1624,7 +1624,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Note: createdAt also expands the other timestamp fields (nextRetryAt, processingStartedAt, processingCompletedAt, lastErrorAt, scheduledFor).",
             "schema": {
               "type": "string"
             }
@@ -1664,6 +1664,88 @@
         "x-public": true
       }
     },
+    "/api/objects/{objectId}/queue-items": {
+      "get": {
+        "description": "Returns work items linked to the given Object across all queues in the workspace. Use this for an Object detail \"Work\" panel.",
+        "operationId": "ObjectQueueItemsController_listForObject",
+        "parameters": [
+          {
+            "name": "objectId",
+            "required": true,
+            "in": "path",
+            "description": "Object (entity) ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Optional status filter",
+            "schema": {
+              "enum": [
+                "PENDING",
+                "PROCESSING",
+                "SUCCESS",
+                "FAILED",
+                "RETRYING"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of items to return.",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip for pagination.",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, queue, lastExecution, errorHistory, object. Defaults include queue and object.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Queue items linked to the Object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueItemListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List queue items for an Object",
+        "tags": [
+          "Queue Items"
+        ],
+        "x-public": true
+      }
+    },
     "/api/workflows": {
       "get": {
         "description": "Returns the workflows in the current workspace, most recently updated first. By default only the ID and name are returned per item; use the expansion query parameter to include further fields.",
@@ -1691,7 +1773,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, project, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive,project",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive,project",
             "schema": {
               "type": "string"
             }
@@ -1741,7 +1823,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, project, nodes, edges, triggerNode, triggerAndActionIds, subWorkflowIds, agentIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,nodes,edges",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, subWorkflowIds, agentIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,nodes,edges",
             "schema": {
               "type": "string"
             }
@@ -1767,6 +1849,209 @@
         "summary": "Get workflow by ID",
         "tags": [
           "Workflows"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/projects/{projectId}/workflows/upsert": {
+      "post": {
+        "description": "Creates or updates a workflow identified by project-scoped `slug`. Builds a minimal valid graph (manual trigger → linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.",
+        "operationId": "ProjectWorkflowsController_upsertBySlug",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertWorkflowBySlugDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created or updated workflow.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upsert a workflow by slug from a linear step list",
+        "tags": [
+          "Workflows"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/agents": {
+      "get": {
+        "description": "Lists every agent in the caller's active workspace, most recently updated first. By default each item carries only `id`, `name`, and `FK_aiConnectionId`; request additional fields with the `expansion` query parameter.",
+        "operationId": "AgentsController_findAllForWorkspace",
+        "parameters": [
+          {
+            "name": "includeType",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated include flags, e.g. `includeType=all`. Available: all",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterBy",
+            "required": false,
+            "in": "query",
+            "description": "Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agents in the current workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List agents in current workspace",
+        "tags": [
+          "Agents"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/agents/{agentId}": {
+      "get": {
+        "description": "Returns a single agent. By default only `id`, `name`, and `FK_aiConnectionId` are returned; request additional fields with the `expansion` query parameter. Access is gated by the `agents:use` permission, so agents reachable via a share grant can also be fetched.",
+        "operationId": "AgentsController_findOne",
+        "parameters": [
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get agent by ID",
+        "tags": [
+          "Agents"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/projects/{projectId}/agents/upsert": {
+      "post": {
+        "description": "Creates or updates an agent identified by project-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.",
+        "operationId": "ProjectAgentsController_upsertBySlug",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertAgentBySlugDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created or updated agent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upsert an agent by slug",
+        "tags": [
+          "Agents"
         ],
         "x-public": true
       }
@@ -1858,404 +2143,6 @@
         "summary": "Connect workflow app",
         "tags": [
           "Workflow Apps"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/knowledge": {
-      "post": {
-        "description": "Creates a workspace-wide knowledge base with a dedicated vector index. Embedding model, provider and dimensions default to the platform configuration when omitted.",
-        "operationId": "KnowledgeController_create",
-        "parameters": [
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateKnowledgeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "The created knowledge base.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/KnowledgeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Create knowledge base",
-        "tags": [
-          "Knowledge"
-        ],
-        "x-public": true
-      },
-      "get": {
-        "description": "Returns all knowledge bases in the current workspace, ordered by most recently updated.",
-        "operationId": "KnowledgeController_findAllForWorkspace",
-        "parameters": [
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Knowledge bases in the workspace.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KnowledgeResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List knowledge bases in workspace",
-        "tags": [
-          "Knowledge"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/knowledge/{knowledgeId}": {
-      "get": {
-        "description": "Returns a single knowledge base.",
-        "operationId": "KnowledgeController_findOne",
-        "parameters": [
-          {
-            "name": "knowledgeId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The requested knowledge base.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/KnowledgeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get knowledge base by ID",
-        "tags": [
-          "Knowledge"
-        ],
-        "x-public": true
-      },
-      "patch": {
-        "description": "Updates knowledge base properties. All body fields are optional; only provided fields are changed.",
-        "operationId": "KnowledgeController_update",
-        "parameters": [
-          {
-            "name": "knowledgeId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateKnowledgeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The updated knowledge base.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/KnowledgeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Update knowledge base",
-        "tags": [
-          "Knowledge"
-        ],
-        "x-public": true
-      },
-      "delete": {
-        "description": "Deletes a knowledge base, its stored files and its vector index. This action cannot be undone.",
-        "operationId": "KnowledgeController_delete",
-        "parameters": [
-          {
-            "name": "knowledgeId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns true when the knowledge base was deleted.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Delete knowledge base",
-        "tags": [
-          "Knowledge"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/knowledge/{knowledgeId}/saveUploadedText": {
-      "post": {
-        "description": "Chunks the provided text, generates embeddings and stores them in the knowledge base. Multi-chunk uploads are grouped into a single document.",
-        "operationId": "KnowledgeController_saveUploadedTextToKnowledge",
-        "parameters": [
-          {
-            "name": "knowledgeId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SaveUploadedTextToKnowledgeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Returns true when the text was embedded and stored.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Save uploaded text to knowledge base",
-        "tags": [
-          "Knowledge"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/knowledge/{knowledgeId}/documents": {
-      "get": {
-        "description": "Returns a grouped document view of the knowledge base. Multi-part uploads appear as a single group document; single-part uploads appear as standalone documents.",
-        "operationId": "KnowledgeController_getDocuments",
-        "parameters": [
-          {
-            "name": "knowledgeId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Documents in the knowledge base, newest first.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/KnowledgeDocumentResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List documents for knowledge base",
-        "tags": [
-          "Knowledge"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/knowledge/{knowledgeId}/documents/{groupId}": {
-      "get": {
-        "description": "Returns a document group with all of its parts (vector references), ordered by part number.",
-        "operationId": "KnowledgeController_getDocumentGroup",
-        "parameters": [
-          {
-            "name": "groupId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The requested document group.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/KnowledgeDocumentGroupResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get knowledge document group",
-        "tags": [
-          "Knowledge"
-        ],
-        "x-public": true
-      },
-      "delete": {
-        "description": "Deletes a document group and all of its parts, including stored files and vector index entries. This action cannot be undone.",
-        "operationId": "KnowledgeController_deleteDocumentGroup",
-        "parameters": [
-          {
-            "name": "knowledgeId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "groupId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns true when the document group was deleted.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Delete knowledge document group",
-        "tags": [
-          "Knowledge"
         ],
         "x-public": true
       }
@@ -3092,21 +2979,38 @@
         "x-public": true
       }
     },
-    "/api/context-blueprints/available": {
-      "get": {
-        "description": "Returns all published context blueprints in the workspace, sorted by entity type name and blueprint name. Draft and archived blueprints are excluded.",
-        "operationId": "ContextBlueprintsController_findAvailable",
-        "parameters": [],
+    "/api/knowledge": {
+      "post": {
+        "description": "Creates a workspace-wide knowledge base with a dedicated vector index. Embedding model, provider and dimensions default to the platform configuration when omitted.",
+        "operationId": "KnowledgeController_create",
+        "parameters": [
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKnowledgeDto"
+              }
+            }
+          }
+        },
         "responses": {
-          "200": {
-            "description": "Published context blueprints in the workspace.",
+          "201": {
+            "description": "The created knowledge base.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AvailableContextBlueprintResponseDto"
-                  }
+                  "$ref": "#/components/schemas/KnowledgeResponseDto"
                 }
               }
             }
@@ -3117,22 +3021,21 @@
             "bearer": []
           }
         ],
-        "summary": "List published context blueprints for tool dropdown",
+        "summary": "Create knowledge base",
         "tags": [
-          "Context Blueprints"
+          "Knowledge"
         ],
         "x-public": true
-      }
-    },
-    "/api/context-blueprints": {
+      },
       "get": {
-        "operationId": "ContextBlueprintsController_findAll",
+        "description": "Returns all knowledge bases in the current workspace, ordered by most recently updated.",
+        "operationId": "KnowledgeController_findAllForWorkspace",
         "parameters": [
           {
-            "name": "objectTypeId",
-            "required": true,
+            "name": "expansion",
+            "required": false,
             "in": "query",
-            "description": "ID of the entity type to list blueprints for.",
+            "description": "Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions",
             "schema": {
               "type": "string"
             }
@@ -3140,13 +3043,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Context blueprints for the entity type, defaults first, then most recently updated.",
+            "description": "Knowledge bases in the workspace.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ContextBlueprintResponseDto"
+                    "$ref": "#/components/schemas/KnowledgeResponseDto"
                   }
                 }
               }
@@ -3158,19 +3061,120 @@
             "bearer": []
           }
         ],
-        "summary": "List context blueprints for an object type",
+        "summary": "List knowledge bases in workspace",
         "tags": [
-          "Context Blueprints"
+          "Knowledge"
         ],
         "x-public": true
       }
     },
-    "/api/context-blueprints/{id}": {
+    "/api/knowledge/{knowledgeId}": {
       "get": {
-        "operationId": "ContextBlueprintsController_findOne",
+        "description": "Returns a single knowledge base.",
+        "operationId": "KnowledgeController_findOne",
         "parameters": [
           {
-            "name": "id",
+            "name": "knowledgeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested knowledge base.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get knowledge base by ID",
+        "tags": [
+          "Knowledge"
+        ],
+        "x-public": true
+      },
+      "patch": {
+        "description": "Updates knowledge base properties. All body fields are optional; only provided fields are changed.",
+        "operationId": "KnowledgeController_update",
+        "parameters": [
+          {
+            "name": "knowledgeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand. Available: description, createdAt, updatedAt, workspace, indexName, chunkSize, chunkOverlap, usage, vectorRefs, countVectorRefs, embeddingProvider, embeddingModel, dimensions",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateKnowledgeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated knowledge base.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update knowledge base",
+        "tags": [
+          "Knowledge"
+        ],
+        "x-public": true
+      },
+      "delete": {
+        "description": "Deletes a knowledge base, its stored files and its vector index. This action cannot be undone.",
+        "operationId": "KnowledgeController_delete",
+        "parameters": [
+          {
+            "name": "knowledgeId",
             "required": true,
             "in": "path",
             "schema": {
@@ -3180,11 +3184,11 @@
         ],
         "responses": {
           "200": {
-            "description": "The requested context blueprint.",
+            "description": "Returns true when the knowledge base was deleted.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContextBlueprintDetailResponseDto"
+                  "type": "boolean"
                 }
               }
             }
@@ -3195,9 +3199,180 @@
             "bearer": []
           }
         ],
-        "summary": "Get a context blueprint by ID",
+        "summary": "Delete knowledge base",
         "tags": [
-          "Context Blueprints"
+          "Knowledge"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/knowledge/{knowledgeId}/saveUploadedText": {
+      "post": {
+        "description": "Chunks the provided text, generates embeddings and stores them in the knowledge base. Multi-chunk uploads are grouped into a single document.",
+        "operationId": "KnowledgeController_saveUploadedTextToKnowledge",
+        "parameters": [
+          {
+            "name": "knowledgeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveUploadedTextToKnowledgeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns true when the text was embedded and stored.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Save uploaded text to knowledge base",
+        "tags": [
+          "Knowledge"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/knowledge/{knowledgeId}/documents": {
+      "get": {
+        "description": "Returns a grouped document view of the knowledge base. Multi-part uploads appear as a single group document; single-part uploads appear as standalone documents.",
+        "operationId": "KnowledgeController_getDocuments",
+        "parameters": [
+          {
+            "name": "knowledgeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Documents in the knowledge base, newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/KnowledgeDocumentResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List documents for knowledge base",
+        "tags": [
+          "Knowledge"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/knowledge/{knowledgeId}/documents/{groupId}": {
+      "get": {
+        "description": "Returns a document group with all of its parts (vector references), ordered by part number.",
+        "operationId": "KnowledgeController_getDocumentGroup",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested document group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KnowledgeDocumentGroupResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get knowledge document group",
+        "tags": [
+          "Knowledge"
+        ],
+        "x-public": true
+      },
+      "delete": {
+        "description": "Deletes a document group and all of its parts, including stored files and vector index entries. This action cannot be undone.",
+        "operationId": "KnowledgeController_deleteDocumentGroup",
+        "parameters": [
+          {
+            "name": "knowledgeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns true when the document group was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete knowledge document group",
+        "tags": [
+          "Knowledge"
         ],
         "x-public": true
       }
@@ -3268,7 +3443,7 @@
             "name": "filterBy",
             "required": false,
             "in": "query",
-            "description": "Comma-separated key:value filters. Available: projectId, workflowId. Example: filterBy=workflowId:wf_123",
+            "description": "Comma-separated key:value filters. Available: projectId, workflowId, source (WORKFLOW|SDK). Example: filterBy=workflowId:wf_123 or filterBy=source:SDK",
             "schema": {
               "type": "string"
             }
@@ -3277,7 +3452,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, source, name. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow,source",
             "schema": {
               "type": "string"
             }
@@ -3312,7 +3487,7 @@
     },
     "/api/executions/{executionId}": {
       "get": {
-        "description": "Returns a single execution. The ID and startedAt timestamp are always returned; use the expansion query parameter to include further fields. Request the executionPath expansion to receive the business-readable step list (step labels, per-step status including NEEDS_INPUT, timings, and loop iterations) that custom UIs render progress from.",
+        "description": "Returns a single execution. The ID and startedAt timestamp are always returned; use the expansion query parameter to include further fields. Request the executionPath expansion to receive the business-readable step list (step labels, per-step status including NEEDS_INPUT, timings, and loop iterations) that custom UIs render progress from. Request the pendingInput expansion to receive the field schemas for steps currently waiting for user input.",
         "operationId": "ExecutionsController_findOne",
         "parameters": [
           {
@@ -3327,7 +3502,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, executionPath. executionPath is the derived, ordered list of executed (or queued) steps with labels, per-step status, timings, and loop iteration metadata. Example: expansion=status,executionPath",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, executionPath, pendingInput, source, name. executionPath is the derived, ordered list of executed (or queued) steps with labels, per-step status, timings, and loop iteration metadata. pendingInput is the field schema for steps paused in NEEDS_INPUT. Example: expansion=status,executionPath,pendingInput,source",
             "schema": {
               "type": "string"
             }
@@ -3353,6 +3528,123 @@
         "summary": "Get execution by ID",
         "tags": [
           "Executions"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/executions/{executionId}/stream": {
+      "get": {
+        "description": "Server-Sent Events stream for real-time execution updates. Emits `execution.progress` snapshots (status + executionPath + pendingInput) as steps change, `loop.progress` while For Each / Repeat loops run, `execution.finished` on terminal status, and periodic heartbeats. Use fetch with Authorization header (EventSource cannot send Bearer tokens). Ideal for custom timeline / progress UIs.",
+        "operationId": "ExecutionsController_streamExecution",
+        "parameters": [
+          {
+            "name": "executionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSE stream of execution progress, loop progress, finished, and heartbeat events",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "SSE-framed events: execution.progress, loop.progress, execution.finished, heartbeat"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Stream execution updates (SSE)",
+        "tags": [
+          "Executions"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/actions/run": {
+      "post": {
+        "description": "Creates a one-step Execution with `source: SDK`, runs the catalogue action via the same prepareAndRunAction path used by workflows, then finalises the Execution. Discover `appId` / `actionId` / `inputConfig` via GET /workflow-apps. Pass `connectionId` (Connection instance UUID) when the action needs a connection and more than one exists for the app. Poll GET /executions/{id} with expansion=executionPath for the same record.",
+        "operationId": "ActionsController_run",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The ad-hoc Execution id plus the synchronous action result (status, output, single-step executionPath).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunActionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Run a single app action as an ad-hoc Execution",
+        "tags": [
+          "Actions"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/runs": {
+      "post": {
+        "description": "Creates one Execution with `source: SDK` and a linear multi-step `executionPath`. Each step is a catalogue action run via prepareAndRunAction (same path as workflows and POST /actions/run). Connection resolution per step: sole usable connection, else workspace default (`isDefault`), else 400 with candidates. Poll GET /executions/{id} with expansion=executionPath for the same record.",
+        "operationId": "RunsController_start",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartRunDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The ad-hoc Execution id plus the synchronous multi-step result (status, last-step output, executionPath).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunActionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start a multi-step ad-hoc Execution",
+        "tags": [
+          "Runs"
         ],
         "x-public": true
       }
@@ -3836,7 +4128,7 @@
     },
     "/api/webhooks/executions/{executionId}/nodes/{nodeId}/input": {
       "post": {
-        "description": "Unauthenticated endpoint implementing the pause-for-user-input pattern: it resumes an execution paused in the NEEDS_INPUT status by submitting values for the node that is waiting. Identify the waiting node via the executionPath expansion on GET /executions/{executionId} (steps with status NEEDS_INPUT). The endpoint acknowledges receipt immediately and the execution resumes asynchronously.",
+        "description": "Unauthenticated endpoint implementing the pause-for-user-input pattern: it resumes an execution paused in the NEEDS_INPUT status by submitting values for the node that is waiting. Identify the waiting node and its field schema via GET /executions/{executionId}?expansion=pendingInput,executionPath (steps with status NEEDS_INPUT, or the pendingInput array). Required fields from the schema must be present; missing required values return 400. The endpoint acknowledges receipt immediately and the execution resumes asynchronously.",
         "operationId": "WebhookController_executionStepEventPOST",
         "parameters": [
           {
@@ -3863,7 +4155,7 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": true,
-                "description": "Map of input values for the fields of the waiting node, keyed by field ID"
+                "description": "Map of input values for the fields of the waiting node, keyed by field ID. Alternatively wrap values under customInputConfigValues (builder-compatible shape)."
               }
             }
           }
@@ -3885,113 +4177,6 @@
         "summary": "Submit input to a workflow execution step",
         "tags": [
           "Webhooks"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/agents": {
-      "get": {
-        "description": "Lists every agent in the caller's active workspace, most recently updated first. By default each item carries only `id`, `name`, and `FK_aiConnectionId`; request additional fields with the `expansion` query parameter.",
-        "operationId": "AgentsController_findAllForWorkspace",
-        "parameters": [
-          {
-            "name": "includeType",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated include flags, e.g. `includeType=all`. Available: all",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "filterBy",
-            "required": false,
-            "in": "query",
-            "description": "Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, persona, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Agents in the current workspace",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AgentResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List agents in current workspace",
-        "tags": [
-          "Agents"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/agents/{agentId}": {
-      "get": {
-        "description": "Returns a single agent. By default only `id`, `name`, and `FK_aiConnectionId` are returned; request additional fields with the `expansion` query parameter. Access is gated by the `agents:use` permission, so agents reachable via a share grant can also be fetched.",
-        "operationId": "AgentsController_findOne",
-        "parameters": [
-          {
-            "name": "agentId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, persona, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The requested agent",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get agent by ID",
-        "tags": [
-          "Agents"
         ],
         "x-public": true
       }
@@ -4495,6 +4680,10 @@
       "description": ""
     },
     {
+      "name": "Actions",
+      "description": ""
+    },
+    {
       "name": "Executions",
       "description": ""
     },
@@ -4537,10 +4726,6 @@
     {
       "name": "Entity Types",
       "description": ""
-    },
-    {
-      "name": "Context Blueprints",
-      "description": ""
     }
   ],
   "servers": [],
@@ -4559,10 +4744,15 @@
           "passwordDisabled": {
             "type": "boolean",
             "description": "True when password-based login is disabled for this deployment (via AUTH_DISABLED_METHODS)."
+          },
+          "googleDisabled": {
+            "type": "boolean",
+            "description": "True when Google sign-in is disabled for this deployment (via AUTH_DISABLED_METHODS)."
           }
         },
         "required": [
-          "passwordDisabled"
+          "passwordDisabled",
+          "googleDisabled"
         ]
       },
       "EnabledFeaturesResponseDto": {
@@ -4628,6 +4818,10 @@
             "type": "boolean",
             "description": "Whether SSO (OIDC) login is enabled. Requires at least one enabled SSO provider."
           },
+          "SCIM": {
+            "type": "boolean",
+            "description": "Whether SCIM provisioning is configured. True when at least one active (non-revoked) SCIM bearer token exists."
+          },
           "AUTH_METHODS": {
             "description": "Availability of authentication methods for this deployment.",
             "allOf": [
@@ -4653,6 +4847,7 @@
           "AGENT_BUILDER_CANVAS",
           "CODE_EXECUTION",
           "SSO",
+          "SCIM",
           "AUTH_METHODS"
         ]
       },
@@ -4813,6 +5008,13 @@
             "description": "Human-readable name for the queue.",
             "maxLength": 100
           },
+          "allowedObjectTypeIds": {
+            "description": "ObjectType IDs this queue accepts for linked items. Empty/omitted = any ObjectType (and untyped items) allowed.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "description": {
             "type": "string",
             "description": "Description of what the queue is used for.",
@@ -4931,6 +5133,28 @@
           "items"
         ]
       },
+      "QueueAllowedObjectTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Object type ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Object type name."
+          },
+          "slug": {
+            "type": "string",
+            "description": "Object type slug."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
       "QueueResponseDto": {
         "type": "object",
         "properties": {
@@ -5028,6 +5252,13 @@
                 "$ref": "#/components/schemas/QueueItemCountsDto"
               }
             ]
+          },
+          "allowedObjectTypes": {
+            "description": "ObjectTypes this queue accepts for linked items. Empty means any type is allowed. Included when `expansion=allowedObjectTypes` is requested.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueueAllowedObjectTypeDto"
+            }
           }
         },
         "required": [
@@ -5082,6 +5313,13 @@
             "description": "Human-readable name for the queue.",
             "maxLength": 100
           },
+          "allowedObjectTypeIds": {
+            "description": "ObjectType IDs this queue accepts for linked items. Empty/omitted = any ObjectType (and untyped items) allowed.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "description": {
             "type": "string",
             "description": "Description of what the queue is used for.",
@@ -5131,6 +5369,10 @@
             "type": "string",
             "description": "External identifier used to deduplicate items within the queue.",
             "maxLength": 255
+          },
+          "objectId": {
+            "type": "string",
+            "description": "Optional Object (entity) this work item is about. Must belong to the same workspace. If the queue has allowed ObjectTypes configured, the Object type must be one of them."
           },
           "data": {
             "type": "object",
@@ -5235,6 +5477,60 @@
           "workflow"
         ]
       },
+      "QueueItemObjectTypeSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Object type ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Object type name."
+          },
+          "slug": {
+            "type": "string",
+            "description": "Object type slug."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "QueueItemObjectSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Object ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Object display name."
+          },
+          "state": {
+            "type": "string",
+            "description": "Current object state ID.",
+            "nullable": true
+          },
+          "objectType": {
+            "description": "Object type summary.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueItemObjectTypeSummaryDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "state",
+          "objectType"
+        ]
+      },
       "QueueItemCreateResponseDto": {
         "type": "object",
         "properties": {
@@ -5245,6 +5541,11 @@
           "externalId": {
             "type": "string",
             "description": "External identifier used for deduplication.",
+            "nullable": true
+          },
+          "objectId": {
+            "type": "string",
+            "description": "Linked Object (entity) ID this work item is about, if any.",
             "nullable": true
           },
           "data": {
@@ -5353,6 +5654,16 @@
               }
             ]
           },
+          "object": {
+            "description": "Linked Object summary. Included when `expansion=object` is requested.",
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueItemObjectSummaryDto"
+              }
+            ]
+          },
           "isDuplicate": {
             "type": "boolean",
             "description": "True when an existing item with the same externalId was returned instead of creating a new one."
@@ -5361,6 +5672,7 @@
         "required": [
           "id",
           "externalId",
+          "objectId",
           "data",
           "status",
           "retryCount",
@@ -5419,6 +5731,11 @@
             "description": "External identifier used for deduplication.",
             "nullable": true
           },
+          "objectId": {
+            "type": "string",
+            "description": "Linked Object (entity) ID this work item is about, if any.",
+            "nullable": true
+          },
           "data": {
             "type": "object",
             "description": "JSON payload for the item.",
@@ -5524,11 +5841,22 @@
                 "$ref": "#/components/schemas/QueueItemLastExecutionDto"
               }
             ]
+          },
+          "object": {
+            "description": "Linked Object summary. Included when `expansion=object` is requested.",
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueItemObjectSummaryDto"
+              }
+            ]
           }
         },
         "required": [
           "id",
           "externalId",
+          "objectId",
           "data",
           "status",
           "retryCount",
@@ -5670,6 +5998,11 @@
             "description": "External identifier used for deduplication.",
             "nullable": true
           },
+          "FK_objectId": {
+            "type": "string",
+            "description": "Linked Object (entity) ID this work item is about, if any.",
+            "nullable": true
+          },
           "data": {
             "type": "object",
             "description": "JSON payload for the item.",
@@ -5764,6 +6097,7 @@
           "createdAt",
           "updatedAt",
           "externalId",
+          "FK_objectId",
           "data",
           "status",
           "retryCount",
@@ -5882,6 +6216,10 @@
             "type": "string",
             "description": "External identifier used to deduplicate items within the queue.",
             "maxLength": 255
+          },
+          "objectId": {
+            "type": "string",
+            "description": "Optional Object (entity) this work item is about. Must belong to the same workspace. If the queue has allowed ObjectTypes configured, the Object type must be one of them."
           },
           "data": {
             "type": "object",
@@ -6064,9 +6402,24 @@
             "type": "string",
             "description": "Workflow name"
           },
+          "slug": {
+            "type": "string",
+            "description": "Stable project-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested.",
+            "nullable": true
+          },
+          "managedByCode": {
+            "type": "boolean",
+            "description": "True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested."
+          },
           "description": {
             "type": "string",
             "description": "Workflow description. Included when `expansion=description` is requested.",
+            "nullable": true
+          },
+          "output": {
+            "type": "object",
+            "description": "Declared output schema from the workflow's Output Workflow Data node. Shape is a map of field ID to `{ type, description? }`. Included when `expansion=output` is requested. Null when the workflow has no declared output schema.",
+            "additionalProperties": true,
             "nullable": true
           },
           "createdAt": {
@@ -6156,11 +6509,749 @@
                 "$ref": "#/components/schemas/WorkflowProjectSummaryDto"
               }
             ]
+          },
+          "aiConnectionId": {
+            "type": "string",
+            "description": "AI provider connection used by the workflow builder chat. Always returned on GET /workflows/{workflowId}.",
+            "nullable": true
+          },
+          "selectedModelId": {
+            "type": "string",
+            "description": "Selected model ID within the AI provider connection for workflow builder chat. Always returned on GET /workflows/{workflowId}.",
+            "nullable": true
           }
         },
         "required": [
           "id",
           "name"
+        ]
+      },
+      "UpsertWorkflowStepDto": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "type": "string",
+            "description": "Workflow app id (catalogue slug)."
+          },
+          "actionId": {
+            "type": "string",
+            "description": "Catalogue action id."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Connection instance UUID for this step."
+          },
+          "input": {
+            "type": "object",
+            "description": "Action input / config fields.",
+            "additionalProperties": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the step node."
+          },
+          "description": {
+            "type": "string",
+            "description": "Step description."
+          }
+        },
+        "required": [
+          "appId",
+          "actionId"
+        ]
+      },
+      "UpsertWorkflowBySlugDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Stable project-scoped slug (lowercase, digits, hyphens). Used as the upsert key.",
+            "example": "sync-orders"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name. Defaults to the slug when omitted.",
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the workflow is active."
+          },
+          "steps": {
+            "description": "Linear catalogue-action steps (v1; no branches).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertWorkflowStepDto"
+            }
+          },
+          "managedByCode": {
+            "type": "boolean",
+            "description": "Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint."
+          }
+        },
+        "required": [
+          "slug",
+          "steps"
+        ]
+      },
+      "AgentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Agent ID (UUID)",
+            "example": "4f7c9d2e-8a1b-4c3d-9e5f-6a7b8c9d0e1f"
+          },
+          "name": {
+            "type": "string",
+            "description": "Agent name",
+            "example": "Invoice Triage Agent"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Stable project-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested.",
+            "nullable": true
+          },
+          "managedByCode": {
+            "type": "boolean",
+            "description": "True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested."
+          },
+          "FK_aiConnectionId": {
+            "type": "string",
+            "description": "ID of the AI provider connection assigned to the agent. Always included. Null when the agent falls back to the workspace default connection.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Agent description. Included when `expansion=description` is requested.",
+            "nullable": true
+          },
+          "profileImageUrl": {
+            "type": "string",
+            "description": "Public URL of the agent profile image. Included when `expansion=profileImageUrl` is requested.",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation timestamp. Included when `expansion=createdAt` is requested.",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested.",
+            "format": "date-time"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "System instructions authored for the agent. Included when `expansion=instructions` is requested.",
+            "nullable": true
+          },
+          "temperature": {
+            "type": "number",
+            "description": "Model temperature. Included when `expansion=temperature` is requested.",
+            "example": 1
+          },
+          "maxOutputTokens": {
+            "type": "number",
+            "description": "Maximum output tokens per turn. Included when `expansion=maxOutputTokens` is requested.",
+            "nullable": true
+          },
+          "topP": {
+            "type": "number",
+            "description": "Top-p sampling. Included when `expansion=topP` is requested.",
+            "example": 1
+          },
+          "frequencyPenalty": {
+            "type": "number",
+            "description": "Frequency penalty. Included when `expansion=frequencyPenalty` is requested.",
+            "example": 0
+          },
+          "presencePenalty": {
+            "type": "number",
+            "description": "Presence penalty. Included when `expansion=presencePenalty` is requested.",
+            "example": 0
+          },
+          "maxRetries": {
+            "type": "number",
+            "description": "Maximum retries for a failed model call. Included when `expansion=maxRetries` is requested.",
+            "example": 0
+          },
+          "seed": {
+            "type": "number",
+            "description": "Fixed sampling seed. Included when `expansion=seed` is requested.",
+            "nullable": true
+          },
+          "maxToolRoundtrips": {
+            "type": "number",
+            "description": "Maximum tool roundtrips per turn. Included when `expansion=maxToolRoundtrips` is requested.",
+            "example": 5
+          },
+          "messageLookbackLimit": {
+            "type": "number",
+            "description": "How many previous messages are sent to the model. Included when `expansion=messageLookbackLimit` is requested.",
+            "example": 40
+          },
+          "tools": {
+            "type": "array",
+            "description": "Configured tool nodes (app actions) for the agent. Included when `expansion=tools` is requested.",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "toolIds": {
+            "description": "Action IDs of the configured tools. Included when `expansion=toolIds` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "taskNamingInstructions": {
+            "type": "string",
+            "description": "Instructions used when auto-naming new tasks. Included when `expansion=taskNamingInstructions` is requested.",
+            "nullable": true
+          },
+          "enabledBuiltInTools": {
+            "description": "IDs of enabled provider built-in tools. Included when `expansion=enabledBuiltInTools` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabledPlatformTools": {
+            "description": "IDs of enabled platform tools. Included when `expansion=enabledPlatformTools` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dynamicActionDiscoveryEnabled": {
+            "type": "boolean",
+            "description": "Whether dynamic workflow-app action discovery is enabled. Included when `expansion=dynamicActionDiscoveryEnabled` is requested."
+          },
+          "dynamicMcpDiscoveryEnabled": {
+            "type": "boolean",
+            "description": "Whether dynamic MCP server discovery is enabled. Included when `expansion=dynamicMcpDiscoveryEnabled` is requested."
+          },
+          "dynamicSelfInstructionsEnabled": {
+            "type": "boolean",
+            "description": "Whether the agent maintains its own instructions. Included when `expansion=dynamicSelfInstructionsEnabled` is requested."
+          },
+          "memoryEnabled": {
+            "type": "boolean",
+            "description": "Whether long-term memory is enabled. Included when `expansion=memoryEnabled` is requested."
+          },
+          "memoryScope": {
+            "type": "string",
+            "description": "Memory partitioning scope. Included when `expansion=memoryScope` is requested.",
+            "enum": [
+              "PER_USER",
+              "PER_AGENT",
+              "PER_USER_PER_AGENT"
+            ]
+          },
+          "memoryRetentionDays": {
+            "type": "number",
+            "description": "Days memories are retained. Included when `expansion=memoryRetentionDays` is requested.",
+            "example": 90
+          },
+          "suggestedPrompts": {
+            "description": "Suggested prompts shown to users starting a conversation. Included when `expansion=suggestedPrompts` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "builderSetupCompletedAt": {
+            "type": "string",
+            "description": "When the first-time builder setup wizard was completed. Included when `expansion=builderSetupCompletedAt` is requested.",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "builderCanvasPositions": {
+            "type": "object",
+            "description": "Saved canvas node positions for the agent builder. Included when `expansion=builderCanvasPositions` is requested.",
+            "nullable": true,
+            "additionalProperties": true
+          },
+          "selectedModelId": {
+            "type": "string",
+            "description": "Selected model ID within the AI provider connection. Included when `expansion=selectedModelId` is requested.",
+            "nullable": true
+          },
+          "aiConnection": {
+            "type": "object",
+            "description": "Assigned AI provider connection. Included when `expansion=aiConnection` is requested.",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "providerConfig": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "providerSlug": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "agentKnowledge": {
+            "type": "array",
+            "description": "Knowledge notebooks attached to the agent. Included when `expansion=knowledge` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "knowledge": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentObjectTypes": {
+            "type": "array",
+            "description": "Object types attached to the agent. Included when `expansion=objectTypes` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                },
+                "objectType": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "color": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentObjects": {
+            "type": "array",
+            "description": "Objects attached to the agent. Included when `expansion=objects` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                },
+                "object": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "objectType": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "icon": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "color": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "connections": {
+            "type": "array",
+            "description": "App connections available to the agent. Included when `expansion=connections` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "agentVariables": {
+            "type": "array",
+            "description": "Variables attached to the agent. Included when `expansion=variables` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "variable": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentWorkflows": {
+            "type": "array",
+            "description": "Workflows the agent can trigger. Included when `expansion=workflows` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "workflow": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentSubAgents": {
+            "type": "array",
+            "description": "Sub-agent links for the agent. Included when `expansion=subAgents` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "subagent": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "parentAgent": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentMcpServers": {
+            "type": "array",
+            "description": "MCP servers attached to the agent, with per-tool overrides. Included when `expansion=mcpServers` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "mcpServer": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "provider": {
+                      "type": "string"
+                    },
+                    "logoUrl": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                },
+                "toolOverrides": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "toolName": {
+                        "type": "string"
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "requireApproval": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentA2aAgents": {
+            "type": "array",
+            "description": "A2A (agent-to-agent) endpoints attached to the agent. Included when `expansion=a2aAgents` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "a2aAgent": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "logoUrl": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "authType": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentWebAccess": {
+            "type": "object",
+            "description": "Web access configuration. Included when `expansion=webAccess` is requested.",
+            "nullable": true,
+            "properties": {
+              "service": {
+                "type": "string"
+              },
+              "webSearchEnabled": {
+                "type": "boolean"
+              },
+              "websiteAccessEnabled": {
+                "type": "boolean"
+              }
+            }
+          },
+          "agentPhoneAccess": {
+            "type": "object",
+            "description": "Phone access configuration. Included when `expansion=phoneAccess` is requested.",
+            "nullable": true,
+            "properties": {
+              "service": {
+                "type": "string"
+              },
+              "outboundCallsEnabled": {
+                "type": "boolean"
+              },
+              "inboundCallsEnabled": {
+                "type": "boolean"
+              }
+            }
+          },
+          "project": {
+            "type": "object",
+            "description": "Project the agent belongs to. Included when `expansion=project` is requested.",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "FK_aiConnectionId"
+        ]
+      },
+      "UpsertAgentToolDto": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "type": "string",
+            "description": "Workflow app id (catalogue slug)."
+          },
+          "actionId": {
+            "type": "string",
+            "description": "Catalogue action id."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Connection instance UUID pre-bound on the tool."
+          },
+          "name": {
+            "type": "string",
+            "description": "Tool display name for the model."
+          },
+          "description": {
+            "type": "string",
+            "description": "Tool description shown to the model."
+          },
+          "input": {
+            "type": "object",
+            "description": "Pre-filled tool config (fields left empty are filled by the model).",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "appId",
+          "actionId"
+        ]
+      },
+      "UpsertAgentBySlugDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Stable project-scoped slug (lowercase, digits, hyphens). Used as the upsert key.",
+            "example": "support-triage"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name. Defaults to the slug when omitted.",
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "instructions": {
+            "type": "string",
+            "description": "System instructions / prompt for the agent."
+          },
+          "model": {
+            "type": "string",
+            "description": "Selected model id on the AI provider connection (e.g. `gpt-4o`)."
+          },
+          "aiConnectionId": {
+            "type": "string",
+            "description": "AiProviderConnection UUID. When omitted, platform AI defaults apply."
+          },
+          "connectionIds": {
+            "description": "App Connection UUIDs the agent may use for tools.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "workflowIds": {
+            "description": "Workflow UUIDs the agent may run (AgentWorkflow links).",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tools": {
+            "description": "Catalogue action tools (WorkflowNodeForRunner-shaped).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertAgentToolDto"
+            }
+          },
+          "managedByCode": {
+            "type": "boolean",
+            "description": "Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint."
+          }
+        },
+        "required": [
+          "slug",
+          "instructions",
+          "model"
         ]
       },
       "WorkflowAppResponseDto": {
@@ -6230,362 +7321,6 @@
           "actions",
           "triggers",
           "connections"
-        ]
-      },
-      "CreateKnowledgeDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "description": "Name of the knowledge base."
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 1000,
-            "description": "Description of the knowledge base."
-          },
-          "chunkOverlap": {
-            "type": "number",
-            "description": "Default chunk overlap in words. Must be provided together with chunkSize and cannot exceed 50% of it."
-          },
-          "chunkSize": {
-            "type": "number",
-            "description": "Default chunk size in words (50 to 2000). Must be provided together with chunkOverlap."
-          },
-          "embeddingModel": {
-            "type": "string",
-            "description": "Embedding model to use. Defaults to the platform-configured embedding model."
-          },
-          "embeddingProvider": {
-            "type": "string",
-            "description": "Embedding provider to use. Defaults to the platform-configured embedding provider."
-          },
-          "dimensions": {
-            "type": "number",
-            "description": "Embedding vector dimensions. Defaults to the platform-configured dimensions."
-          }
-        },
-        "required": [
-          "name"
-        ]
-      },
-      "KnowledgeCountDto": {
-        "type": "object",
-        "properties": {
-          "vectorRefs": {
-            "type": "number",
-            "description": "Number of vector references stored in this knowledge base."
-          }
-        },
-        "required": [
-          "vectorRefs"
-        ]
-      },
-      "KnowledgeVectorRefSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Vector reference ID."
-          },
-          "FK_knowledgeId": {
-            "type": "string",
-            "description": "ID of the knowledge base the vector reference belongs to."
-          }
-        },
-        "required": [
-          "id",
-          "FK_knowledgeId"
-        ]
-      },
-      "KnowledgeUsageDto": {
-        "type": "object",
-        "properties": {
-          "promptTokens": {
-            "type": "number",
-            "description": "Total prompt tokens consumed when embedding content into this knowledge base."
-          }
-        },
-        "required": [
-          "promptTokens"
-        ]
-      },
-      "KnowledgeWorkspaceDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Workspace ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Workspace name."
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ]
-      },
-      "KnowledgeResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Knowledge base ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Knowledge base name."
-          },
-          "description": {
-            "type": "string",
-            "description": "Knowledge base description. Included when `expansion=description` is requested."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp. Included when `expansion=createdAt` is requested."
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested."
-          },
-          "indexName": {
-            "type": "string",
-            "description": "Name of the underlying vector index collection. Included when `expansion=indexName` is requested."
-          },
-          "chunkSize": {
-            "type": "number",
-            "description": "Default chunk size in words used when uploading text. Included when `expansion=chunkSize` is requested."
-          },
-          "chunkOverlap": {
-            "type": "number",
-            "description": "Default chunk overlap in words used when uploading text. Included when `expansion=chunkOverlap` is requested."
-          },
-          "embeddingModel": {
-            "type": "string",
-            "description": "Embedding model used for this knowledge base. Included when `expansion=embeddingModel` is requested."
-          },
-          "embeddingProvider": {
-            "type": "string",
-            "description": "Embedding provider used for this knowledge base. Included when `expansion=embeddingProvider` is requested."
-          },
-          "dimensions": {
-            "type": "number",
-            "description": "Embedding vector dimensions. Included when `expansion=dimensions` is requested."
-          },
-          "_count": {
-            "description": "Aggregate counts. Included when `expansion=countVectorRefs` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/KnowledgeCountDto"
-              }
-            ]
-          },
-          "vectorRefs": {
-            "description": "Vector references stored in this knowledge base. Included when `expansion=vectorRefs` is requested.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/KnowledgeVectorRefSummaryDto"
-            }
-          },
-          "usage": {
-            "description": "Embedding token usage. Included when `expansion=usage` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/KnowledgeUsageDto"
-              }
-            ]
-          },
-          "workspace": {
-            "description": "Owning workspace. Included when `expansion=workspace` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/KnowledgeWorkspaceDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ]
-      },
-      "UpdateKnowledgeDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "description": "Name of the knowledge base."
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 1000,
-            "description": "Description of the knowledge base."
-          },
-          "chunkOverlap": {
-            "type": "number",
-            "description": "Default chunk overlap in words. Must be provided together with chunkSize and cannot exceed 50% of it."
-          },
-          "chunkSize": {
-            "type": "number",
-            "description": "Default chunk size in words (50 to 2000). Must be provided together with chunkOverlap."
-          },
-          "embeddingModel": {
-            "type": "string",
-            "description": "Embedding model to use. Defaults to the platform-configured embedding model."
-          },
-          "embeddingProvider": {
-            "type": "string",
-            "description": "Embedding provider to use. Defaults to the platform-configured embedding provider."
-          },
-          "dimensions": {
-            "type": "number",
-            "description": "Embedding vector dimensions. Defaults to the platform-configured dimensions."
-          }
-        }
-      },
-      "SaveUploadedTextToKnowledgeDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "description": "Name of the document. Multi-part uploads are suffixed with the part number."
-          },
-          "text": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Raw text content to embed into the knowledge base."
-          },
-          "chunkOverlap": {
-            "type": "number",
-            "description": "Chunk overlap in words. Roughly 10% of chunkSize is recommended."
-          },
-          "chunkSize": {
-            "type": "number",
-            "description": "Chunk size in words used to split the text before embedding."
-          }
-        },
-        "required": [
-          "name",
-          "text",
-          "chunkOverlap",
-          "chunkSize"
-        ]
-      },
-      "KnowledgeDocumentResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Document ID. For `group` documents this is the vector reference group ID; for `standalone` documents it is the vector reference ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Document name."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp."
-          },
-          "partCount": {
-            "type": "number",
-            "description": "Number of parts (chunks) the document was split into."
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "group",
-              "standalone"
-            ],
-            "description": "Whether the document is a multi-part group or a standalone single-part upload."
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "createdAt",
-          "partCount",
-          "type"
-        ]
-      },
-      "KnowledgeDocumentGroupVectorRefDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Vector reference ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Vector reference name, including the part suffix for multi-part uploads."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp."
-          },
-          "part": {
-            "type": "number",
-            "nullable": true,
-            "description": "Part number within the group, or null for single-part uploads."
-          },
-          "s3Link": {
-            "type": "string",
-            "nullable": true,
-            "description": "Storage path of the raw text for this part."
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "createdAt",
-          "part",
-          "s3Link"
-        ]
-      },
-      "KnowledgeDocumentGroupResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Document group ID."
-          },
-          "name": {
-            "type": "string",
-            "nullable": true,
-            "description": "Document group name, or null for legacy groups without a stored name."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp."
-          },
-          "FK_knowledgeId": {
-            "type": "string",
-            "nullable": true,
-            "description": "ID of the knowledge base the group belongs to, or null for legacy groups."
-          },
-          "vectorRefs": {
-            "description": "Vector references (parts) in the group, ordered by part number.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/KnowledgeDocumentGroupVectorRefDto"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "createdAt",
-          "FK_knowledgeId",
-          "vectorRefs"
         ]
       },
       "ObjectTypeUserSummaryDto": {
@@ -7385,229 +8120,360 @@
           "sampleRow"
         ]
       },
-      "ContextBlueprintObjectTypeSummaryDto": {
+      "CreateKnowledgeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the knowledge base."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Description of the knowledge base."
+          },
+          "chunkOverlap": {
+            "type": "number",
+            "description": "Default chunk overlap in words. Must be provided together with chunkSize and cannot exceed 50% of it."
+          },
+          "chunkSize": {
+            "type": "number",
+            "description": "Default chunk size in words (50 to 2000). Must be provided together with chunkOverlap."
+          },
+          "embeddingModel": {
+            "type": "string",
+            "description": "Embedding model to use. Defaults to the platform-configured embedding model."
+          },
+          "embeddingProvider": {
+            "type": "string",
+            "description": "Embedding provider to use. Defaults to the platform-configured embedding provider."
+          },
+          "dimensions": {
+            "type": "number",
+            "description": "Embedding vector dimensions. Defaults to the platform-configured dimensions."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "KnowledgeCountDto": {
+        "type": "object",
+        "properties": {
+          "vectorRefs": {
+            "type": "number",
+            "description": "Number of vector references stored in this knowledge base."
+          }
+        },
+        "required": [
+          "vectorRefs"
+        ]
+      },
+      "KnowledgeVectorRefSummaryDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Entity type ID."
+            "description": "Vector reference ID."
           },
-          "name": {
+          "FK_knowledgeId": {
             "type": "string",
-            "description": "Singular display name of the entity type."
-          },
-          "slug": {
-            "type": "string",
-            "description": "URL-safe slug of the entity type."
+            "description": "ID of the knowledge base the vector reference belongs to."
           }
         },
         "required": [
           "id",
-          "name",
-          "slug"
+          "FK_knowledgeId"
         ]
       },
-      "AvailableContextBlueprintResponseDto": {
+      "KnowledgeUsageDto": {
+        "type": "object",
+        "properties": {
+          "promptTokens": {
+            "type": "number",
+            "description": "Total prompt tokens consumed when embedding content into this knowledge base."
+          }
+        },
+        "required": [
+          "promptTokens"
+        ]
+      },
+      "KnowledgeWorkspaceDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Context blueprint ID."
+            "description": "Workspace ID."
           },
           "name": {
             "type": "string",
-            "description": "Display name of the blueprint."
-          },
-          "description": {
-            "type": "string",
-            "nullable": true,
-            "description": "Description of the blueprint, if any."
-          },
-          "isDefault": {
-            "type": "boolean",
-            "description": "Whether this blueprint is the default for its entity type."
-          },
-          "publishedVersion": {
-            "type": "number",
-            "description": "Version number of the published definition."
-          },
-          "objectType": {
-            "$ref": "#/components/schemas/ContextBlueprintObjectTypeSummaryDto"
+            "description": "Workspace name."
           }
         },
         "required": [
           "id",
-          "name",
-          "description",
-          "isDefault",
-          "publishedVersion",
-          "objectType"
+          "name"
         ]
       },
-      "ContextBlueprintResponseDto": {
+      "KnowledgeResponseDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Context blueprint ID."
+            "description": "Knowledge base ID."
           },
           "name": {
             "type": "string",
-            "description": "Display name of the blueprint."
+            "description": "Knowledge base name."
           },
           "description": {
             "type": "string",
-            "nullable": true,
-            "description": "Description of the blueprint, if any."
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "PUBLISHED",
-              "ARCHIVED"
-            ],
-            "description": "Lifecycle status of the blueprint."
-          },
-          "isDefault": {
-            "type": "boolean",
-            "description": "Whether this blueprint is the default for its entity type."
-          },
-          "publishedVersion": {
-            "type": "number",
-            "description": "Version number of the published definition. Zero when never published."
-          },
-          "definition": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Draft blueprint definition."
-          },
-          "publishedDefinition": {
-            "type": "object",
-            "additionalProperties": true,
-            "nullable": true,
-            "description": "Definition snapshot taken at publish time. Null when never published."
+            "description": "Knowledge base description. Included when `expansion=description` is requested."
           },
           "createdAt": {
             "type": "string",
             "format": "date-time",
-            "description": "When the blueprint was created."
+            "description": "Creation timestamp. Included when `expansion=createdAt` is requested."
           },
           "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "description": "When the blueprint was last updated."
+            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested."
           },
-          "objectType": {
-            "$ref": "#/components/schemas/ContextBlueprintObjectTypeSummaryDto"
+          "indexName": {
+            "type": "string",
+            "description": "Name of the underlying vector index collection. Included when `expansion=indexName` is requested."
+          },
+          "chunkSize": {
+            "type": "number",
+            "description": "Default chunk size in words used when uploading text. Included when `expansion=chunkSize` is requested."
+          },
+          "chunkOverlap": {
+            "type": "number",
+            "description": "Default chunk overlap in words used when uploading text. Included when `expansion=chunkOverlap` is requested."
+          },
+          "embeddingModel": {
+            "type": "string",
+            "description": "Embedding model used for this knowledge base. Included when `expansion=embeddingModel` is requested."
+          },
+          "embeddingProvider": {
+            "type": "string",
+            "description": "Embedding provider used for this knowledge base. Included when `expansion=embeddingProvider` is requested."
+          },
+          "dimensions": {
+            "type": "number",
+            "description": "Embedding vector dimensions. Included when `expansion=dimensions` is requested."
+          },
+          "_count": {
+            "description": "Aggregate counts. Included when `expansion=countVectorRefs` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KnowledgeCountDto"
+              }
+            ]
+          },
+          "vectorRefs": {
+            "description": "Vector references stored in this knowledge base. Included when `expansion=vectorRefs` is requested.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeVectorRefSummaryDto"
+            }
+          },
+          "usage": {
+            "description": "Embedding token usage. Included when `expansion=usage` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KnowledgeUsageDto"
+              }
+            ]
+          },
+          "workspace": {
+            "description": "Owning workspace. Included when `expansion=workspace` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KnowledgeWorkspaceDto"
+              }
+            ]
           }
         },
         "required": [
           "id",
-          "name",
-          "description",
-          "status",
-          "isDefault",
-          "publishedVersion",
-          "definition",
-          "publishedDefinition",
-          "createdAt",
-          "updatedAt",
-          "objectType"
+          "name"
         ]
       },
-      "ContextBlueprintDetailResponseDto": {
+      "UpdateKnowledgeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the knowledge base."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Description of the knowledge base."
+          },
+          "chunkOverlap": {
+            "type": "number",
+            "description": "Default chunk overlap in words. Must be provided together with chunkSize and cannot exceed 50% of it."
+          },
+          "chunkSize": {
+            "type": "number",
+            "description": "Default chunk size in words (50 to 2000). Must be provided together with chunkOverlap."
+          },
+          "embeddingModel": {
+            "type": "string",
+            "description": "Embedding model to use. Defaults to the platform-configured embedding model."
+          },
+          "embeddingProvider": {
+            "type": "string",
+            "description": "Embedding provider to use. Defaults to the platform-configured embedding provider."
+          },
+          "dimensions": {
+            "type": "number",
+            "description": "Embedding vector dimensions. Defaults to the platform-configured dimensions."
+          }
+        }
+      },
+      "SaveUploadedTextToKnowledgeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the document. Multi-part uploads are suffixed with the part number."
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Raw text content to embed into the knowledge base."
+          },
+          "chunkOverlap": {
+            "type": "number",
+            "description": "Chunk overlap in words. Roughly 10% of chunkSize is recommended."
+          },
+          "chunkSize": {
+            "type": "number",
+            "description": "Chunk size in words used to split the text before embedding."
+          }
+        },
+        "required": [
+          "name",
+          "text",
+          "chunkOverlap",
+          "chunkSize"
+        ]
+      },
+      "KnowledgeDocumentResponseDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "Context blueprint ID."
+            "description": "Document ID. For `group` documents this is the vector reference group ID; for `standalone` documents it is the vector reference ID."
           },
           "name": {
             "type": "string",
-            "description": "Display name of the blueprint."
-          },
-          "description": {
-            "type": "string",
-            "nullable": true,
-            "description": "Description of the blueprint, if any."
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "PUBLISHED",
-              "ARCHIVED"
-            ],
-            "description": "Lifecycle status of the blueprint."
-          },
-          "isDefault": {
-            "type": "boolean",
-            "description": "Whether this blueprint is the default for its entity type."
-          },
-          "publishedVersion": {
-            "type": "number",
-            "description": "Version number of the published definition. Zero when never published."
-          },
-          "definition": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Draft blueprint definition."
-          },
-          "publishedDefinition": {
-            "type": "object",
-            "additionalProperties": true,
-            "nullable": true,
-            "description": "Definition snapshot taken at publish time. Null when never published."
+            "description": "Document name."
           },
           "createdAt": {
             "type": "string",
             "format": "date-time",
-            "description": "When the blueprint was created."
+            "description": "Creation timestamp."
           },
-          "updatedAt": {
+          "partCount": {
+            "type": "number",
+            "description": "Number of parts (chunks) the document was split into."
+          },
+          "type": {
             "type": "string",
-            "format": "date-time",
-            "description": "When the blueprint was last updated."
-          },
-          "objectType": {
-            "$ref": "#/components/schemas/ContextBlueprintObjectTypeSummaryDto"
-          },
-          "deletedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "description": "When the blueprint was archived. Null when active."
-          },
-          "FK_workspaceId": {
-            "type": "string",
-            "description": "ID of the owning workspace."
-          },
-          "FK_objectTypeId": {
-            "type": "string",
-            "description": "ID of the entity type the blueprint targets."
-          },
-          "FK_createdById": {
-            "type": "string",
-            "description": "ID of the workspace member who created the blueprint."
+            "enum": [
+              "group",
+              "standalone"
+            ],
+            "description": "Whether the document is a multi-part group or a standalone single-part upload."
           }
         },
         "required": [
           "id",
           "name",
-          "description",
-          "status",
-          "isDefault",
-          "publishedVersion",
-          "definition",
-          "publishedDefinition",
           "createdAt",
-          "updatedAt",
-          "objectType",
-          "deletedAt",
-          "FK_workspaceId",
-          "FK_objectTypeId",
-          "FK_createdById"
+          "partCount",
+          "type"
+        ]
+      },
+      "KnowledgeDocumentGroupVectorRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Vector reference ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Vector reference name, including the part suffix for multi-part uploads."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp."
+          },
+          "part": {
+            "type": "number",
+            "nullable": true,
+            "description": "Part number within the group, or null for single-part uploads."
+          },
+          "s3Link": {
+            "type": "string",
+            "nullable": true,
+            "description": "Storage path of the raw text for this part."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt",
+          "part",
+          "s3Link"
+        ]
+      },
+      "KnowledgeDocumentGroupResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Document group ID."
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "description": "Document group name, or null for legacy groups without a stored name."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp."
+          },
+          "FK_knowledgeId": {
+            "type": "string",
+            "nullable": true,
+            "description": "ID of the knowledge base the group belongs to, or null for legacy groups."
+          },
+          "vectorRefs": {
+            "description": "Vector references (parts) in the group, ordered by part number.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeDocumentGroupVectorRefDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt",
+          "FK_knowledgeId",
+          "vectorRefs"
         ]
       },
       "ManuallyRunWorkflowInputDataDto": {
@@ -7765,6 +8631,25 @@
           "iterationCount": {
             "type": "number",
             "description": "On the collapsed loop parent entry: how many times the loop ran (or is planned to run)"
+          },
+          "approvalStatus": {
+            "type": "string",
+            "description": "Approval status when this step is a Request Approval node awaiting or past a decision",
+            "enum": [
+              "pending",
+              "partially_approved",
+              "approved",
+              "rejected",
+              "expired"
+            ]
+          },
+          "approvalsReceived": {
+            "type": "number",
+            "description": "Number of approve decisions received so far"
+          },
+          "approvalsRequired": {
+            "type": "number",
+            "description": "Number of approvals required for quorum / current stage"
           }
         },
         "required": [
@@ -7772,6 +8657,85 @@
           "label",
           "appId",
           "status"
+        ]
+      },
+      "PendingInputFieldDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Field ID used as the key when submitting input"
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable field label"
+          },
+          "inputType": {
+            "type": "string",
+            "description": "Field input type from the workflow builder (e.g. text, number, select)"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Whether the field must be provided to resume"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional helper text for the field"
+          },
+          "options": {
+            "type": "array",
+            "description": "Selectable options when the field is a select-like input",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "inputType",
+          "required"
+        ]
+      },
+      "PendingInputDto": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "description": "ID of the waiting workflow node"
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-friendly node name"
+          },
+          "actionId": {
+            "type": "string",
+            "description": "Action ID of the waiting node, when it is an action step"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Optional instructions configured on the waiting node"
+          },
+          "fields": {
+            "description": "Fields the custom UI should collect. Submit values keyed by field `id` to POST /api/webhooks/executions/{executionId}/nodes/{nodeId}/input.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingInputFieldDto"
+            }
+          }
+        },
+        "required": [
+          "nodeId",
+          "label",
+          "fields"
         ]
       },
       "ExecutionResponseDto": {
@@ -7881,10 +8845,165 @@
             "items": {
               "$ref": "#/components/schemas/ExecutionPathStepDto"
             }
+          },
+          "pendingInput": {
+            "description": "Field schemas for steps currently paused in NEEDS_INPUT. Each entry includes the waiting nodeId, label, optional instructions, and the fields to collect. Submit values keyed by field id to POST /api/webhooks/executions/{executionId}/nodes/{nodeId}/input. Included when `expansion=pendingInput` is requested. Only returned by GET /executions/{executionId}. Null when no step is waiting for input.",
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingInputDto"
+            }
+          },
+          "source": {
+            "type": "string",
+            "description": "How the execution was started. `WORKFLOW` for graph runs; `SDK` for ad-hoc single-action runs from the Public API / client SDK. Included when `expansion=source` is requested.",
+            "enum": [
+              "WORKFLOW",
+              "SDK"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional display name (set for ad-hoc SDK runs). Included when `expansion=name` is requested.",
+            "nullable": true
           }
         },
         "required": [
           "id"
+        ]
+      },
+      "RunActionDto": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "type": "string",
+            "description": "Workflow app id (catalogue slug), e.g. `http`, `gmail`."
+          },
+          "actionId": {
+            "type": "string",
+            "description": "Action id within the app, e.g. `http_action_send-request`. Discover via GET /workflow-apps (`actions[].id` / `inputConfig`)."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Connection instance UUID (`Connection.id`). Required when the action needs a connection and the workspace has more than one connection for the app with no single workspace default. When omitted: sole usable connection for the app is used; else the workspace default (`isDefault`); else 400 with candidates. Never silently picks among multiple non-default connections."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Project UUID used for variable/project scoping. When omitted and the workspace has exactly one project, that project is used; otherwise the request fails with 400."
+          },
+          "input": {
+            "type": "object",
+            "description": "Action input fields (mirrors the action `inputConfig` keys). Combined with `connectionId` into the action configValue.",
+            "additionalProperties": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional display name for the ad-hoc Execution.",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "appId",
+          "actionId"
+        ]
+      },
+      "RunActionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the ad-hoc Execution. Use GET /executions/{executionId} (with expansion=executionPath) to re-read progress."
+          },
+          "status": {
+            "type": "string",
+            "description": "Final execution status after the single action step.",
+            "enum": [
+              "RUNNING",
+              "SUCCESS",
+              "FAILED",
+              "NEEDS_INPUT",
+              "SCHEDULED",
+              "CANCELLED",
+              "WAITING"
+            ]
+          },
+          "statusMessage": {
+            "type": "string",
+            "description": "Human-readable status detail.",
+            "nullable": true
+          },
+          "output": {
+            "type": "object",
+            "description": "Action output on success (same shape as a workflow step output). Null on failure or when the run paused.",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "executionPath": {
+            "description": "Single-step executionPath for the ad-hoc run (label, status, timings).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExecutionPathStepDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ]
+      },
+      "RunStepDto": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "type": "string",
+            "description": "Workflow app id (catalogue slug), e.g. `http`, `gmail`."
+          },
+          "actionId": {
+            "type": "string",
+            "description": "Action id within the app, e.g. `http_action_send-request`. Discover via GET /workflow-apps."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Connection instance UUID. When omitted, the platform resolves: sole usable connection for the app, else the workspace default (`isDefault`), else 400 with candidates."
+          },
+          "input": {
+            "type": "object",
+            "description": "Action input fields (mirrors the action `inputConfig` keys).",
+            "additionalProperties": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional display name for this step.",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "appId",
+          "actionId"
+        ]
+      },
+      "StartRunDto": {
+        "type": "object",
+        "properties": {
+          "steps": {
+            "description": "Linear catalogue-action steps. Executed as one multi-step Execution with `source: SDK` (not a soft batch / correlation id).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunStepDto"
+            }
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Project UUID for variable/project scoping. When omitted and the workspace has exactly one project, that project is used."
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional display name for the ad-hoc Execution.",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "steps"
         ]
       },
       "CreateVariableDto": {
@@ -8149,574 +9268,6 @@
         "required": [
           "id",
           "name"
-        ]
-      },
-      "AgentResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Agent ID (UUID)",
-            "example": "4f7c9d2e-8a1b-4c3d-9e5f-6a7b8c9d0e1f"
-          },
-          "name": {
-            "type": "string",
-            "description": "Agent name",
-            "example": "Invoice Triage Agent"
-          },
-          "FK_aiConnectionId": {
-            "type": "string",
-            "description": "ID of the AI provider connection assigned to the agent. Always included. Null when the agent falls back to the workspace default connection.",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "description": "Agent description. Included when `expansion=description` is requested.",
-            "nullable": true
-          },
-          "profileImageUrl": {
-            "type": "string",
-            "description": "Public URL of the agent profile image. Included when `expansion=profileImageUrl` is requested.",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "description": "Creation timestamp. Included when `expansion=createdAt` is requested.",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested.",
-            "format": "date-time"
-          },
-          "instructions": {
-            "type": "string",
-            "description": "System instructions authored for the agent. Included when `expansion=instructions` is requested.",
-            "nullable": true
-          },
-          "temperature": {
-            "type": "number",
-            "description": "Model temperature. Included when `expansion=temperature` is requested.",
-            "example": 1
-          },
-          "maxOutputTokens": {
-            "type": "number",
-            "description": "Maximum output tokens per turn. Included when `expansion=maxOutputTokens` is requested.",
-            "nullable": true
-          },
-          "topP": {
-            "type": "number",
-            "description": "Top-p sampling. Included when `expansion=topP` is requested.",
-            "example": 1
-          },
-          "frequencyPenalty": {
-            "type": "number",
-            "description": "Frequency penalty. Included when `expansion=frequencyPenalty` is requested.",
-            "example": 0
-          },
-          "presencePenalty": {
-            "type": "number",
-            "description": "Presence penalty. Included when `expansion=presencePenalty` is requested.",
-            "example": 0
-          },
-          "maxRetries": {
-            "type": "number",
-            "description": "Maximum retries for a failed model call. Included when `expansion=maxRetries` is requested.",
-            "example": 0
-          },
-          "seed": {
-            "type": "number",
-            "description": "Fixed sampling seed. Included when `expansion=seed` is requested.",
-            "nullable": true
-          },
-          "maxToolRoundtrips": {
-            "type": "number",
-            "description": "Maximum tool roundtrips per turn. Included when `expansion=maxToolRoundtrips` is requested.",
-            "example": 5
-          },
-          "messageLookbackLimit": {
-            "type": "number",
-            "description": "How many previous messages are sent to the model. Included when `expansion=messageLookbackLimit` is requested.",
-            "example": 40
-          },
-          "tools": {
-            "type": "array",
-            "description": "Configured tool nodes (app actions) for the agent. Included when `expansion=tools` is requested.",
-            "nullable": true,
-            "items": {
-              "type": "object",
-              "additionalProperties": true
-            }
-          },
-          "toolIds": {
-            "description": "Action IDs of the configured tools. Included when `expansion=toolIds` is requested.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "taskNamingInstructions": {
-            "type": "string",
-            "description": "Instructions used when auto-naming new tasks. Included when `expansion=taskNamingInstructions` is requested.",
-            "nullable": true
-          },
-          "enabledBuiltInTools": {
-            "description": "IDs of enabled provider built-in tools. Included when `expansion=enabledBuiltInTools` is requested.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "enabledPlatformTools": {
-            "description": "IDs of enabled platform tools. Included when `expansion=enabledPlatformTools` is requested.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "dynamicActionDiscoveryEnabled": {
-            "type": "boolean",
-            "description": "Whether dynamic workflow-app action discovery is enabled. Included when `expansion=dynamicActionDiscoveryEnabled` is requested."
-          },
-          "dynamicMcpDiscoveryEnabled": {
-            "type": "boolean",
-            "description": "Whether dynamic MCP server discovery is enabled. Included when `expansion=dynamicMcpDiscoveryEnabled` is requested."
-          },
-          "dynamicSelfInstructionsEnabled": {
-            "type": "boolean",
-            "description": "Whether the agent maintains its own instructions. Included when `expansion=dynamicSelfInstructionsEnabled` is requested."
-          },
-          "memoryEnabled": {
-            "type": "boolean",
-            "description": "Whether long-term memory is enabled. Included when `expansion=memoryEnabled` is requested."
-          },
-          "memoryScope": {
-            "type": "string",
-            "description": "Memory partitioning scope. Included when `expansion=memoryScope` is requested.",
-            "enum": [
-              "PER_USER",
-              "PER_AGENT",
-              "PER_USER_PER_AGENT"
-            ]
-          },
-          "memoryRetentionDays": {
-            "type": "number",
-            "description": "Days memories are retained. Included when `expansion=memoryRetentionDays` is requested.",
-            "example": 90
-          },
-          "suggestedPrompts": {
-            "description": "Suggested prompts shown to users starting a conversation. Included when `expansion=suggestedPrompts` is requested.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "builderSetupCompletedAt": {
-            "type": "string",
-            "description": "When the first-time builder setup wizard was completed. Included when `expansion=builderSetupCompletedAt` is requested.",
-            "nullable": true,
-            "format": "date-time"
-          },
-          "builderCanvasPositions": {
-            "type": "object",
-            "description": "Saved canvas node positions for the agent builder. Included when `expansion=builderCanvasPositions` is requested.",
-            "nullable": true,
-            "additionalProperties": true
-          },
-          "selectedModelId": {
-            "type": "string",
-            "description": "Selected model ID within the AI provider connection. Included when `expansion=selectedModelId` is requested.",
-            "nullable": true
-          },
-          "aiConnection": {
-            "type": "object",
-            "description": "Assigned AI provider connection. Included when `expansion=aiConnection` is requested.",
-            "nullable": true,
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "providerConfig": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "providerSlug": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
-          "persona": {
-            "type": "object",
-            "description": "Assigned persona. Included when `expansion=persona` is requested.",
-            "nullable": true,
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "rolePrompt": {
-                "type": "string"
-              }
-            }
-          },
-          "agentKnowledge": {
-            "type": "array",
-            "description": "Knowledge notebooks attached to the agent. Included when `expansion=knowledge` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "knowledge": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "agentObjectTypes": {
-            "type": "array",
-            "description": "Object types attached to the agent. Included when `expansion=objectTypes` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "scope": {
-                  "type": "string"
-                },
-                "objectType": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "slug": {
-                      "type": "string"
-                    },
-                    "icon": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "color": {
-                      "type": "string",
-                      "nullable": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "agentObjects": {
-            "type": "array",
-            "description": "Objects attached to the agent. Included when `expansion=objects` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "scope": {
-                  "type": "string"
-                },
-                "object": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "state": {
-                      "type": "string"
-                    },
-                    "objectType": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "slug": {
-                          "type": "string"
-                        },
-                        "icon": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "color": {
-                          "type": "string",
-                          "nullable": true
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "connections": {
-            "type": "array",
-            "description": "App connections available to the agent. Included when `expansion=connections` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "agentVariables": {
-            "type": "array",
-            "description": "Variables attached to the agent. Included when `expansion=variables` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "variable": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "agentWorkflows": {
-            "type": "array",
-            "description": "Workflows the agent can trigger. Included when `expansion=workflows` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "workflow": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "agentSubAgents": {
-            "type": "array",
-            "description": "Sub-agent links for the agent. Included when `expansion=subAgents` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "subagent": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "parentAgent": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "agentMcpServers": {
-            "type": "array",
-            "description": "MCP servers attached to the agent, with per-tool overrides. Included when `expansion=mcpServers` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "mcpServer": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "slug": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "provider": {
-                      "type": "string"
-                    },
-                    "logoUrl": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "description": {
-                      "type": "string",
-                      "nullable": true
-                    }
-                  }
-                },
-                "toolOverrides": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "toolName": {
-                        "type": "string"
-                      },
-                      "enabled": {
-                        "type": "boolean"
-                      },
-                      "requireApproval": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "agentA2aAgents": {
-            "type": "array",
-            "description": "A2A (agent-to-agent) endpoints attached to the agent. Included when `expansion=a2aAgents` is requested.",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "a2aAgent": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "slug": {
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "logoUrl": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "description": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "authType": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "agentWebAccess": {
-            "type": "object",
-            "description": "Web access configuration. Included when `expansion=webAccess` is requested.",
-            "nullable": true,
-            "properties": {
-              "service": {
-                "type": "string"
-              },
-              "webSearchEnabled": {
-                "type": "boolean"
-              },
-              "websiteAccessEnabled": {
-                "type": "boolean"
-              }
-            }
-          },
-          "agentPhoneAccess": {
-            "type": "object",
-            "description": "Phone access configuration. Included when `expansion=phoneAccess` is requested.",
-            "nullable": true,
-            "properties": {
-              "service": {
-                "type": "string"
-              },
-              "outboundCallsEnabled": {
-                "type": "boolean"
-              },
-              "inboundCallsEnabled": {
-                "type": "boolean"
-              }
-            }
-          },
-          "project": {
-            "type": "object",
-            "description": "Project the agent belongs to. Included when `expansion=project` is requested.",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "FK_aiConnectionId"
         ]
       },
       "TaskListItemResponseDto": {

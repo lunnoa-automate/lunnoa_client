@@ -5,6 +5,7 @@ import type {
   BulkCreateQueueItemsResult,
   CreateQueueItemInput,
   QueueItem,
+  QueueItemCreated,
   QueueItemErrorEntry,
   QueueItemFull,
   QueueItemList,
@@ -17,7 +18,15 @@ export interface ListQueueItemsOptions {
   limit?: number;
   offset?: number;
   expansion?: string | string[];
+  /** Supports keys including `status`, `externalId`, `objectId`, `priority`. */
   filterBy?: string | Record<string, string>;
+}
+
+export interface ListQueueItemsByObjectOptions {
+  status?: string;
+  limit?: number;
+  offset?: number;
+  expansion?: string | string[];
 }
 
 export class QueueItemsResource {
@@ -59,10 +68,51 @@ export class QueueItemsResource {
     );
   }
 
-  /** Adds an item to a queue. */
-  create(queueId: string, data: CreateQueueItemInput): Promise<QueueItem> {
-    return this.http.post<QueueItem>(`/api/queues/${queueId}/items`, {
+  /** Adds an item to a queue. Pass `objectId` to link the item to an entity. */
+  create(
+    queueId: string,
+    data: CreateQueueItemInput,
+  ): Promise<QueueItemCreated> {
+    return this.http.post<QueueItemCreated>(`/api/queues/${queueId}/items`, {
       body: data,
+    });
+  }
+
+  /**
+   * Lists queue items linked to an Object across all queues in the workspace.
+   * Use for Object detail "Work" panels.
+   */
+  listByObject(
+    objectId: string,
+    options: ListQueueItemsByObjectOptions = {},
+  ): Promise<QueueItemList> {
+    return this.http.get<QueueItemList>(
+      `/api/objects/${objectId}/queue-items`,
+      {
+        query: {
+          status: options.status,
+          limit: options.limit,
+          offset: options.offset,
+          expansion: serializeCsv(options.expansion),
+        },
+      },
+    );
+  }
+
+  /** Async-iterates every queue item linked to an Object. */
+  iterateByObject(
+    objectId: string,
+    options: Omit<ListQueueItemsByObjectOptions, 'offset'> = {},
+  ): AsyncGenerator<QueueItem, void, undefined> {
+    return iterateOffset<QueueItem>(async (offset) => {
+      const result = await this.listByObject(objectId, {
+        ...options,
+        offset,
+      });
+      return {
+        items: result.items ?? [],
+        pagination: result.pagination as unknown as OffsetPagination,
+      };
     });
   }
 

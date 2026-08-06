@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.0.0...v1.1.0) (2026-08-06)
+
+### Features
+
+* defineEntityType, entity-types deploy, and schema fingerprint ([fb3fff8](https://github.com/lunnoa-automate/lunnoa_client/commit/fb3fff876bdb6d87fdd90deb98755e80b8cbad8d))
+
 ## 1.0.0 (2026-08-05)
 
 ### Features

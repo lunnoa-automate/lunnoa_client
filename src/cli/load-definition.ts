@@ -5,6 +5,7 @@ import { constants as fsConstants } from 'node:fs';
 
 import type {
   AgentDefinition,
+  EntityTypeDefinition,
   WorkflowDefinition,
 } from '../define';
 import { DEFINE_KINDS } from '../define';
@@ -71,6 +72,28 @@ export function pickAgentDefinition(
   }
   throw new Error(
     'No defineAgent() export found. Export the definition as default or `agent`.',
+  );
+}
+
+export function pickEntityTypeDefinition(
+  mod: Record<string, unknown>,
+): EntityTypeDefinition {
+  const candidates = [
+    mod.default,
+    mod.entityType,
+    ...Object.values(mod),
+  ];
+  for (const value of candidates) {
+    if (
+      value &&
+      typeof value === 'object' &&
+      (value as EntityTypeDefinition).kind === DEFINE_KINDS.entityType
+    ) {
+      return value as EntityTypeDefinition;
+    }
+  }
+  throw new Error(
+    'No defineEntityType() export found. Export the definition as default or `entityType`.',
   );
 }
 

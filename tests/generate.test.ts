@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   attributeFieldToTsType,
+  computeDeploymentSchemaFingerprint,
   generateDeploymentModule,
   toCamelCase,
   toPascalCase,
@@ -171,6 +172,8 @@ describe('generateDeploymentModule', () => {
     expect(source).toContain('notify?: "true" | "false";');
 
     expect(source).toContain('createDeploymentClient');
+    expect(source).toContain('DEPLOYMENT_SCHEMA_FINGERPRINT');
+    expect(source).toContain('ENTITY_TYPE_SCHEMA_REVISIONS');
     expect(source).toContain(
       'invoice: typedEntityAccessor<InvoiceAttributes, InvoiceState>(client, "et-1")',
     );
@@ -178,6 +181,15 @@ describe('generateDeploymentModule', () => {
       'processInvoice: typedWorkflowAccessor<ProcessInvoiceInputs>(client, "wf-1")',
     );
     expect(source).toContain('supportAgent: typedAgentAccessor(client, "ag-1")');
+  });
+
+  it('computes a stable schema fingerprint from entity types', () => {
+    expect(
+      computeDeploymentSchemaFingerprint([
+        { id: '2', name: 'B', slug: 'b', schemaRevision: 3 },
+        { id: '1', name: 'A', slug: 'a', schemaRevision: 1, allowUnknownAttributes: true },
+      ]),
+    ).toBe('a:1:1|b:3:0');
   });
 
   it('deduplicates colliding identifiers', () => {

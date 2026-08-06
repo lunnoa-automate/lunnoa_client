@@ -19,9 +19,11 @@ import {
   loadDefinitionModule,
   loadOptionalConfig,
   pickAgentDefinition,
+  pickEntityTypeDefinition,
   pickWorkflowDefinition,
 } from './load-definition';
 import { agentDefinitionToUpsert } from '../resources/agents';
+import { entityTypeDefinitionToUpsert } from '../resources/entity-types';
 import { workflowDefinitionToUpsert } from '../resources/workflows';
 
 interface CliArgs {
@@ -40,7 +42,8 @@ function parseArgs(argv: string[]): CliArgs {
   let i = 1;
   if (
     args.command === 'workflows' ||
-    args.command === 'agents'
+    args.command === 'agents' ||
+    args.command === 'entity-types'
   ) {
     args.subcommand = argv[1];
     i = 2;
@@ -88,16 +91,20 @@ const USAGE = `Usage:
   npx @lunnoa/client codegen --url <deployment-url> --api-key <lna_key> [--out <dir>]
   npx @lunnoa/client workflows deploy <path> --url <url> --api-key <key> --project-id <uuid>
   npx @lunnoa/client agents deploy <path> --url <url> --api-key <key> --project-id <uuid>
+  npx @lunnoa/client entity-types deploy <path> --url <url> --api-key <key>
 
 Options:
   --url           Base URL of the Lunnoa Automate deployment
   --api-key       Machine API key (lna_...)
   --access-token  User JWT as an alternative to --api-key
-  --project-id    Project UUID (required for deploy)
+  --project-id    Project UUID (required for workflow/agent deploy)
   --out           Output directory for lunnoa.generated.ts (codegen; default: ./src/lunnoa)
 
 Environment: LUNNOA_URL, LUNNOA_API_KEY, LUNNOA_PROJECT_ID
 Optional config file: lunnoa.config.ts | .mjs | .js | .json
+
+Entity-type deploy is workspace-scoped (no --project-id). Unknown instance
+attributes are rejected unless allowUnknownAttributes is true; use extensions.
 `;
 
 async function bindClient(args: CliArgs): Promise<{
@@ -246,6 +253,26 @@ async function deployAgent(args: CliArgs): Promise<void> {
   console.log(`Upserted agent ${result.id} (${payload.slug})`);
 }
 
+async function deployEntityType(args: CliArgs): Promise<void> {
+  if (!args.path) {
+    throw new Error(
+      'Missing definition path. Example: entity-types deploy ./entity-type.ts',
+    );
+  }
+  const { client } = await bindClient(args);
+  const mod = await loadDefinitionModule(args.path);
+  const def = pickEntityTypeDefinition(mod);
+  const payload = entityTypeDefinitionToUpsert(def);
+  console.log(`Deploying entity type slug="${payload.slug}" ...`);
+  const result = await client.entityTypes.upsertBySlug(payload);
+  console.log(
+    `Upserted entity type ${result.id} (${payload.slug})` +
+      (typeof result.schemaRevision === 'number'
+        ? ` schemaRevision=${result.schemaRevision}`
+        : ''),
+  );
+}
+
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
@@ -266,6 +293,11 @@ async function main(): Promise<void> {
 
   if (args.command === 'agents' && args.subcommand === 'deploy') {
     await deployAgent(args);
+    return;
+  }
+
+  if (args.command === 'entity-types' && args.subcommand === 'deploy') {
+    await deployEntityType(args);
     return;
   }
 

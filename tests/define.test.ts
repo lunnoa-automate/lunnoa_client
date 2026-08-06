@@ -5,6 +5,7 @@ import {
   defineAgent,
   defineAiConnection,
   defineConnection,
+  defineEntityType,
   defineWorkflow,
   resolveActionAppId,
   resolveActionId,
@@ -62,5 +63,30 @@ describe('define* factories', () => {
     expect(() =>
       defineAgent({ slug: 'a', model: '', instructions: 'x' }),
     ).toThrow(/model/);
+  });
+
+  it('defineEntityType defaults to strict unknown attributes', () => {
+    const type = defineEntityType({
+      slug: 'human',
+      name: 'Human',
+      attributeSchema: { version: '1.0', sections: [] },
+    });
+    expect(type.kind).toBe('entityType');
+    expect(type.allowUnknownAttributes).toBe(false);
+  });
+
+  it('defineEntityType requires slug and attributeSchema', () => {
+    expect(() =>
+      defineEntityType({
+        slug: '',
+        attributeSchema: { version: '1.0', sections: [] },
+      }),
+    ).toThrow(/slug/);
+    expect(() =>
+      defineEntityType({
+        slug: 'x',
+        attributeSchema: null as unknown as Record<string, unknown>,
+      }),
+    ).toThrow(/attributeSchema/);
   });
 });

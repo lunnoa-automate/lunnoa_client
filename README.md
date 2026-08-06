@@ -266,7 +266,13 @@ Re-run codegen whenever entity types, workflows, or agents change on the deploym
 
 ## Define, run, and CLI deploy
 
-Author local definitions with `defineWorkflow` / `defineAgent`, run linear chains with `lunnoa.runs.start`, and upsert into a project with the CLI (prefer CLI over calling upsert from app code):
+Author local definitions with `defineWorkflow` / `defineAgent` / `defineEntityType`, run linear chains with `lunnoa.runs.start`, and upsert with the CLI (prefer CLI over calling upsert from app code). Entity types are workspace-scoped (no `--project-id`); instance writes reject unknown attribute keys unless `allowUnknownAttributes` is true — use the reserved `extensions` object for flexible bags:
+
+```bash
+npx @lunnoa/client entity-types deploy ./human.ts --url https://lunnoa.example --api-key lna_...
+```
+
+Workflows and agents:
 
 ```bash
 npx @lunnoa/client workflows deploy ./workflows/sync-orders.ts \

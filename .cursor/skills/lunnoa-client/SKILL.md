@@ -54,8 +54,12 @@ Run these before inventing resources or shipping UI code:
    browser (SDK throws when `window` exists).
 2. **Codegen** — When building typed UIs, run
    `npx @lunnoa/client codegen` against the deployment first.
-3. **Discover before inventing** — `workflowApps.list()`, `agents.list`,
-   `workflows.list`, `entityTypes.list` (and `discovery.enabledFeatures()`).
+3. **Discover before inventing** — prefer the CLI (JSON for agents), then
+   the SDK: `npx @lunnoa/client tools list --json --for-agent`,
+   `tools get <actionId> --json`, `apps list`, `connections list`,
+   `agents|workflows|entity-types|projects list`, `features`.
+   SDK equivalents: `workflowApps.list()`, `agents.list`, `workflows.list`,
+   `entityTypes.list`, `discovery.enabledFeatures()`.
    Do not invent catalogue action ids.
 4. **Run vs deploy** — Ad-hoc: `actions.run` / `runs.start` /
    `workflows.execute`. Durable shared automation: CLI
@@ -361,6 +365,18 @@ const result = await lunnoa.runs.start(ping);
 // or lunnoa.runs.startAndWait(ping)
 ```
 
+Discover the catalogue **before** writing `defineAction` (do not guess ids):
+
+```bash
+npx @lunnoa/client tools list --json --for-agent
+npx @lunnoa/client tools search email --json --for-agent
+npx @lunnoa/client tools get http_action_send-request --json
+npx @lunnoa/client connections list --app gmail --json
+```
+
+`tools get` returns `inputConfig` / `inputFields` and a `defineAction` sketch.
+`tools list` is compact; use `get` for the schema. `--json` is for coding agents.
+
 Deploy to Automate UI (upsert by slug; prefer CLI):
 
 ```bash
@@ -510,7 +526,7 @@ emails (capped; not Azure object IDs).
 3. Call `discovery.enabledFeatures()` and hide unsupported areas.
 4. Build forms/tables from `attributeSchema` / `customInputConfig` (or the generated types).
 5. Render workflow progress from `executionPath`; handle `NEEDS_INPUT` with `submitInput`.
-6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover catalogue via `workflowApps.list()`.
+6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover catalogue via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`).
 7. For Request Approval nodes, use `approvals.inbox` / `approvals.decide` (or `executions.submitApproval`).
 8. Chat: stream via SSE, handle resume (reconnects) and stop, load history from the task.
 9. Handle `LunnoaApiError`: 401 → re-auth; 403 → hide the capability; 429 → back off.

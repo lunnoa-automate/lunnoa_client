@@ -283,6 +283,26 @@ npx @lunnoa/client agents deploy ./agents/triage.ts \
 
 `defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
 
+### CLI discovery
+
+Coding agents (and humans) should list the catalogue for a given key instead of guessing action ids. `--json` is the machine-readable form.
+
+```bash
+npx @lunnoa/client tools list --url … --api-key lna_… --for-agent --json
+npx @lunnoa/client tools search email --for-agent --json
+npx @lunnoa/client tools get http_action_send-request --json
+npx @lunnoa/client apps list --json
+npx @lunnoa/client apps get http --json
+npx @lunnoa/client connections list --app gmail --json
+npx @lunnoa/client agents list --json
+npx @lunnoa/client workflows list --json
+npx @lunnoa/client entity-types list --json
+npx @lunnoa/client projects list --json
+npx @lunnoa/client features --json
+```
+
+`tools list` is compact (`appId`, `actionId`, name, flags). `tools get` prints `inputConfig` and a `defineAction({ id, appId, input })` sketch. Auth flags and `LUNNOA_URL` / `LUNNOA_API_KEY` / `lunnoa.config` work the same as deploy.
+
 ## Regenerating the API types
 
 The generic types are generated from the deployment's public OpenAPI spec (`spec/openapi.public.json`, produced by the platform's `export-openapi --public`):

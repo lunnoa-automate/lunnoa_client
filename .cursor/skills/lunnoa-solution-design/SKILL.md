@@ -63,8 +63,9 @@ interrogation.
 ### Integrations
 
 - Which external systems? Prefer existing catalogue apps (Slack, HTTP, CRM…).
-- Do not invent action ids. Implementation must call `workflowApps.list()`
-  (or codegen) to see what this API key can use.
+- Do not invent action ids. Implementation must discover the catalogue for
+  this API key (`npx @lunnoa/client tools list --json --for-agent`, then
+  `tools get <actionId> --json`, or `workflowApps.list()` / codegen).
 
 ### Auth for any custom UI
 
@@ -96,8 +97,9 @@ interrogation.
 2. **Connections stay on Lunnoa.** Definitions only reference connection ids
    (or omit for sole/default resolution). Never ask the partner to put OAuth
    secrets in their app.
-3. **Do not invent catalogue actions.** Discover with `workflowApps.list()` /
-   codegen. Client `defineAction` binds existing catalogue actions; toolkit
+3. **Do not invent catalogue actions.** Discover with
+   `npx @lunnoa/client tools list|get|search --json` (or `workflowApps.list()`
+   / codegen). Client `defineAction` binds existing catalogue actions; toolkit
    `createAction` is a different product (in-platform apps).
 4. **Durable vs ephemeral:** experiments → `runs.start`; shared production
    automation → CLI `workflows deploy` / `agents deploy` by slug.
@@ -131,8 +133,8 @@ can execute. Use this shape:
 - Notes: <CORS, BFF, project id, env vars>
 
 ### Discovery (run first)
-- [ ] workflowApps.list() — catalogue actions for tools/steps
-- [ ] agents.list / workflows.list / entityTypes.list — reuse before create
+- [ ] `npx @lunnoa/client tools list --json --for-agent` then `tools get <id>`
+- [ ] agents / workflows / entity-types / projects list — reuse before create
 - [ ] codegen — if building typed entity/workflow accessors
 
 ### Resources
@@ -175,7 +177,7 @@ continue in a coding turn with that skill loaded.
 action)? Need approvals? Existing HTTP/CRM connections?
 
 **You conclude (example):** Pattern A BFF; Agent `order-status` with tools
-`defineAction` for ERP lookup (after `workflowApps.list`) + optional
+`defineAction` for ERP lookup (after `tools list` / `tools get`) + optional
 workflow for staff notifications; UI = chat only; no agent schedule.
 
 **You produce** the build brief, then hand off.

@@ -1,13 +1,28 @@
 /**
  * `npx @lunnoa/client codegen ...`
- * `npx @lunnoa/client workflows deploy <path>`
- * `npx @lunnoa/client agents deploy <path>`
+ * `npx @lunnoa/client tools list|get|search ...`
+ * `npx @lunnoa/client workflows|agents|entity-types deploy <path>`
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import { LunnoaClient } from '../client';
 import { DEFINE_KINDS } from '../define';
+import { parseArgs, USAGE, type CliArgs } from './args';
+import {
+  runAgentsList,
+  runAppsGet,
+  runAppsList,
+  runConnectionsGet,
+  runConnectionsList,
+  runEntityTypesList,
+  runFeatures,
+  runProjectsList,
+  runToolsGet,
+  runToolsList,
+  runToolsSearch,
+  runWorkflowsList,
+} from './discover';
 import {
   generateDeploymentModule,
   type AgentDefinition as CodegenAgentDefinition,
@@ -25,87 +40,6 @@ import {
 import { agentDefinitionToUpsert } from '../resources/agents';
 import { entityTypeDefinitionToUpsert } from '../resources/entity-types';
 import { workflowDefinitionToUpsert } from '../resources/workflows';
-
-interface CliArgs {
-  command: string | undefined;
-  subcommand?: string;
-  path?: string;
-  url?: string;
-  apiKey?: string;
-  accessToken?: string;
-  projectId?: string;
-  out: string;
-}
-
-function parseArgs(argv: string[]): CliArgs {
-  const args: CliArgs = { command: argv[0], out: './src/lunnoa' };
-  let i = 1;
-  if (
-    args.command === 'workflows' ||
-    args.command === 'agents' ||
-    args.command === 'entity-types'
-  ) {
-    args.subcommand = argv[1];
-    i = 2;
-    if (argv[2] && !argv[2].startsWith('--')) {
-      args.path = argv[2];
-      i = 3;
-    }
-  }
-  for (; i < argv.length; i += 1) {
-    const flag = argv[i];
-    const value = argv[i + 1];
-    switch (flag) {
-      case '--url':
-        args.url = value;
-        i += 1;
-        break;
-      case '--api-key':
-        args.apiKey = value;
-        i += 1;
-        break;
-      case '--access-token':
-        args.accessToken = value;
-        i += 1;
-        break;
-      case '--project-id':
-        args.projectId = value;
-        i += 1;
-        break;
-      case '--out':
-        args.out = value;
-        i += 1;
-        break;
-      default:
-        if (!args.path && !flag.startsWith('--')) {
-          args.path = flag;
-          break;
-        }
-        throw new Error(`Unknown option: ${flag}`);
-    }
-  }
-  return args;
-}
-
-const USAGE = `Usage:
-  npx @lunnoa/client codegen --url <deployment-url> --api-key <lna_key> [--out <dir>]
-  npx @lunnoa/client workflows deploy <path> --url <url> --api-key <key> --project-id <uuid>
-  npx @lunnoa/client agents deploy <path> --url <url> --api-key <key> --project-id <uuid>
-  npx @lunnoa/client entity-types deploy <path> --url <url> --api-key <key>
-
-Options:
-  --url           Base URL of the Lunnoa Automate deployment
-  --api-key       Machine API key (lna_...)
-  --access-token  User JWT as an alternative to --api-key
-  --project-id    Project UUID (required for workflow/agent deploy)
-  --out           Output directory for lunnoa.generated.ts (codegen; default: ./src/lunnoa)
-
-Environment: LUNNOA_URL, LUNNOA_API_KEY, LUNNOA_PROJECT_ID
-Optional config file: lunnoa.config.ts | .mjs | .js | .json
-
-Entity-type deploy is workspace-scoped (no --project-id). Unknown instance
-attributes are rejected unless allowUnknownAttributes is true; use extensions.
-`;
 
 async function bindClient(args: CliArgs): Promise<{
   client: LunnoaClient;
@@ -273,16 +207,132 @@ async function deployEntityType(args: CliArgs): Promise<void> {
   );
 }
 
+const DISCOVERY_SUBCOMMANDS: Record<string, string[] | undefined> = {
+  tools: ['list', 'get', 'search'],
+  apps: ['list', 'get'],
+  connections: ['list', 'get'],
+  features: undefined,
+  projects: ['list'],
+};
+
+function isDiscoveryCommand(args: CliArgs): boolean {
+  const { command, subcommand } = args;
+  if (!command) {
+    return false;
+  }
+  if (command === 'features') {
+    return true;
+  }
+  if (command === 'projects' && (subcommand === 'list' || !subcommand)) {
+    return true;
+  }
+  if (
+    (command === 'agents' ||
+      command === 'workflows' ||
+      command === 'entity-types') &&
+    subcommand === 'list'
+  ) {
+    return true;
+  }
+  const allowed = DISCOVERY_SUBCOMMANDS[command];
+  return Array.isArray(allowed) && Boolean(subcommand && allowed.includes(subcommand));
+}
+
+function assertKnownDiscoveryShape(args: CliArgs): void {
+  const { command, subcommand } = args;
+  const allowed = command ? DISCOVERY_SUBCOMMANDS[command] : undefined;
+  if (!command || allowed === undefined) {
+    return;
+  }
+  if (!subcommand || !allowed.includes(subcommand)) {
+    throw new Error(
+      `Unknown command: ${command} ${subcommand ?? ''}\n\n${USAGE}`,
+    );
+  }
+}
+
+async function runDiscovery(args: CliArgs): Promise<boolean> {
+  const { command, subcommand } = args;
+  if (command === 'tools' || command === 'apps' || command === 'connections') {
+    assertKnownDiscoveryShape(args);
+  }
+  if (!isDiscoveryCommand(args)) {
+    return false;
+  }
+
+  const { client } = await bindClient(args);
+
+  if (command === 'tools' && subcommand === 'list') {
+    await runToolsList(client, args);
+    return true;
+  }
+  if (command === 'tools' && subcommand === 'get') {
+    await runToolsGet(client, args);
+    return true;
+  }
+  if (command === 'tools' && subcommand === 'search') {
+    await runToolsSearch(client, args);
+    return true;
+  }
+  if (command === 'apps' && subcommand === 'list') {
+    await runAppsList(client, args);
+    return true;
+  }
+  if (command === 'apps' && subcommand === 'get') {
+    await runAppsGet(client, args);
+    return true;
+  }
+  if (command === 'connections' && subcommand === 'list') {
+    await runConnectionsList(client, args);
+    return true;
+  }
+  if (command === 'connections' && subcommand === 'get') {
+    await runConnectionsGet(client, args);
+    return true;
+  }
+  if (command === 'agents' && subcommand === 'list') {
+    await runAgentsList(client, args);
+    return true;
+  }
+  if (command === 'workflows' && subcommand === 'list') {
+    await runWorkflowsList(client, args);
+    return true;
+  }
+  if (command === 'entity-types' && subcommand === 'list') {
+    await runEntityTypesList(client, args);
+    return true;
+  }
+  if (command === 'projects' && (subcommand === 'list' || !subcommand)) {
+    await runProjectsList(client, args);
+    return true;
+  }
+  if (command === 'features') {
+    await runFeatures(client, args);
+    return true;
+  }
+
+  return false;
+}
+
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
-  if (!args.command || args.command === '--help' || args.command === 'help') {
+  if (
+    !args.command ||
+    args.command === '--help' ||
+    args.command === 'help' ||
+    args.help
+  ) {
     console.log(USAGE);
     return;
   }
 
   if (args.command === 'codegen') {
     await runCodegen(args);
+    return;
+  }
+
+  if (await runDiscovery(args)) {
     return;
   }
 

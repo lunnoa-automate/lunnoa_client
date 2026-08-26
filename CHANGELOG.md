@@ -1,3 +1,8 @@
+## [1.2.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.1.0...v1.2.0) (2026-08-26)
+
+### Features
+
+* add CLI catalogue discovery commands ([cc40322](https://github.com/lunnoa-automate/lunnoa_client/commit/cc403228bc12360a7f625553514b9d1e1da12db7))
 
 ## 1.0.0 (2026-08-05)
 

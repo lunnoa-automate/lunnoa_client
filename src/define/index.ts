@@ -11,6 +11,7 @@ export const DEFINE_KINDS = {
   action: 'action',
   workflow: 'workflow',
   agent: 'agent',
+  entityType: 'entityType',
 } as const;
 
 export type DefineKind = (typeof DEFINE_KINDS)[keyof typeof DEFINE_KINDS];
@@ -134,6 +135,46 @@ export function defineAgent(
     throw new Error('defineAgent requires instructions');
   }
   return { kind: DEFINE_KINDS.agent, ...config };
+}
+
+export interface EntityTypeDefinition {
+  kind: typeof DEFINE_KINDS.entityType;
+  /** Stable workspace-scoped slug (upsert key). */
+  slug: string;
+  name?: string;
+  namePlural?: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  /** Field definitions grouped into sections (same contract as Adminspace). */
+  attributeSchema: Record<string, unknown>;
+  stateSchema?: Record<string, unknown> | null;
+  isEnabled?: boolean;
+  /**
+   * When false (default), entity writes reject undeclared attribute keys.
+   * Reserved key `extensions` is always allowed as a JSON object.
+   */
+  allowUnknownAttributes?: boolean;
+}
+
+export function defineEntityType(
+  config: Omit<EntityTypeDefinition, 'kind'>,
+): EntityTypeDefinition {
+  if (!config.slug?.trim()) {
+    throw new Error('defineEntityType requires slug');
+  }
+  if (
+    !config.attributeSchema ||
+    typeof config.attributeSchema !== 'object' ||
+    Array.isArray(config.attributeSchema)
+  ) {
+    throw new Error('defineEntityType requires attributeSchema object');
+  }
+  return {
+    kind: DEFINE_KINDS.entityType,
+    allowUnknownAttributes: false,
+    ...config,
+  };
 }
 
 /** Infer appId from catalogue action ids like `http_action_send-request`. */

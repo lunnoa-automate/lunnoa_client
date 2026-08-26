@@ -78,6 +78,7 @@ export {
   defineAgent,
   defineAiConnection,
   defineConnection,
+  defineEntityType,
   defineWorkflow,
   DEFINE_KINDS,
   resolveActionAppId,
@@ -88,6 +89,7 @@ export {
   type AiConnectionDefinition,
   type ConnectionDefinition,
   type DefineKind,
+  type EntityTypeDefinition,
   type WorkflowDefinition,
   type WorkflowStepDefinition,
 } from './define';
@@ -99,7 +101,9 @@ export {
 } from './resources/entities';
 export {
   EntityTypesResource,
+  entityTypeDefinitionToUpsert,
   type EntityTypeReadOptions,
+  type UpsertEntityTypeBySlugInput,
 } from './resources/entity-types';
 export { KnowledgeResource } from './resources/knowledge';
 export { QueuesResource } from './resources/queues';

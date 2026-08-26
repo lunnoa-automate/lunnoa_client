@@ -266,7 +266,13 @@ Re-run codegen whenever entity types, workflows, or agents change on the deploym
 
 ## Define, run, and CLI deploy
 
-Author local definitions with `defineWorkflow` / `defineAgent`, run linear chains with `lunnoa.runs.start`, and upsert into a project with the CLI (prefer CLI over calling upsert from app code):
+Author local definitions with `defineWorkflow` / `defineAgent` / `defineEntityType`, run linear chains with `lunnoa.runs.start`, and upsert with the CLI (prefer CLI over calling upsert from app code). Entity types are workspace-scoped (no `--project-id`); instance writes reject unknown attribute keys unless `allowUnknownAttributes` is true — use the reserved `extensions` object for flexible bags:
+
+```bash
+npx @lunnoa/client entity-types deploy ./human.ts --url https://lunnoa.example --api-key lna_...
+```
+
+Workflows and agents:
 
 ```bash
 npx @lunnoa/client workflows deploy ./workflows/sync-orders.ts \
@@ -276,6 +282,26 @@ npx @lunnoa/client agents deploy ./agents/triage.ts \
 ```
 
 `defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
+
+### CLI discovery
+
+Coding agents (and humans) should list the catalogue for a given key instead of guessing action ids. `--json` is the machine-readable form.
+
+```bash
+npx @lunnoa/client tools list --url … --api-key lna_… --for-agent --json
+npx @lunnoa/client tools search email --for-agent --json
+npx @lunnoa/client tools get http_action_send-request --json
+npx @lunnoa/client apps list --json
+npx @lunnoa/client apps get http --json
+npx @lunnoa/client connections list --app gmail --json
+npx @lunnoa/client agents list --json
+npx @lunnoa/client workflows list --json
+npx @lunnoa/client entity-types list --json
+npx @lunnoa/client projects list --json
+npx @lunnoa/client features --json
+```
+
+`tools list` is compact (`appId`, `actionId`, name, flags). `tools get` prints `inputConfig` and a `defineAction({ id, appId, input })` sketch. Auth flags and `LUNNOA_URL` / `LUNNOA_API_KEY` / `lunnoa.config` work the same as deploy.
 
 ## Regenerating the API types
 
@@ -326,7 +352,7 @@ pnpm test
 pnpm build
 ```
 
-Build output (ESM + CJS + type declarations) is written to `dist/`. Only `dist/` is included in the published npm tarball.
+Build output (ESM + CJS + type declarations) is written to `dist/`. The published npm tarball includes `dist/` and `skills/`.
 
 ## Publishing
 
@@ -340,9 +366,12 @@ Releases are fully automated with [semantic-release](https://github.com/semantic
 
 ### npm trusted publishing (OIDC)
 
-Publishing uses [npm trusted publishers](https://docs.npmjs.com/trusted-publishers/) via GitHub Actions OIDC — no `NPM_TOKEN` secret is required.
+Publishing uses [npm trusted publishers](https://docs.npmjs.com/trusted-publishers/) via GitHub Actions OIDC — no long-lived `NPM_TOKEN` is required after the package exists.
 
-Before the first release, configure a **Trusted Publisher** on [npmjs.com](https://www.npmjs.com) (org admin login for `@lunnoa`):
+**Chicken-and-egg for the first publish:** npm only lets you attach a Trusted Publisher to a package that already exists. Bootstrap once (token or placeholder publish), then configure OIDC and prefer that for all later releases.
+
+1. Publish the initial version (e.g. via the `Bootstrap lunnoa_client publish` workflow in `lunnoa_automate`, or `NPM_TOKEN` on the Release workflow).
+2. On [npmjs.com](https://www.npmjs.com) (org admin for `@lunnoa`), open the package **Access** tab and add a Trusted Publisher:
 
 | Field | Value |
 | --- | --- |
@@ -352,4 +381,18 @@ Before the first release, configure a **Trusted Publisher** on [npmjs.com](https
 | Workflow filename | `release.yml` |
 | Environment | *(leave empty)* |
 
+3. After OIDC works, you can remove `NPM_TOKEN` from the Release workflow env.
+
 The release workflow grants `id-token: write` and uses **semantic-release v25** with Node 24.
+
+### Acceptance soak
+
+Against a real deployment (service-account API key with at least `entities:read`, `entities:create`, `agents:use`):
+
+```bash
+LUNNOA_URL=https://your-deployment \
+LUNNOA_API_KEY=lna_... \
+AGENT_ID=<agent-uuid> \
+ENTITY_TYPE_SLUG=<optional-slug> \
+pnpm exec tsx scripts/acceptance-soak.ts
+```

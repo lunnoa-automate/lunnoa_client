@@ -113,6 +113,8 @@ Most namespaces map to the Public API surface (`openapi.public.json`):
 
 `approvals` uses the authenticated **workspace** API (`/api/approvals/...`), not Public API v1. The inbox is filtered to requests where the current user is an eligible approver.
 
+`scorecards` also uses the workspace API (`/api/scorecards/...`): `list`, `get`, and `recordValue(measureId, { value, period?, note? })` to push a measure value from your own system (API key needs `scorecard:record`).
+
 Errors are `LunnoaApiError` with `status`, `body`, and convenience flags (`isUnauthorized`, `isForbidden`, `isRateLimited`). Paginated lists have async iteration (`entities.iterate(...)`, `queueItems.iterate(...)`).
 
 ## Worked examples

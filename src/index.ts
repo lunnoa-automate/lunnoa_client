@@ -113,6 +113,7 @@ export {
   type ListQueueItemsByObjectOptions,
 } from './resources/queue-items';
 export { VariablesResource } from './resources/variables';
+export * from './resources/scorecards';
 export { ConnectionsResource } from './resources/connections';
 export { ProjectsResource } from './resources/projects';
 export { WorkflowAppsResource } from './resources/workflow-apps';

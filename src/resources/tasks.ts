@@ -8,7 +8,10 @@ import type {
   TaskListItem,
   UpdateTaskInput,
 } from '../types';
-import type { ChatMode } from '../streaming/agent-chat';
+import {
+  messageTaskBody,
+  type StreamMessageOptions,
+} from '../streaming/agent-chat';
 import { serializeListQuery, type ListQueryOptions } from './common';
 
 export class TasksResource {
@@ -67,7 +70,7 @@ export class TasksResource {
     agentId: string,
     taskId: string,
     message: string | UIMessage,
-    options: { chatMode?: ChatMode } = {},
+    options: Omit<StreamMessageOptions, 'signal'> = {},
   ): Promise<string | UIMessage[]> {
     const uiMessage: UIMessage =
       typeof message === 'string'
@@ -80,12 +83,7 @@ export class TasksResource {
 
     return this.http.post<string | UIMessage[]>(
       `/api/agents/${agentId}/tasks/${taskId}/message`,
-      {
-        body: {
-          messages: [uiMessage],
-          ...(options.chatMode ? { chatMode: options.chatMode } : {}),
-        },
-      },
+      { body: messageTaskBody(uiMessage, options) },
     );
   }
 }

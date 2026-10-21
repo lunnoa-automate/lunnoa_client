@@ -2142,7 +2142,7 @@
         "x-public": true
       },
       "get": {
-        "description": "Returns a paginated list of entities in the workspace, optionally filtered by type, state, owner or a name search.",
+        "description": "Returns a paginated list of entities in the workspace, optionally filtered by type, state, or a name search.",
         "operationId": "ObjectsController_findAll",
         "parameters": [
           {
@@ -2177,15 +2177,6 @@
             "required": false,
             "in": "query",
             "description": "Filter by multiple state IDs, supplied as a comma-separated list.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "ownerId",
-            "required": false,
-            "in": "query",
-            "description": "Filter by owner workspace user ID.",
             "schema": {
               "type": "string"
             }
@@ -2706,10 +2697,6 @@
                       "xlsx"
                     ],
                     "description": "Intended file format. Defaults to csv. Does not change the JSON response shape."
-                  },
-                  "includeRelatedEntityNames": {
-                    "type": "boolean",
-                    "description": "When true, adds an ownerName column resolved from the owning workspace member."
                   }
                 }
               }
@@ -2718,7 +2705,7 @@
         },
         "responses": {
           "201": {
-            "description": "Flat export rows. Each row contains id, name, state, createdAt, updatedAt, the requested attribute fields, and ownerName when includeRelatedEntityNames is true.",
+            "description": "Flat export rows. Each row contains id, name, state, createdAt, updatedAt, and the requested attribute fields.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4859,10 +4846,6 @@
             "type": "boolean",
             "description": "Whether the hexagonal agent builder canvas UI is enabled."
           },
-          "SOLUTION_DESIGNER": {
-            "type": "boolean",
-            "description": "Whether the Solution Designer UI is enabled."
-          },
           "CODE_EXECUTION": {
             "type": "boolean",
             "description": "Whether isolated code execution for agents is enabled."
@@ -4898,7 +4881,6 @@
           "TEAMS",
           "SKILLS",
           "AGENT_BUILDER_CANVAS",
-          "SOLUTION_DESIGNER",
           "CODE_EXECUTION",
           "SSO",
           "SCIM",
@@ -6382,9 +6364,8 @@
             "description": "Error message to record against the queue item."
           },
           "errorDetails": {
-            "type": "object",
-            "description": "Additional structured error details, supplied as a JSON string.",
-            "additionalProperties": true
+            "type": "string",
+            "description": "Additional structured error details, supplied as a JSON string."
           }
         },
         "required": [
@@ -6884,11 +6865,6 @@
             "type": "object",
             "additionalProperties": true,
             "description": "Dynamic attribute values keyed by field ID."
-          },
-          "ownerId": {
-            "type": "string",
-            "description": "Workspace user ID of the entity owner.",
-            "format": "uuid"
           }
         },
         "required": [
@@ -7192,10 +7168,6 @@
             "type": "object",
             "additionalProperties": true,
             "description": "Attribute values keyed by field ID. Merged into the existing attributes; fields not supplied are left unchanged."
-          },
-          "ownerId": {
-            "type": "string",
-            "description": "Workspace user ID of the new entity owner."
           }
         }
       },
@@ -9086,7 +9058,7 @@
           },
           "approvalsRequired": {
             "type": "number",
-            "description": "Number of approvals required for quorum / current stage"
+            "description": "How many approvals are required before the workflow continues"
           }
         },
         "required": [
@@ -9868,19 +9840,23 @@
           "data": {
             "type": "object",
             "description": "Optional attachment data for the message",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "description": "URL of an image attached to the message."
+              }
+            },
             "example": {
               "imageUrl": "https://example.com/image.png"
             }
           },
-          "solutionId": {
+          "piiResolution": {
             "type": "string",
-            "description": "Solution Designer handoff"
-          },
-          "planStepId": {
-            "type": "string"
-          },
-          "delegationId": {
-            "type": "string"
+            "description": "Answer to an ask-before-sending personal-data prompt. Applies to this message only.",
+            "enum": [
+              "anonymize",
+              "fallback"
+            ]
           }
         },
         "required": [

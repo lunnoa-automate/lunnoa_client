@@ -512,8 +512,8 @@ await lunnoa.executions.submitApproval(executionId, nodeId, {
 
 Do **not** use `submitInput` for Request Approval nodes; that is for generic
 `NEEDS_INPUT` forms. Partial approvals keep the execution paused; terminal
-decisions resume it. `eligibleApprovers` is current-stage membership with
-emails (capped; not Azure object IDs).
+decisions resume it. `eligibleApprovers` is the people who can still decide,
+with emails (capped; not Azure object IDs).
 
 ---
 

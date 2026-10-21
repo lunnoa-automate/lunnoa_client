@@ -1,3 +1,10 @@
+## [1.3.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.2.0...v1.3.0) (2026-10-21)
+
+### Features
+
+* add scorecards resource for recording measure values ([d873c08](https://github.com/lunnoa-automate/lunnoa_client/commit/d873c0854542f8eff7182a24ed8ee1d095dfd0be))
+* match the client to the current Automate API ([a292514](https://github.com/lunnoa-automate/lunnoa_client/commit/a292514a0aed4f2aaef4f855a53db4e0cc43ca23))
+
 ## [1.2.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.1.0...v1.2.0) (2026-08-26)
 
 ### Features

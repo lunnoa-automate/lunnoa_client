@@ -643,7 +643,7 @@ export interface paths {
         };
         /**
          * Get all entities for workspace with filtering
-         * @description Returns a paginated list of entities in the workspace, optionally filtered by type, state, owner or a name search.
+         * @description Returns a paginated list of entities in the workspace, optionally filtered by type, state, or a name search.
          */
         get: operations["ObjectsController_findAll"];
         put?: never;
@@ -1445,8 +1445,6 @@ export interface components {
             SKILLS: boolean;
             /** @description Whether the hexagonal agent builder canvas UI is enabled. */
             AGENT_BUILDER_CANVAS: boolean;
-            /** @description Whether the Solution Designer UI is enabled. */
-            SOLUTION_DESIGNER: boolean;
             /** @description Whether isolated code execution for agents is enabled. */
             CODE_EXECUTION: boolean;
             /** @description Whether SSO (OIDC) login is enabled. Requires at least one enabled SSO provider. */
@@ -2067,9 +2065,7 @@ export interface components {
             /** @description Error message to record against the queue item. */
             error: string;
             /** @description Additional structured error details, supplied as a JSON string. */
-            errorDetails?: {
-                [key: string]: unknown;
-            };
+            errorDetails?: string;
         };
         BulkDeleteItemsDto: {
             /** @description IDs of the queue items to delete. */
@@ -2304,11 +2300,6 @@ export interface components {
             attributes?: {
                 [key: string]: unknown;
             };
-            /**
-             * Format: uuid
-             * @description Workspace user ID of the entity owner.
-             */
-            ownerId?: string;
         };
         ObjectTypeSummaryDto: {
             /** @description Entity type ID. */
@@ -2424,8 +2415,6 @@ export interface components {
             attributes?: {
                 [key: string]: unknown;
             };
-            /** @description Workspace user ID of the new entity owner. */
-            ownerId?: string;
         };
         ChangeObjectStateDto: {
             /** @description ID of the target state. Must be a valid transition from the current state when the entity type defines transitions. */
@@ -3209,7 +3198,7 @@ export interface components {
             approvalStatus?: "pending" | "partially_approved" | "approved" | "rejected" | "expired";
             /** @description Number of approve decisions received so far */
             approvalsReceived?: number;
-            /** @description Number of approvals required for quorum / current stage */
+            /** @description How many approvals are required before the workflow continues */
             approvalsRequired?: number;
         };
         PendingInputFieldDto: {
@@ -3587,11 +3576,15 @@ export interface components {
              *       "imageUrl": "https://example.com/image.png"
              *     }
              */
-            data?: Record<string, never>;
-            /** @description Solution Designer handoff */
-            solutionId?: string;
-            planStepId?: string;
-            delegationId?: string;
+            data?: {
+                /** @description URL of an image attached to the message. */
+                imageUrl?: string;
+            };
+            /**
+             * @description Answer to an ask-before-sending personal-data prompt. Applies to this message only.
+             * @enum {string}
+             */
+            piiResolution?: "anonymize" | "fallback";
         };
         StreamMessageStopDto: {
             /** @description Partial assistant message to persist when stopping a stream */
@@ -4656,8 +4649,6 @@ export interface operations {
                 state?: string;
                 /** @description Filter by multiple state IDs, supplied as a comma-separated list. */
                 states?: string;
-                /** @description Filter by owner workspace user ID. */
-                ownerId?: string;
                 /** @description Case-insensitive search on the entity name. */
                 search?: string;
                 /** @description Field to sort by (for example name, createdAt, updatedAt). Defaults to updatedAt. */
@@ -4939,13 +4930,11 @@ export interface operations {
                      * @enum {string}
                      */
                     format?: "csv" | "xlsx";
-                    /** @description When true, adds an ownerName column resolved from the owning workspace member. */
-                    includeRelatedEntityNames?: boolean;
                 };
             };
         };
         responses: {
-            /** @description Flat export rows. Each row contains id, name, state, createdAt, updatedAt, the requested attribute fields, and ownerName when includeRelatedEntityNames is true. */
+            /** @description Flat export rows. Each row contains id, name, state, createdAt, updatedAt, and the requested attribute fields. */
             201: {
                 headers: {
                     [name: string]: unknown;

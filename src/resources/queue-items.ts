@@ -12,6 +12,23 @@ import type {
   QueueItemStats,
   UpdateQueueItemInput,
 } from '../types';
+
+export type QueueItemStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'RETRYING';
+
+export interface AddQueueItemErrorInput {
+  /** Error message recorded on the item. */
+  error: string;
+  /**
+   * Extra details. An object is sent as a JSON string, which is what the
+   * server validates.
+   */
+  errorDetails?: string | Record<string, unknown>;
+}
 import { serializeCsv, serializeFilterBy } from './common';
 
 export interface ListQueueItemsOptions {
@@ -158,10 +175,15 @@ export class QueueItemsResource {
     return this.http.get<QueueItem[]>(`/api/queues/${queueId}/items/retry`);
   }
 
-  /** Returns items with the given status. */
-  listByStatus(queueId: string, status: string): Promise<QueueItem[]> {
-    return this.http.get<QueueItem[]>(
+  /** Returns a page of items with the given status. */
+  listByStatus(
+    queueId: string,
+    status: QueueItemStatus,
+    options: { limit?: number; offset?: number } = {},
+  ): Promise<QueueItemList> {
+    return this.http.get<QueueItemList>(
       `/api/queues/${queueId}/items/status/${status}`,
+      { query: { limit: options.limit, offset: options.offset } },
     );
   }
 
@@ -172,11 +194,26 @@ export class QueueItemsResource {
     );
   }
 
-  /** Searches items in the queue. */
-  search(queueId: string, query: string): Promise<QueueItem[]> {
-    return this.http.get<QueueItem[]>(`/api/queues/${queueId}/items/search`, {
-      query: { q: query },
-    });
+  /**
+   * Searches items by external id, item data, and metadata.
+   * Returns one page, same shape as `list`.
+   */
+  search(
+    queueId: string,
+    query: string,
+    options: Omit<ListQueueItemsOptions, 'filterBy'> = {},
+  ): Promise<QueueItemList> {
+    return this.http.get<QueueItemList>(
+      `/api/queues/${queueId}/items/search`,
+      {
+        query: {
+          limit: options.limit,
+          offset: options.offset,
+          expansion: serializeCsv(options.expansion),
+          filterBy: serializeFilterBy({ search: query }),
+        },
+      },
+    );
   }
 
   /** Returns per-status and per-priority counts for the queue. */
@@ -226,11 +263,25 @@ export class QueueItemsResource {
   addError(
     queueId: string,
     itemId: string,
-    error: { message: string; [key: string]: unknown },
+    error: AddQueueItemErrorInput,
   ): Promise<QueueItem> {
     return this.http.post<QueueItem>(
       `/api/queues/${queueId}/items/${itemId}/error`,
-      { body: error },
+      {
+        body: {
+          error: error.error,
+          errorDetails: serializeErrorDetails(error.errorDetails),
+        },
+      },
     );
   }
+}
+
+function serializeErrorDetails(
+  value: string | Record<string, unknown> | undefined,
+): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  return typeof value === 'string' ? value : JSON.stringify(value);
 }

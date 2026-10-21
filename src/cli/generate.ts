@@ -275,7 +275,7 @@ export function generateDeploymentModule(
       ` *\n` +
       ` * Schema fingerprint: ${schemaFingerprint}\n` +
       ` */\n` +
-      `import type { LunnoaClient, Entity, Execution, ExecuteWorkflowResult, PaginatedEntities, Task, AgentChatStream, WaitUntilFinishedOptions, ListEntitiesOptions, UIMessage } from '@lunnoa/client';\n` +
+      `import type { LunnoaClient, Entity, Execution, ExecuteWorkflowResult, PaginatedEntities, Task, AgentChatStream, WaitUntilFinishedOptions, ListEntitiesOptions, StreamMessageOptions, UIMessage } from '@lunnoa/client';\n` +
       `\n` +
       `/** Fingerprint of entity-type schemas at codegen time (slug:revision:allowUnknown). */\n` +
       `export const DEPLOYMENT_SCHEMA_FINGERPRINT = ${JSON.stringify(schemaFingerprint)};\n` +
@@ -499,7 +499,7 @@ function typedEntityAccessor<A, S extends string>(
       })) as Typed;
     },
     /** Creates an entity of this type with compile-time checked attributes. */
-    async create(data: { name: string; attributes?: A; state?: S; ownerId?: string }): Promise<Typed> {
+    async create(data: { name: string; attributes?: A; state?: S }): Promise<Typed> {
       return (await client.entities.create(
         { ...data, objectTypeId } as never,
         { expansion: ['attributes'] },
@@ -508,7 +508,7 @@ function typedEntityAccessor<A, S extends string>(
     /** Partially updates an entity of this type. */
     async update(
       entityId: string,
-      data: { name?: string; attributes?: Partial<A>; ownerId?: string },
+      data: { name?: string; attributes?: Partial<A> },
     ): Promise<Typed> {
       return (await client.entities.update(entityId, data as never, {
         expansion: ['attributes'],
@@ -554,13 +554,17 @@ function typedAgentAccessor(client: LunnoaClient, agentId: string) {
     streamMessage(
       taskId: string,
       message: string | UIMessage,
-      options?: { chatMode?: 'builder' | 'preview'; signal?: AbortSignal },
+      options?: StreamMessageOptions,
     ): Promise<AgentChatStream> {
       return client.agentChat.streamMessage(agentId, taskId, message, options);
     },
     /** Sends a message and waits for the full turn (non-streaming). */
-    message(taskId: string, message: string | UIMessage) {
-      return client.tasks.message(agentId, taskId, message);
+    message(
+      taskId: string,
+      message: string | UIMessage,
+      options?: Omit<StreamMessageOptions, 'signal'>,
+    ) {
+      return client.tasks.message(agentId, taskId, message, options);
     },
   };
 }

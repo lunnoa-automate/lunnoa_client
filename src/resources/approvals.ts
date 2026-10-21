@@ -14,7 +14,6 @@ export type ApprovalInboxItem = {
   status: string;
   requiredCount: number;
   receivedApprovals: number;
-  currentStageIndex?: number;
   expiresAt?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -27,7 +26,7 @@ export type ApprovalInboxItem = {
     comment?: string;
     decidedAt?: string;
   };
-  /** People who can still decide (current stage; emails resolved). */
+  /** People who can still decide. */
   eligibleApprovers?: EligibleApprover[];
   approval?: Record<string, unknown>;
 };

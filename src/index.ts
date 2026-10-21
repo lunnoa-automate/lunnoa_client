@@ -109,8 +109,10 @@ export { KnowledgeResource } from './resources/knowledge';
 export { QueuesResource } from './resources/queues';
 export {
   QueueItemsResource,
+  type AddQueueItemErrorInput,
   type ListQueueItemsOptions,
   type ListQueueItemsByObjectOptions,
+  type QueueItemStatus,
 } from './resources/queue-items';
 export { VariablesResource } from './resources/variables';
 export * from './resources/scorecards';

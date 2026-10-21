@@ -23,8 +23,6 @@ export interface ListEntitiesOptions {
   state?: string;
   /** Filter by several states (comma-separated server-side). */
   states?: string[];
-  /** Filter by owner workspace-user ID. */
-  ownerId?: string;
   /** Free-text search over entity names. */
   search?: string;
   sortBy?: string;
@@ -54,7 +52,6 @@ export interface ExportEntitiesInput {
   fieldIds: string[];
   filters?: Array<{ fieldId: string; operator: string; value: unknown }>;
   format?: 'csv' | 'xlsx';
-  includeRelatedEntityNames?: boolean;
 }
 
 /**
@@ -187,7 +184,6 @@ export class EntitiesResource {
       objectTypeSlug: options.objectTypeSlug,
       state: options.state,
       states: options.states?.join(','),
-      ownerId: options.ownerId,
       search: options.search,
       sortBy: options.sortBy,
       sortOrder: options.sortOrder,

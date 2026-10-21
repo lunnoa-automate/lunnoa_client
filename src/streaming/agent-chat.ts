@@ -8,6 +8,13 @@ export type ChatMode = 'builder' | 'preview';
 export interface StreamMessageOptions {
   /** Agent chat mode; defaults to the server default (`builder`). */
   chatMode?: ChatMode;
+  /** Optional image attachment forwarded with this turn. */
+  data?: { imageUrl?: string };
+  /**
+   * Answer to an ask-before-sending personal-data prompt.
+   * Applies to this message only.
+   */
+  piiResolution?: 'anonymize' | 'fallback';
   /** Abort the stream (closes the HTTP connection; the run keeps going server-side — call `stop` to cancel it). */
   signal?: AbortSignal;
 }
@@ -157,10 +164,7 @@ export class AgentChatClient {
         raw: true,
         signal: options.signal,
         headers: { Accept: 'text/event-stream' },
-        body: {
-          messages: [uiMessage],
-          ...(options.chatMode ? { chatMode: options.chatMode } : {}),
-        },
+        body: messageTaskBody(uiMessage, options),
       },
     );
 
@@ -212,6 +216,18 @@ export class AgentChatClient {
       },
     );
   }
+}
+
+export function messageTaskBody(
+  message: UIMessage,
+  options: Omit<StreamMessageOptions, 'signal'> = {},
+) {
+  return {
+    messages: [message],
+    ...(options.chatMode ? { chatMode: options.chatMode } : {}),
+    ...(options.data ? { data: options.data } : {}),
+    ...(options.piiResolution ? { piiResolution: options.piiResolution } : {}),
+  };
 }
 
 function generateMessageId(): string {

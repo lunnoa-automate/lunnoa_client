@@ -24,7 +24,7 @@ export interface CreateBrowserClientOptions {
 }
 
 /**
- * Pattern B helper: browser (or isomorphic) client with JWT storage,
+ * Browser (or isomorphic) client with JWT storage,
  * `lunnoa.auth.login` / refresh, and optional auto-refresh on 401.
  *
  * Never pass an `lna_` API key here.
@@ -47,13 +47,13 @@ export interface CreateServerClientOptions {
   /** Base URL of the Lunnoa Automate deployment. */
   baseUrl: string;
   /**
-   * Workspace API key (`lna_...`). Preferred for Pattern A backends / BFFs.
+   * Workspace API key (`lna_...`) for operator scripts and the CLI.
+   * Not an app login: people using an app authenticate as Lunnoa users.
    * Mutually exclusive with `accessToken` / `tokenStore`.
    */
   apiKey?: string;
   /**
-   * User JWT (or getter) when the server acts on behalf of a logged-in user.
-   * Prefer this over embedding tokens in the browser when you own the session.
+   * User JWT (or getter) when the server already holds a signed-in Lunnoa user's token.
    */
   accessToken?: string | (() => string | Promise<string>);
   /** Optional store when the server holds both access and refresh tokens. */
@@ -64,10 +64,9 @@ export interface CreateServerClientOptions {
 }
 
 /**
- * Pattern A (or server-side Pattern B) helper for Node / BFF / route handlers.
- *
- * Provide `apiKey` for a service account, or `accessToken` / `tokenStore` for a
- * user JWT held on the server. Throws if used with an API key in a browser.
+ * Node helper for a Lunnoa user JWT held on the server, or an `lna_` key for
+ * operator scripts. App login uses {@link createBrowserClient}. Throws if
+ * used with an API key in a browser.
  */
 export function createServerClient(
   options: CreateServerClientOptions,

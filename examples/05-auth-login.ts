@@ -1,5 +1,5 @@
 /**
- * Pattern B: password login, optional 2FA, session me(), logout.
+ * Lunnoa user login: password, optional 2FA, session me(), logout.
  *
  * Usage:
  *   LUNNOA_URL=https://… LUNNOA_EMAIL=… LUNNOA_PASSWORD=… \

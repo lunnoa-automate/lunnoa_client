@@ -13,7 +13,7 @@ import type { TokenStore } from '../auth/token-store';
 import type { HttpClient } from '../core/http';
 
 /**
- * Login, refresh, SSO discovery, and session helpers for Pattern B.
+ * Login, refresh, SSO discovery, and session helpers for Lunnoa users.
  *
  * Password login, token exchange, refresh, and SSO provider listing are
  * **public** endpoints (no Bearer). `me()` requires a user JWT.

@@ -25,7 +25,7 @@ import type { LunnoaClient } from '../client';
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
 export interface LunnoaAuthContextValue {
-  /** Shared Lunnoa client (Pattern B token store). */
+  /** Shared Lunnoa client (user JWT token store). */
   client: LunnoaClient;
   /** Current user from `GET /api/users/me`, or null when signed out. */
   user: CurrentUser | null;
@@ -69,7 +69,7 @@ const LunnoaAuthContext = createContext<LunnoaAuthContextValue | null>(null);
 
 export type LunnoaAuthProviderProps =
   | {
-      /** Existing Pattern B client (from `createBrowserClient`). */
+      /** Existing browser client (from `createBrowserClient`). */
       client: LunnoaClient;
       children: ReactNode;
     }
@@ -108,7 +108,7 @@ function errorMessage(error: unknown): string {
 }
 
 /**
- * Provides a Pattern B Lunnoa client and session helpers to React trees.
+ * Provides a Lunnoa user client and session helpers to React trees.
  *
  * ```tsx
  * <LunnoaAuthProvider baseUrl={import.meta.env.VITE_LUNNOA_URL}>
@@ -299,7 +299,7 @@ function useAuthContext(hookName: string): LunnoaAuthContextValue {
   return ctx;
 }
 
-/** Full auth session API for Pattern B React apps. */
+/** Full auth session API for React apps whose users sign in to Lunnoa. */
 export function useLunnoaAuth(): LunnoaAuthContextValue {
   return useAuthContext('useLunnoaAuth');
 }

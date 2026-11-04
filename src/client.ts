@@ -23,29 +23,22 @@ import { WorkflowsResource } from './resources/workflows';
 /**
  * Typed client for the Lunnoa Automate Public API.
  *
- * Server-side (Pattern A — the backend holds the key):
- * ```ts
- * const lunnoa = new LunnoaClient({
- *   baseUrl: 'https://lunnoa.acme.example',
- *   apiKey: process.env.LUNNOA_API_KEY, // lna_...
- * });
- * ```
- *
- * Browser (Pattern B — the end user is a Lunnoa user):
+ * Apps sign people in as Lunnoa users:
  * ```ts
  * import { createBrowserClient } from '@lunnoa/client';
  * const lunnoa = createBrowserClient({ baseUrl: 'https://lunnoa.acme.example' });
  * await lunnoa.auth.login({ email, password });
  * ```
  *
- * Passing an `lna_` API key in a browser throws immediately: API keys are
- * workspace-wide server credentials and must never ship to browsers.
+ * `apiKey` (`lna_...`) is for the CLI and operator scripts (codegen, discovery,
+ * deploy). It is not an app login. Passing one while `window` exists throws:
+ * a leaked key acts as that service account across its whole workspace.
  */
 export class LunnoaClient {
   /** The underlying HTTP layer, exposed for advanced/escape-hatch requests. */
   readonly http: HttpClient;
 
-  /** Login, refresh, SSO discovery, and session helpers (Pattern B). */
+  /** Login, refresh, SSO discovery, and session helpers for Lunnoa users. */
   readonly auth: AuthResource;
   readonly agents: AgentsResource;
   readonly tasks: TasksResource;

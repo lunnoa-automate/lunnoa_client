@@ -14,20 +14,20 @@ export interface LunnoaClientOptions {
    */
   baseUrl: string;
   /**
-   * Server-side machine credential (`lna_...`). Never usable in browsers —
-   * the constructor throws if one is supplied while `window` exists.
+   * Machine credential (`lna_...`) for the CLI and operator scripts, not for app login.
+   * Never usable in browsers: the constructor throws if one is supplied while `window` exists.
    */
   apiKey?: string;
   /**
    * User JWT obtained from login / SSO. The supported credential for browser
    * applications. May be a function so refreshed tokens are picked up per request.
    *
-   * Prefer {@link tokenStore} for Pattern B so login/refresh can persist tokens
+   * Prefer {@link tokenStore} so login/refresh can persist tokens
    * and optionally auto-refresh on 401.
    */
   accessToken?: string | (() => string | Promise<string>);
   /**
-   * Optional JWT store for Pattern B. When set, authenticated requests read
+   * Optional JWT store for a signed-in Lunnoa user. When set, authenticated requests read
    * the access token from the store. Login / refresh helpers write back into it.
    */
   tokenStore?: TokenStore;
@@ -85,7 +85,7 @@ export class HttpClient {
     }
     if (!options.apiKey && !options.accessToken && !options.tokenStore) {
       throw new Error(
-        'LunnoaClient requires an apiKey (server-side), an accessToken (user JWT), or a tokenStore (Pattern B).',
+        'LunnoaClient requires an accessToken or tokenStore (Lunnoa user JWT), or an apiKey for operator scripts.',
       );
     }
     if (options.apiKey) {

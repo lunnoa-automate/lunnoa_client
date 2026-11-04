@@ -100,7 +100,7 @@ export async function runInit(args: CliArgs): Promise<void> {
     const rl = createInterface({ input: process.stdin, output: process.stdout });
     url ||= (await rl.question('Lunnoa URL (e.g. https://lunnoa.your-company.example): ')).trim();
     apiKey ||= (
-      await rl.question('API key lna_... (server-side only; Enter to skip and sign in as a user instead): ')
+      await rl.question('API key lna_... (CLI only: discovery, codegen, deploy. Enter to skip): ')
     ).trim();
     rl.close();
   }
@@ -119,7 +119,7 @@ export async function runInit(args: CliArgs): Promise<void> {
   console.log(`  cd ${args.path}`);
   console.log('  npm install');
   if (!apiKey) {
-    console.log('  Add LUNNOA_API_KEY to .env, or set LUNNOA_AUTH_MODE=user to sign in with your Lunnoa account');
+    console.log('  The app signs people in as Lunnoa users. Add LUNNOA_API_KEY to .env when you want CLI discovery and deploy');
   }
   console.log('  npm run dev');
   console.log('  Open the folder in Claude Code / Cursor / Codex and describe your idea.');

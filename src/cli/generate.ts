@@ -438,7 +438,7 @@ function generateFactory(
     ` * entity types, workflows, and agents.\n` +
     ` *\n` +
     ` * \`\`\`ts\n` +
-    ` * const lunnoa = createDeploymentClient(new LunnoaClient({ baseUrl, apiKey }));\n` +
+    ` * const lunnoa = createDeploymentClient(createBrowserClient({ baseUrl }));\n` +
     ` * const open = await lunnoa.entities.invoice.list({ state: 'pending' });\n` +
     ` * \`\`\`\n` +
     ` */\n` +

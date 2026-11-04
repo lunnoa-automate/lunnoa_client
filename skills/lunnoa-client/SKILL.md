@@ -57,9 +57,10 @@ Run these before inventing resources or shipping UI code:
 3. **Discover before inventing** — prefer the CLI (JSON for agents), then
    the SDK: `npx @lunnoa/client tools list --json --for-agent`,
    `tools get <actionId> --json`, `apps list`, `connections list`,
-   `agents|workflows|entity-types|projects list`, `features`.
+   `agents|workflows|entity-types|tables|projects list`, `tables get <slugOrId>`,
+   `features`.
    SDK equivalents: `workflowApps.list()`, `agents.list`, `workflows.list`,
-   `entityTypes.list`, `discovery.enabledFeatures()`.
+   `entityTypes.list`, `tables.list`, `discovery.enabledFeatures()`.
    Do not invent catalogue action ids.
 4. **Run vs deploy** — Ad-hoc: `actions.run` / `runs.start` /
    `workflows.execute`. Durable shared automation: CLI
@@ -141,12 +142,12 @@ const { user, status, login, logout, verify2faLogin } = useLunnoaAuth();
 const lunnoa = useLunnoaClient(); // same client for entities / actions / chat
 const { progress } = useExecutionProgress(executionId);
 const { waiting, pendingInput, submitInput } = useNeedsInput(progress);
-const { messages, send, stop, taskId } = useAgentChat(agentId); // peer: @ai-sdk/react
+const { messages, send, stop, taskId } = useAgentChat(agentId);
 const { items, decide } = useApprovalsInbox({ pollIntervalMs: 15_000 });
 const { data, setPage } = useEntityList({ objectTypeSlug: 'invoice' });
 ```
 
-Peers: `react` ≥ 18 for `/react`; `@ai-sdk/react` only for `useAgentChat`.
+Peer: `react` ≥ 18 for `/react`. `@ai-sdk/react` ships with the SDK (no extra install).
 Errors are `LunnoaApiError` with `.status`, `.body`, `.isUnauthorized`,
 `.isForbidden`, `.isRateLimited`. A 403 means the key's role or the
 deployment's licence edition does not cover the endpoint.
@@ -193,7 +194,19 @@ const workflows = await lunnoa.workflows.list({ expansion: ['description', 'isAc
 const entityTypes = await lunnoa.entityTypes.list({
   expansion: ['attributeSchema', 'stateSchema'],
 });
+
+// Tables: small reference / lookup data (list omits rows; get includes them)
+const tables = await lunnoa.tables.list();
+const costCentres = await lunnoa.tables.getBySlug('cost_centres'); // or tables.get(id)
+await lunnoa.tables.upsertBySlug({
+  slug: 'cost_centres',
+  columns: [{ key: 'code' }, { key: 'owner' }],
+  rows: [{ code: 'CC-100', owner: 'Finance' }],
+}); // managedByCode defaults to true; omitted columns/rows are kept
 ```
+
+- Use a **Table** for slowly changing reference data under ~10k rows; anything
+  that grows per transaction (invoice, ticket, case) is an **entity**.
 
 - `attributeSchema.sections[].fields[]` defines each entity field: `id`
   (attribute key), `label`, `type` (`text`, `number`, `currency`, `date`,
@@ -430,8 +443,7 @@ for await (const chunk of stream) {
 }
 ```
 
-- **React apps:** prefer `useAgentChat` from `@lunnoa/client/react` (optional
-  peer `@ai-sdk/react`), which wraps AI SDK `useChat` + `DefaultChatTransport`
+- **React apps:** prefer `useAgentChat` from `@lunnoa/client/react`, which wraps AI SDK `useChat` + `DefaultChatTransport`
   pointed at
   `${baseUrl}/api/agents/${agentId}/tasks/${taskId}/stream-message` with an
   `Authorization` header. You can also wire `useChat` yourself. Use

@@ -4,7 +4,7 @@ description: >-
   Acts as a Lunnoa business analyst / solution designer for vibecoders and
   partners. Interviews the human about triggers, actors, data, HITL, and
   integrations; maps intent to Lunnoa primitives (actions, workflows, agents,
-  entities, approvals, queues); produces a short build brief; then hands off
+  entities, tables, approvals, queues); produces a short build brief; then hands off
   to the lunnoa-client skill for implementation. Use when requirements are
   unclear, the user asks what to build on Lunnoa, how to design a workflow or
   agent, whether to use an agent vs workflow, or before writing @lunnoa/client
@@ -50,6 +50,7 @@ interrogation.
 ### Data and knowledge
 
 - Structured business records (invoice, order, ticket) → **Entities**
+- Small reference / lookup data (cost centres, price list) → **Tables**
 - Free-form conversation / reasoning → **Agent** chat
 - Documents / notebooks the model should search → **Knowledge**
 - Transient run output only → Executions / Tasks
@@ -86,8 +87,18 @@ interrogation.
 | Reusable automation + triggers | Saved **Workflow** (UI or CLI deploy) | Schedules/webhooks live on workflows |
 | Reasoning + tools + conversation | **Agent** | Tools = workflows, actions, knowledge |
 | Structured CRUD / portals | **Entities** + schemas | Codegen for typed accessors |
+| Reference / lookup data | **Tables** | `tables.upsertBySlug`; workflows use the Tables Lookup action |
 | Human review inbox | **Approvals** | |
 | Assigned human work items | **Queues** | |
+
+### Objects (entities) vs Tables
+
+- **Object (entity)** = a business record with identity and lifecycle
+  (invoice, ticket, case): states and state history, linked to
+  executions / agents / queues, has a business key, grows with transactions.
+- **Table** = small, slowly changing reference data (cost-centre mapping,
+  price list, country codes), under ~10k rows (rows live in one JSON blob).
+- Anything that grows per transaction is an **Object**, never a Table.
 
 ### Hard product rules (enforce these)
 
@@ -105,6 +116,10 @@ interrogation.
    automation → CLI `workflows deploy` / `agents deploy` by slug.
 5. **UI is headless.** `@lunnoa/client` has no design system. Optional React
    hooks in `@lunnoa/client/react`. Partners bring their own UI.
+6. **Reuse before create.** Before proposing any new entity type, table,
+   workflow, or agent, run `npx @lunnoa/client entity-types list --json`,
+   `tables list --json`, `workflows list --json`, and `agents list --json`.
+   The build brief must state explicitly what is **reused** vs **created**.
 
 ### Common anti-patterns to reject
 
@@ -134,15 +149,16 @@ can execute. Use this shape:
 
 ### Discovery (run first)
 - [ ] `npx @lunnoa/client tools list --json --for-agent` then `tools get <id>`
-- [ ] agents / workflows / entity-types / projects list — reuse before create
+- [ ] agents / workflows / entity-types / tables / projects list — reuse before create
 - [ ] codegen — if building typed entity/workflow accessors
 
-### Resources
-| Kind | Slug / id | Create or reuse | Notes |
+### Resources (every row says REUSED or CREATED)
+| Kind | Slug / id | Reused / created | Notes |
 |---|---|---|---|
 | Workflow | … | … | steps / trigger |
 | Agent | … | … | model, tools |
 | Entity type | … | … | if portal CRUD |
+| Table | … | … | reference / lookup data |
 | Knowledge | … | … | if RAG |
 
 ### Runtime paths

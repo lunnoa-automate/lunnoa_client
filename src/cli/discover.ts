@@ -308,6 +308,49 @@ export async function runEntityTypesList(
   ]);
 }
 
+export async function runTablesList(
+  client: LunnoaClient,
+  args: CliArgs,
+): Promise<void> {
+  const tables = await client.tables.list({ projectId: args.projectId });
+  const rows = tables.map((table) => ({
+    id: table.id,
+    slug: table.slug,
+    name: table.name,
+    description: table.description ?? '',
+    managedByCode: Boolean(table.managedByCode),
+  }));
+  if (args.json) {
+    printJson(rows);
+    return;
+  }
+  printTable(rows, [
+    { key: 'id', header: 'ID' },
+    { key: 'slug', header: 'SLUG' },
+    { key: 'name', header: 'NAME' },
+    { key: 'managedByCode', header: 'CODE' },
+  ]);
+}
+
+export async function runTablesGet(
+  client: LunnoaClient,
+  args: CliArgs,
+): Promise<void> {
+  const ref = requireTarget(args, 'table slug or id (example: tables get cost_centres)');
+  const table = /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(ref)
+    ? await client.tables.get(ref)
+    : await client.tables.getBySlug(ref);
+  if (args.json) {
+    printJson(table);
+    return;
+  }
+  console.log(`id:      ${table.id}`);
+  console.log(`slug:    ${table.slug}`);
+  console.log(`name:    ${table.name}`);
+  console.log(`columns: ${(table.columns ?? []).map((c) => c.key).join(', ')}`);
+  console.log(`rows:    ${table.rows?.length ?? 0}`);
+}
+
 export async function runProjectsList(
   client: LunnoaClient,
   args: CliArgs,

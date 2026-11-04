@@ -18,6 +18,8 @@ export interface CliArgs {
   app?: string;
   /** Only catalogue entries marked availableForAgent. */
   forAgent: boolean;
+  /** `init` template: GitHub `owner/repo[#ref]` or a local folder. */
+  template?: string;
   help: boolean;
 }
 
@@ -25,6 +27,7 @@ const GROUPS_WITH_SUBCOMMAND = new Set([
   'workflows',
   'agents',
   'entity-types',
+  'tables',
   'tools',
   'apps',
   'connections',
@@ -39,6 +42,7 @@ const VALUE_FLAGS = new Set([
   '--project-id',
   '--out',
   '--app',
+  '--template',
 ]);
 
 function requireFlagValue(flag: string, value: string | undefined): string {
@@ -105,6 +109,9 @@ export function parseArgs(argv: string[]): CliArgs {
         case '--app':
           args.app = value;
           break;
+        case '--template':
+          args.template = value;
+          break;
         default:
           break;
       }
@@ -122,6 +129,7 @@ export function parseArgs(argv: string[]): CliArgs {
 }
 
 export const USAGE = `Usage:
+  npx @lunnoa/client init <dir> [--url <url>] [--api-key <lna_key>] [--template <owner/repo|path>]
   npx @lunnoa/client codegen --url <url> --api-key <lna_key> [--out <dir>]
 
   Discover (do not invent catalogue action ids):
@@ -135,6 +143,8 @@ export const USAGE = `Usage:
   npx @lunnoa/client agents list [--json]
   npx @lunnoa/client workflows list [--json]
   npx @lunnoa/client entity-types list [--json]
+  npx @lunnoa/client tables list [--json]
+  npx @lunnoa/client tables get <slugOrId> [--json]
   npx @lunnoa/client projects list [--json]
   npx @lunnoa/client features [--json]
 
@@ -154,10 +164,11 @@ Options:
   --out           Output directory for lunnoa.generated.ts (codegen; default: ./src/lunnoa)
   --app           Restrict tools/connections to one workflow app id
   --for-agent     Only catalogue entries with availableForAgent
+  --template      init starter: GitHub owner/repo[#ref] or local folder (default: lunnoa-automate/lunnoa-starter)
   --json          Machine-readable JSON (preferred for coding agents)
   --help          Show this help
 
-Environment: LUNNOA_URL, LUNNOA_API_KEY, LUNNOA_PROJECT_ID
+Environment: LUNNOA_URL, LUNNOA_API_KEY, LUNNOA_PROJECT_ID (also read from ./.env)
 Optional config file: lunnoa.config.ts | .mjs | .js | .json
 
 tools get prints inputConfig and a defineAction() sketch. tools list is compact;

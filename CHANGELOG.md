@@ -1,3 +1,32 @@
+## [1.5.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.4.0...v1.5.0) (2026-11-04)
+
+### Features
+
+* add tables resource ([a1a6ac3](https://github.com/lunnoa-automate/lunnoa_client/commit/a1a6ac339024d9e636f6c7585f924d33336c6487))
+* **cli:** add init command, tables commands and .env loading ([314bdf7](https://github.com/lunnoa-automate/lunnoa_client/commit/314bdf727cc5436f7a69b32fa386cb9f1991cd5b))
+
+### Bug Fixes
+
+* **react:** use in-memory token store during SSR ([d3592d3](https://github.com/lunnoa-automate/lunnoa_client/commit/d3592d37cfdb3a568986e34c1092e0ce71195837))
+
+## [1.4.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.3.0...v1.4.0) (2026-11-04)
+
+### Features
+
+* add a CLI command to install bundled agent skills ([4700d9a](https://github.com/lunnoa-automate/lunnoa_client/commit/4700d9a307435acdfe0b097eb20dcfdea809255a))
+
+## [1.3.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.2.0...v1.3.0) (2026-10-21)
+
+### Features
+
+* add scorecards resource for recording measure values ([d873c08](https://github.com/lunnoa-automate/lunnoa_client/commit/d873c0854542f8eff7182a24ed8ee1d095dfd0be))
+* match the client to the current Automate API ([a292514](https://github.com/lunnoa-automate/lunnoa_client/commit/a292514a0aed4f2aaef4f855a53db4e0cc43ca23))
+
+## [1.2.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.1.0...v1.2.0) (2026-08-26)
+
+### Features
+
+* add CLI catalogue discovery commands ([cc40322](https://github.com/lunnoa-automate/lunnoa_client/commit/cc403228bc12360a7f625553514b9d1e1da12db7))
 
 ## 1.0.0 (2026-08-05)
 

@@ -1,3 +1,13 @@
+## [2.1.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.0.0...v2.1.0) (2026-11-04)
+
+### Features
+
+* sign custom apps in as Lunnoa users ([3cba81c](https://github.com/lunnoa-automate/lunnoa_client/commit/3cba81cdab7b43e9ec8273b2c4cdf0e824cedee6))
+
+### Bug Fixes
+
+* drop projectId from the executions filter ([12008fa](https://github.com/lunnoa-automate/lunnoa_client/commit/12008fa02cf004c25f25bf50389b927679b4838d))
+
 ## [2.0.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.5.0...v2.0.0) (2026-11-04)
 
 ### ⚠ BREAKING CHANGES

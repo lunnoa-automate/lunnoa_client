@@ -24,7 +24,6 @@ export interface StartRunStep {
 
 export interface StartRunOptions {
   steps: StartRunStep[];
-  projectId?: string;
   name?: string;
 }
 
@@ -107,7 +106,7 @@ export class RunsResource {
    * Start a linear multi-step ad-hoc Execution.
    *
    * Accepts a `defineWorkflow` result, a step array, or an explicit
-   * `{ steps, projectId?, name? }` payload.
+   * `{ steps, name? }` payload.
    */
   start(input: StartRunInput): Promise<RunActionResult> {
     const options = normalizeStartRunInput(input);

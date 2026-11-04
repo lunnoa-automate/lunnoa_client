@@ -312,7 +312,7 @@ export async function runTablesList(
   client: LunnoaClient,
   args: CliArgs,
 ): Promise<void> {
-  const tables = await client.tables.list({ projectId: args.projectId });
+  const tables = await client.tables.list();
   const rows = tables.map((table) => ({
     id: table.id,
     slug: table.slug,
@@ -349,32 +349,6 @@ export async function runTablesGet(
   console.log(`name:    ${table.name}`);
   console.log(`columns: ${(table.columns ?? []).map((c) => c.key).join(', ')}`);
   console.log(`rows:    ${table.rows?.length ?? 0}`);
-}
-
-export async function runProjectsList(
-  client: LunnoaClient,
-  args: CliArgs,
-): Promise<void> {
-  const projects = await client.projects.list({
-    expansion: ['description', 'countAgents', 'countWorkflows'],
-  });
-  const rows = projects.map((project) => ({
-    id: project.id,
-    name: project.name,
-    description: project.description ?? '',
-    agents: project._count?.agents ?? '',
-    workflows: project._count?.workflows ?? '',
-  }));
-  if (args.json) {
-    printJson(rows);
-    return;
-  }
-  printTable(rows, [
-    { key: 'id', header: 'ID' },
-    { key: 'name', header: 'NAME' },
-    { key: 'agents', header: 'AGENTS' },
-    { key: 'workflows', header: 'WORKFLOWS' },
-  ]);
 }
 
 export async function runFeatures(

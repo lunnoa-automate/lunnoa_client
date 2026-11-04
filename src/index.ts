@@ -118,7 +118,6 @@ export {
 export { VariablesResource } from './resources/variables';
 export * from './resources/scorecards';
 export { ConnectionsResource } from './resources/connections';
-export { ProjectsResource } from './resources/projects';
 export { WorkflowAppsResource } from './resources/workflow-apps';
 export { DiscoveryResource } from './resources/discovery';
 export { type ListQueryOptions } from './resources/common';

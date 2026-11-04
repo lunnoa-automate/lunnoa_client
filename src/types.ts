@@ -12,10 +12,6 @@ type Schemas = components['schemas'];
 // Discovery
 export type EnabledFeatures = Schemas['EnabledFeaturesResponseDto'];
 
-// Projects
-export type Project = Schemas['ProjectResponseDto'];
-export type CreateProjectInput = Schemas['CreateProjectDto'];
-
 // Agents & tasks
 export type Agent = Schemas['AgentResponseDto'];
 export type Task = Schemas['TaskResponseDto'];

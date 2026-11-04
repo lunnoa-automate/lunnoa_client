@@ -24,50 +24,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/projects": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List projects in current workspace
-         * @description Returns all projects in the current workspace, ordered by most recently updated.
-         */
-        get: operations["ProjectsController_findAllForWorkspace"];
-        put?: never;
-        /**
-         * Create a project in current workspace
-         * @description Creates a project in the current workspace. Projects are organisational containers accessible to all workspace users.
-         */
-        post: operations["ProjectsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{projectId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get project by ID
-         * @description Returns a single project.
-         */
-        get: operations["ProjectsController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/queues": {
         parameters: {
             query?: never;
@@ -83,7 +39,7 @@ export interface paths {
         put?: never;
         /**
          * Create queue
-         * @description Creates a queue in the given project. Queues are the platform's human-in-the-loop work surface: items are added to a queue, then processed by workflows or reviewed by people.
+         * @description Creates a queue in the current workspace. Queues are the platform's human-in-the-loop work surface: items are added to a queue, then processed by workflows or reviewed by people.
          */
         post: operations["QueuesController_create"];
         delete?: never;
@@ -520,6 +476,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/workflows/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upsert a workflow by slug from a linear step list
+         * @description Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (manual trigger → linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.
+         */
+        post: operations["WorkflowsController_upsertBySlug"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/workflows/{workflowId}": {
         parameters: {
             query?: never;
@@ -534,26 +510,6 @@ export interface paths {
         get: operations["WorkflowsController_findOne"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{projectId}/workflows/upsert": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Upsert a workflow by slug from a linear step list
-         * @description Creates or updates a workflow identified by project-scoped `slug`. Builds a minimal valid graph (manual trigger → linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.
-         */
-        post: operations["ProjectWorkflowsController_upsertBySlug"];
         delete?: never;
         options?: never;
         head?: never;
@@ -580,6 +536,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/agents/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upsert an agent by slug
+         * @description Creates or updates an agent identified by workspace-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.
+         */
+        post: operations["AgentsController_upsertBySlug"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/agents/{agentId}": {
         parameters: {
             query?: never;
@@ -594,26 +570,6 @@ export interface paths {
         get: operations["AgentsController_findOne"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{projectId}/agents/upsert": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Upsert an agent by slug
-         * @description Creates or updates an agent identified by project-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.
-         */
-        post: operations["ProjectAgentsController_upsertBySlug"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1151,7 +1107,7 @@ export interface paths {
         put?: never;
         /**
          * Create variable in current workspace
-         * @description Creates a variable in the current workspace. Provide projectId to scope the variable to a project.
+         * @description Creates a variable in the current workspace.
          */
         post: operations["VariablesController_create"];
         delete?: never;
@@ -1534,64 +1490,6 @@ export interface components {
             /** @description Availability of authentication methods for this deployment. */
             AUTH_METHODS: components["schemas"]["AuthMethodFlagsDto"];
         };
-        CreateProjectDto: {
-            /** @description Name of the project. */
-            name: string;
-            /** @description Description of the project. */
-            description?: string;
-        };
-        ProjectCountDto: {
-            /** @description Number of agents in the project. */
-            agents?: number;
-            /** @description Number of variables in the project. */
-            variables?: number;
-            /** @description Number of workflows in the project. */
-            workflows?: number;
-        };
-        ProjectCreatedByUserDto: {
-            /** @description User ID. */
-            id: string;
-            /** @description User email address. */
-            email: string;
-            /** @description User display name. */
-            name: string;
-        };
-        ProjectCreatedByWorkspaceUserDto: {
-            /** @description Workspace user ID. */
-            id: string;
-            /** @description The underlying user. */
-            user: components["schemas"]["ProjectCreatedByUserDto"];
-        };
-        ProjectWorkflowSummaryDto: {
-            /** @description Workflow ID. */
-            id: string;
-            /** @description Workflow name. */
-            name: string;
-        };
-        ProjectResponseDto: {
-            /** @description Project ID. */
-            id: string;
-            /** @description Project name. */
-            name: string;
-            /** @description Project description. Included when `expansion=description` is requested. */
-            description?: string;
-            /**
-             * Format: date-time
-             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
-             */
-            updatedAt?: string;
-            /** @description Aggregate counts. Included when `expansion=countAgents` is requested; countVariables and countWorkflows add their respective counts. */
-            _count?: components["schemas"]["ProjectCountDto"];
-            /** @description Workspace user who created the project. Included when `expansion=createdByWorkspaceUser` is requested. */
-            createdByWorkspaceUser?: components["schemas"]["ProjectCreatedByWorkspaceUserDto"];
-            /** @description Workflows in the project. Included when `expansion=workflows` is requested. */
-            workflows?: components["schemas"]["ProjectWorkflowSummaryDto"][];
-        };
         CreateQueueDto: {
             /** @description Human-readable name for the queue. */
             name: string;
@@ -1607,12 +1505,6 @@ export interface components {
             batchSize?: number;
             /** @description Default priority for items in this queue. Higher values are processed first. Defaults to 0. */
             priority?: number;
-        };
-        QueueProjectSummaryDto: {
-            /** @description Project ID. */
-            id: string;
-            /** @description Project name. */
-            name: string;
         };
         QueueWorkspaceSummaryDto: {
             /** @description Workspace ID. */
@@ -1683,8 +1575,6 @@ export interface components {
             successItems?: number;
             /** @description Number of failed items. Included when `expansion=statistics` is requested. */
             failedItems?: number;
-            /** @description Owning project. Included when `expansion=project` is requested. */
-            project?: components["schemas"]["QueueProjectSummaryDto"];
             /** @description Owning workspace. Included when `expansion=workspace` is requested. */
             workspace?: components["schemas"]["QueueWorkspaceSummaryDto"];
             /** @description Workspace user who created the queue. Included when `expansion=createdByWorkspaceUser` is requested. */
@@ -2161,18 +2051,44 @@ export interface components {
             /** @description Number of item IDs submitted for deletion. */
             requestedCount: number;
         };
-        WorkflowProjectSummaryDto: {
-            /** @description Project ID */
-            id: string;
-            /** @description Project name */
-            name: string;
+        UpsertWorkflowStepDto: {
+            /** @description Workflow app id (catalogue slug). */
+            appId: string;
+            /** @description Catalogue action id. */
+            actionId: string;
+            /** @description Connection instance UUID for this step. */
+            connectionId?: string;
+            /** @description Action input / config fields. */
+            input?: {
+                [key: string]: unknown;
+            };
+            /** @description Display name for the step node. */
+            name?: string;
+            /** @description Step description. */
+            description?: string;
+        };
+        UpsertWorkflowBySlugDto: {
+            /**
+             * @description Stable workspace-scoped slug (lowercase, digits, hyphens). Used as the upsert key.
+             * @example sync-orders
+             */
+            slug: string;
+            /** @description Display name. Defaults to the slug when omitted. */
+            name?: string;
+            description?: string;
+            /** @description Whether the workflow is active. */
+            isActive?: boolean;
+            /** @description Linear catalogue-action steps (v1; no branches). */
+            steps: components["schemas"]["UpsertWorkflowStepDto"][];
+            /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
+            managedByCode?: boolean;
         };
         WorkflowResponseDto: {
             /** @description Workflow ID */
             id: string;
             /** @description Workflow name */
             name: string;
-            /** @description Stable project-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
+            /** @description Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
             slug?: string | null;
             /** @description True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested. */
             managedByCode?: boolean;
@@ -2234,42 +2150,48 @@ export interface components {
              * @enum {string}
              */
             workflowOrientation?: "HORIZONTAL" | "VERTICAL";
-            /** @description The project the workflow belongs to. Included when `expansion=project` is requested. */
-            project?: components["schemas"]["WorkflowProjectSummaryDto"];
             /** @description AI provider connection used by the workflow builder chat. Always returned on GET /workflows/{workflowId}. */
             aiConnectionId?: string | null;
             /** @description Selected model ID within the AI provider connection for workflow builder chat. Always returned on GET /workflows/{workflowId}. */
             selectedModelId?: string | null;
         };
-        UpsertWorkflowStepDto: {
+        UpsertAgentToolDto: {
             /** @description Workflow app id (catalogue slug). */
             appId: string;
             /** @description Catalogue action id. */
             actionId: string;
-            /** @description Connection instance UUID for this step. */
+            /** @description Connection instance UUID pre-bound on the tool. */
             connectionId?: string;
-            /** @description Action input / config fields. */
+            /** @description Tool display name for the model. */
+            name?: string;
+            /** @description Tool description shown to the model. */
+            description?: string;
+            /** @description Pre-filled tool config (fields left empty are filled by the model). */
             input?: {
                 [key: string]: unknown;
             };
-            /** @description Display name for the step node. */
-            name?: string;
-            /** @description Step description. */
-            description?: string;
         };
-        UpsertWorkflowBySlugDto: {
+        UpsertAgentBySlugDto: {
             /**
-             * @description Stable project-scoped slug (lowercase, digits, hyphens). Used as the upsert key.
-             * @example sync-orders
+             * @description Stable workspace-scoped slug (lowercase, digits, hyphens). Used as the upsert key.
+             * @example support-triage
              */
             slug: string;
             /** @description Display name. Defaults to the slug when omitted. */
             name?: string;
             description?: string;
-            /** @description Whether the workflow is active. */
-            isActive?: boolean;
-            /** @description Linear catalogue-action steps (v1; no branches). */
-            steps: components["schemas"]["UpsertWorkflowStepDto"][];
+            /** @description System instructions / prompt for the agent. */
+            instructions: string;
+            /** @description Selected model id on the AI provider connection (e.g. `gpt-4o`). */
+            model: string;
+            /** @description AiProviderConnection UUID. When omitted, platform AI defaults apply. */
+            aiConnectionId?: string;
+            /** @description App Connection UUIDs the agent may use for tools. */
+            connectionIds?: string[];
+            /** @description Workflow UUIDs the agent may run (AgentWorkflow links). */
+            workflowIds?: string[];
+            /** @description Catalogue action tools (WorkflowNodeForRunner-shaped). */
+            tools?: components["schemas"]["UpsertAgentToolDto"][];
             /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
             managedByCode?: boolean;
         };
@@ -2284,7 +2206,7 @@ export interface components {
              * @example Invoice Triage Agent
              */
             name: string;
-            /** @description Stable project-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
+            /** @description Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
             slug?: string | null;
             /** @description True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested. */
             managedByCode?: boolean;
@@ -2527,51 +2449,6 @@ export interface components {
                 outboundCallsEnabled?: boolean;
                 inboundCallsEnabled?: boolean;
             } | null;
-            /** @description Project the agent belongs to. Included when `expansion=project` is requested. */
-            project?: {
-                id?: string;
-                name?: string;
-            };
-        };
-        UpsertAgentToolDto: {
-            /** @description Workflow app id (catalogue slug). */
-            appId: string;
-            /** @description Catalogue action id. */
-            actionId: string;
-            /** @description Connection instance UUID pre-bound on the tool. */
-            connectionId?: string;
-            /** @description Tool display name for the model. */
-            name?: string;
-            /** @description Tool description shown to the model. */
-            description?: string;
-            /** @description Pre-filled tool config (fields left empty are filled by the model). */
-            input?: {
-                [key: string]: unknown;
-            };
-        };
-        UpsertAgentBySlugDto: {
-            /**
-             * @description Stable project-scoped slug (lowercase, digits, hyphens). Used as the upsert key.
-             * @example support-triage
-             */
-            slug: string;
-            /** @description Display name. Defaults to the slug when omitted. */
-            name?: string;
-            description?: string;
-            /** @description System instructions / prompt for the agent. */
-            instructions: string;
-            /** @description Selected model id on the AI provider connection (e.g. `gpt-4o`). */
-            model: string;
-            /** @description AiProviderConnection UUID. When omitted, platform AI defaults apply. */
-            aiConnectionId?: string;
-            /** @description App Connection UUIDs the agent may use for tools. */
-            connectionIds?: string[];
-            /** @description Workflow UUIDs the agent may run (AgentWorkflow links). */
-            workflowIds?: string[];
-            /** @description Catalogue action tools (WorkflowNodeForRunner-shaped). */
-            tools?: components["schemas"]["UpsertAgentToolDto"][];
-            /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
-            managedByCode?: boolean;
         };
         WorkflowAppResponseDto: {
             /** @description App ID, e.g. `gmail`. Matches the appId used in workflow execution steps. */
@@ -3124,21 +3001,13 @@ export interface components {
             /** @description Workspace name */
             name: string;
         };
-        ExecutionProjectSummaryDto: {
-            /** @description Project ID */
-            id: string;
-            /** @description Project name */
-            name: string;
-            /** @description The workspace the project belongs to. Included when `expansion=workspace` is requested alongside `workflow` and `project`. */
-            workspace?: components["schemas"]["ExecutionWorkspaceSummaryDto"];
-        };
         ExecutionWorkflowSummaryDto: {
             /** @description Workflow ID */
             id: string;
             /** @description Workflow name */
             name: string;
-            /** @description The project the workflow belongs to. Included when `expansion=project` is requested alongside `workflow`. */
-            project?: components["schemas"]["ExecutionProjectSummaryDto"];
+            /** @description The workspace the workflow belongs to. Included when `expansion=workspace` is requested alongside `workflow`. */
+            workspace?: components["schemas"]["ExecutionWorkspaceSummaryDto"];
         };
         ExecutionPathStepDto: {
             /** @description ID of the workflow node this step represents */
@@ -3286,8 +3155,6 @@ export interface components {
             actionId: string;
             /** @description Connection instance UUID (`Connection.id`). Required when the action needs a connection and the workspace has more than one connection for the app with no single workspace default. When omitted: sole usable connection for the app is used; else the workspace default (`isDefault`); else 400 with candidates. Never silently picks among multiple non-default connections. */
             connectionId?: string;
-            /** @description Project UUID used for variable/project scoping. When omitted and the workspace has exactly one project, that project is used; otherwise the request fails with 400. */
-            projectId?: string;
             /** @description Action input fields (mirrors the action `inputConfig` keys). Combined with `connectionId` into the action configValue. */
             input?: {
                 [key: string]: unknown;
@@ -3329,8 +3196,6 @@ export interface components {
         StartRunDto: {
             /** @description Linear catalogue-action steps. Executed as one multi-step Execution with `source: SDK` (not a soft batch / correlation id). */
             steps: components["schemas"]["RunStepDto"][];
-            /** @description Project UUID for variable/project scoping. When omitted and the workspace has exactly one project, that project is used. */
-            projectId?: string;
             /** @description Optional display name for the ad-hoc Execution. */
             name?: string;
         };
@@ -3340,17 +3205,15 @@ export interface components {
             /** @description Description of the variable. */
             description?: string;
             /**
-             * @description Scope of the variable (system, workspace or project).
+             * @description Scope of the variable (system or workspace).
              * @enum {string}
              */
-            type: "system" | "workspace" | "project";
+            type: "system" | "workspace";
             /**
              * @description Data type of the variable value.
              * @enum {string}
              */
             dataType: "string" | "number" | "boolean" | "date" | "json";
-            /** @description Project ID to scope the variable to. Must belong to the current workspace. */
-            projectId?: string;
             /** @description Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save. */
             value: string;
         };
@@ -3358,12 +3221,6 @@ export interface components {
             /** @description Workspace ID. */
             id: string;
             /** @description Workspace name. */
-            name: string;
-        };
-        VariableProjectDto: {
-            /** @description Project ID. */
-            id: string;
-            /** @description Project name. */
             name: string;
         };
         VariableResponseDto: {
@@ -3377,10 +3234,10 @@ export interface components {
              */
             dataType: "string" | "number" | "boolean" | "date" | "json";
             /**
-             * @description Scope of the variable (system, workspace or project).
+             * @description Scope of the variable (system or workspace).
              * @enum {string}
              */
-            type: "system" | "workspace" | "project";
+            type: "system" | "workspace";
             /** @description Variable value. Included when `expansion=value` is requested. */
             value?: Record<string, never>;
             /** @description Variable description. Included when `expansion=description` is requested. */
@@ -3397,8 +3254,6 @@ export interface components {
             updatedAt?: string;
             /** @description Owning workspace. Included when `expansion=workspace` is requested. */
             workspace?: components["schemas"]["VariableWorkspaceDto"];
-            /** @description Owning project for project-scoped variables. Included when `expansion=project` is requested. */
-            project?: components["schemas"]["VariableProjectDto"];
         };
         UpdateVariableDto: {
             /** @description Name of the variable. */
@@ -3406,17 +3261,15 @@ export interface components {
             /** @description Description of the variable. */
             description?: string;
             /**
-             * @description Scope of the variable (system, workspace or project).
+             * @description Scope of the variable (system or workspace).
              * @enum {string}
              */
-            type?: "system" | "workspace" | "project";
+            type?: "system" | "workspace";
             /**
              * @description Data type of the variable value.
              * @enum {string}
              */
             dataType?: "string" | "number" | "boolean" | "date" | "json";
-            /** @description Project ID to scope the variable to. Must belong to the current workspace. */
-            projectId?: string;
             /** @description Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save. */
             value?: string;
         };
@@ -3425,8 +3278,6 @@ export interface components {
             name?: string;
             /** @description What the table contains. Agents use this to choose a table. */
             description?: string;
-            /** @description Project ID to scope the table to. Omit for a workspace-wide table. */
-            projectId?: string;
             /** @description Column names: [{ key }]. */
             columns?: {
                 [key: string]: unknown;
@@ -3439,10 +3290,6 @@ export interface components {
             slug: string;
             /** @description Marks the table as code-managed. Defaults to true on upsert. */
             managedByCode?: boolean;
-        };
-        TableProjectDto: {
-            id: string;
-            name: string;
         };
         TableColumnDto: {
             /** @description Column key used in rows. */
@@ -3461,9 +3308,6 @@ export interface components {
             description?: string | null;
             /** @description Whether the table is managed by code (CLI / API upsert). */
             managedByCode: boolean;
-            /** @description Project the table is scoped to, or null for workspace-wide. */
-            FK_projectId?: string | null;
-            project?: components["schemas"]["TableProjectDto"] | null;
             /** @description Columns. Returned by get and upsert, not by list. */
             columns?: components["schemas"]["TableColumnDto"][];
             /** @description Rows keyed by column key. Returned by get and upsert, not by list. */
@@ -3549,14 +3393,10 @@ export interface components {
                     [key: string]: unknown;
                 } | null;
             }[];
-            /** @description Agent the task belongs to. Included when `expansion=agent` is requested. The nested `project` is included when `expansion=project` is also requested. */
+            /** @description Agent the task belongs to. Included when `expansion=agent` is requested. */
             agent?: {
                 id?: string;
                 name?: string;
-                project?: {
-                    id?: string;
-                    name?: string;
-                };
             };
         };
         TaskLatestRunDto: {
@@ -3631,14 +3471,10 @@ export interface components {
                     [key: string]: unknown;
                 } | null;
             }[];
-            /** @description Agent the task belongs to. Included when `expansion=agent` is requested. The nested `project` is included when `expansion=project` is also requested. */
+            /** @description Agent the task belongs to. Included when `expansion=agent` is requested. */
             agent?: {
                 id?: string;
                 name?: string;
-                project?: {
-                    id?: string;
-                    name?: string;
-                };
             };
         };
         UpdateTaskDto: {
@@ -3768,85 +3604,10 @@ export interface operations {
             };
         };
     };
-    ProjectsController_findAllForWorkspace: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, description, workflows, createdByWorkspaceUser, countAgents, countVariables, countWorkflows */
-                expansion?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Projects in the workspace. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectResponseDto"][];
-                };
-            };
-        };
-    };
-    ProjectsController_create: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, description, workflows, createdByWorkspaceUser, countAgents, countVariables, countWorkflows */
-                expansion?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateProjectDto"];
-            };
-        };
-        responses: {
-            /** @description The created project. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectResponseDto"];
-                };
-            };
-        };
-    };
-    ProjectsController_findOne: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, description, workflows, createdByWorkspaceUser, countAgents, countVariables, countWorkflows */
-                expansion?: string;
-            };
-            header?: never;
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The requested project. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectResponseDto"];
-                };
-            };
-        };
-    };
     QueuesController_findAllForWorkspace: {
         parameters: {
             query?: {
-                /** @description Comma-separated key:value filter pairs. Available keys: projectId, isActive, search, priority. */
+                /** @description Comma-separated key:value filter pairs. Available keys: isActive, search, priority. */
                 filterBy?: string;
                 /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, description, project, workspace, createdByWorkspaceUser, statistics, itemCounts. */
                 expansion?: string;
@@ -3872,9 +3633,7 @@ export interface operations {
     };
     QueuesController_create: {
         parameters: {
-            query: {
-                /** @description ID of the project the queue belongs to. */
-                projectId: string;
+            query?: {
                 /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, description, project, workspace, createdByWorkspaceUser, statistics, itemCounts. */
                 expansion?: string;
             };
@@ -4610,9 +4369,9 @@ export interface operations {
             query?: {
                 /** @description Comma-separated inclusion flags. Available: all, internal. Pass internal to include internal workflows, which are excluded by default. */
                 includeType?: string;
-                /** @description Comma-separated key:value filters. Available: projectId, agentCanTrigger. Example: filterBy=projectId:proj_123 */
+                /** @description Comma-separated key:value filters. Available: agentCanTrigger. Example: filterBy=agentCanTrigger:true */
                 filterBy?: string;
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive,project */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive */
                 expansion?: string;
             };
             header?: never;
@@ -4628,6 +4387,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WorkflowResponseDto"][];
+                };
+            };
+        };
+    };
+    WorkflowsController_upsertBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertWorkflowBySlugDto"];
+            };
+        };
+        responses: {
+            /** @description The created or updated workflow. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkflowResponseDto"];
                 };
             };
         };
@@ -4657,40 +4440,14 @@ export interface operations {
             };
         };
     };
-    ProjectWorkflowsController_upsertBySlug: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertWorkflowBySlugDto"];
-            };
-        };
-        responses: {
-            /** @description The created or updated workflow. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkflowResponseDto"];
-                };
-            };
-        };
-    };
     AgentsController_findAllForWorkspace: {
         parameters: {
             query?: {
                 /** @description Comma-separated include flags, e.g. `includeType=all`. Available: all */
                 includeType?: string;
-                /** @description Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId */
+                /** @description Filters in `key:value` format, comma-separated. */
                 filterBy?: string;
-                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
+                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
                 expansion?: string;
             };
             header?: never;
@@ -4710,10 +4467,34 @@ export interface operations {
             };
         };
     };
+    AgentsController_upsertBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertAgentBySlugDto"];
+            };
+        };
+        responses: {
+            /** @description The created or updated agent. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentResponseDto"];
+                };
+            };
+        };
+    };
     AgentsController_findOne: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
+                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
                 expansion?: string;
             };
             header?: never;
@@ -4725,32 +4506,6 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description The requested agent */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AgentResponseDto"];
-                };
-            };
-        };
-    };
-    ProjectAgentsController_upsertBySlug: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertAgentBySlugDto"];
-            };
-        };
-        responses: {
-            /** @description The created or updated agent. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5621,9 +5376,9 @@ export interface operations {
             query?: {
                 /** @description Comma-separated include flags. Available: all */
                 includeType?: string;
-                /** @description Comma-separated key:value filters. Available: projectId (variables owned by the project), projectAccessId (variables the project can access, including workspace-wide ones). Example: filterBy=projectId:abc123 */
+                /** @description Comma-separated key:value filters. Variables are workspace-scoped; this list has no project filter. */
                 filterBy?: string;
-                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, value, workspace, project */
+                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, value, workspace */
                 expansion?: string;
             };
             header?: never;
@@ -5646,7 +5401,7 @@ export interface operations {
     VariablesController_create: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, value, workspace, project */
+                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, value, workspace */
                 expansion?: string;
             };
             header?: never;
@@ -5673,7 +5428,7 @@ export interface operations {
     VariablesController_findOne: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, value, workspace, project */
+                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, value, workspace */
                 expansion?: string;
             };
             header?: never;
@@ -5720,7 +5475,7 @@ export interface operations {
     VariablesController_update: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, value, workspace, project */
+                /** @description Comma-separated fields to expand. Available: description, createdAt, updatedAt, value, workspace */
                 expansion?: string;
             };
             header?: never;
@@ -5748,9 +5503,7 @@ export interface operations {
     };
     TablesController_findAll: {
         parameters: {
-            query?: {
-                projectId?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -6008,7 +5761,7 @@ export interface operations {
             query?: {
                 /** @description Comma-separated include flags, e.g. `includeType=all`. Available: all */
                 includeType?: string;
-                /** @description Filters in `key:value` format, comma-separated, e.g. `filterBy=agentId:<uuid>`. Available: projectId, agentId */
+                /** @description Filters in `key:value` format, comma-separated, e.g. `filterBy=agentId:<uuid>`. Available: agentId */
                 filterBy?: string;
                 /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, agent, project, messages, messageCreatedAt, messageUsage, finishReason, customIdentifier */
                 expansion?: string;

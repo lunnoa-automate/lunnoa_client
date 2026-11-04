@@ -16,11 +16,6 @@ export interface RunActionOptions {
    * and exactly one connection exists, the platform uses that connection.
    */
   connectionId?: string;
-  /**
-   * Project UUID for variable/project scoping. Required when the workspace has
-   * more than one project.
-   */
-  projectId?: string;
   /** Action input fields (keys from the action `inputConfig`). */
   input?: Record<string, unknown>;
   /** Optional display name for the ad-hoc Execution. */

@@ -1,3 +1,14 @@
+## [1.5.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.4.0...v1.5.0) (2026-11-04)
+
+### Features
+
+* add tables resource ([a1a6ac3](https://github.com/lunnoa-automate/lunnoa_client/commit/a1a6ac339024d9e636f6c7585f924d33336c6487))
+* **cli:** add init command, tables commands and .env loading ([314bdf7](https://github.com/lunnoa-automate/lunnoa_client/commit/314bdf727cc5436f7a69b32fa386cb9f1991cd5b))
+
+### Bug Fixes
+
+* **react:** use in-memory token store during SSR ([d3592d3](https://github.com/lunnoa-automate/lunnoa_client/commit/d3592d37cfdb3a568986e34c1092e0ce71195837))
+
 ## [1.4.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.3.0...v1.4.0) (2026-11-04)
 
 ### Features

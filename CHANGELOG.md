@@ -1,3 +1,12 @@
+## [2.0.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.5.0...v2.0.0) (2026-11-04)
+
+### ⚠ BREAKING CHANGES
+
+* Projects are gone. `client.projects`, `ProjectsResource`, `Project`, and `CreateProjectInput` are removed. `--project-id`, `LUNNOA_PROJECT_ID`, `lunnoa.config` `projectId`, and the `projects list` command are removed. `agents deploy` and `workflows deploy` need only the URL and API key.
+* `agents.upsertBySlug` and `workflows.upsertBySlug` take the body only and post to `POST /api/agents/upsert` and `POST /api/workflows/upsert`. The old `/api/projects/.../upsert` URLs return 404. An existing slug in the workspace still updates that agent.
+* `actions.run`, `runs.start`, and `tables.list` no longer accept `projectId`.
+* Existing apps must upgrade and run `npx @lunnoa/client skills install` so `.cursor/skills` and `.claude/skills` refresh.
+
 ## [1.5.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.4.0...v1.5.0) (2026-11-04)
 
 ### Features

@@ -30,6 +30,22 @@ export function setEnvValues(
   return out;
 }
 
+/** Drops the retired project-id setting copied from older starter templates. */
+export function dropRetiredProjectEnv(source: string): string {
+  const body = source
+    .split('\n')
+    .filter(
+      (line) =>
+        !line.includes('LUNNOA_PROJECT_ID') &&
+        !line.includes('projects list') &&
+        !/Project UUID/i.test(line),
+    )
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\n+$/, '');
+  return body.length ? `${body}\n` : '';
+}
+
 async function isDirectory(path: string): Promise<boolean> {
   return (await stat(path).catch(() => undefined))?.isDirectory() ?? false;
 }
@@ -92,7 +108,10 @@ export async function runInit(args: CliArgs): Promise<void> {
   const example = await readFile(join(dest, '.env.example'), 'utf8').catch(() => '');
   await writeFile(
     join(dest, '.env'),
-    setEnvValues(example, { LUNNOA_URL: url, LUNNOA_API_KEY: apiKey }),
+    setEnvValues(dropRetiredProjectEnv(example), {
+      LUNNOA_URL: url,
+      LUNNOA_API_KEY: apiKey,
+    }),
     'utf8',
   );
 

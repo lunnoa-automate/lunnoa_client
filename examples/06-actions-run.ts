@@ -5,7 +5,7 @@
  *   LUNNOA_URL=... LUNNOA_API_KEY=lna_... npx tsx examples/06-actions-run.ts
  *
  * Optional:
- *   CONNECTION_ID=... PROJECT_ID=...
+ *   CONNECTION_ID=...
  */
 import { LunnoaClient } from '@lunnoa/client';
 
@@ -29,7 +29,6 @@ async function main() {
     appId: 'http',
     actionId: 'http_action_send-request',
     connectionId: process.env.CONNECTION_ID,
-    projectId: process.env.PROJECT_ID,
     name: 'SDK HTTP ping',
     input: {
       method: 'GET',

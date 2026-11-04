@@ -11,7 +11,6 @@ export interface CliArgs {
   url?: string;
   apiKey?: string;
   accessToken?: string;
-  projectId?: string;
   out: string;
   json: boolean;
   /** Restrict catalogue / connections to one workflow app id. */
@@ -31,7 +30,6 @@ const GROUPS_WITH_SUBCOMMAND = new Set([
   'tools',
   'apps',
   'connections',
-  'projects',
   'skills',
 ]);
 
@@ -39,7 +37,6 @@ const VALUE_FLAGS = new Set([
   '--url',
   '--api-key',
   '--access-token',
-  '--project-id',
   '--out',
   '--app',
   '--template',
@@ -100,9 +97,6 @@ export function parseArgs(argv: string[]): CliArgs {
         case '--access-token':
           args.accessToken = value;
           break;
-        case '--project-id':
-          args.projectId = value;
-          break;
         case '--out':
           args.out = value;
           break;
@@ -145,12 +139,11 @@ export const USAGE = `Usage:
   npx @lunnoa/client entity-types list [--json]
   npx @lunnoa/client tables list [--json]
   npx @lunnoa/client tables get <slugOrId> [--json]
-  npx @lunnoa/client projects list [--json]
   npx @lunnoa/client features [--json]
 
-  Deploy (upsert by slug):
-  npx @lunnoa/client workflows deploy <path> --url <url> --api-key <key> --project-id <uuid>
-  npx @lunnoa/client agents deploy <path> --url <url> --api-key <key> --project-id <uuid>
+  Deploy (upsert by slug inside the workspace on the API key):
+  npx @lunnoa/client workflows deploy <path> --url <url> --api-key <key>
+  npx @lunnoa/client agents deploy <path> --url <url> --api-key <key>
   npx @lunnoa/client entity-types deploy <path> --url <url> --api-key <key>
 
   Agent skills (copies this version's skills into .claude/skills and .cursor/skills):
@@ -160,7 +153,6 @@ Options:
   --url           Base URL of the Lunnoa Automate deployment
   --api-key       Machine API key (lna_...)
   --access-token  User JWT as an alternative to --api-key
-  --project-id    Project UUID (required for workflow/agent deploy)
   --out           Output directory for lunnoa.generated.ts (codegen; default: ./src/lunnoa)
   --app           Restrict tools/connections to one workflow app id
   --for-agent     Only catalogue entries with availableForAgent
@@ -168,12 +160,12 @@ Options:
   --json          Machine-readable JSON (preferred for coding agents)
   --help          Show this help
 
-Environment: LUNNOA_URL, LUNNOA_API_KEY, LUNNOA_PROJECT_ID (also read from ./.env)
+Environment: LUNNOA_URL, LUNNOA_API_KEY (also read from ./.env)
 Optional config file: lunnoa.config.ts | .mjs | .js | .json
 
 tools get prints inputConfig and a defineAction() sketch. tools list is compact;
-run tools get for the schema. Entity-type deploy uses a deployment-wide slug
-and grants the API key's workspace when the slug is new (no --project-id).
+run tools get for the schema. An entity-type slug is unique on the deployment
+and grants the API key's workspace when the slug is new.
 A slug already granted to other workspaces is not rewritten. Unknown instance attributes are rejected unless
 allowUnknownAttributes is true; use extensions.
 `;

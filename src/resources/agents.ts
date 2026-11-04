@@ -104,11 +104,10 @@ export class AgentsResource {
   }
 
   /**
-   * Upsert an agent by project-scoped slug.
+   * Upsert an agent by slug inside the workspace on the API key.
    * Prefer the CLI (`npx @lunnoa/client agents deploy`) for happy-path deploy.
    */
   upsertBySlug(
-    projectId: string,
     body: UpsertAgentBySlugInput | AgentDefinition,
     options?: { workflowIds?: string[] },
   ): Promise<Agent> {
@@ -116,7 +115,7 @@ export class AgentsResource {
       'kind' in body && body.kind === 'agent'
         ? agentDefinitionToUpsert(body, options)
         : body;
-    return this.http.post<Agent>(`/api/projects/${projectId}/agents/upsert`, {
+    return this.http.post<Agent>('/api/agents/upsert', {
       body: payload,
     });
   }

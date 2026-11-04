@@ -29,6 +29,7 @@ const GROUPS_WITH_SUBCOMMAND = new Set([
   'apps',
   'connections',
   'projects',
+  'skills',
 ]);
 
 const VALUE_FLAGS = new Set([
@@ -141,6 +142,9 @@ export const USAGE = `Usage:
   npx @lunnoa/client workflows deploy <path> --url <url> --api-key <key> --project-id <uuid>
   npx @lunnoa/client agents deploy <path> --url <url> --api-key <key> --project-id <uuid>
   npx @lunnoa/client entity-types deploy <path> --url <url> --api-key <key>
+
+  Agent skills (copies this version's skills into .claude/skills and .cursor/skills):
+  npx @lunnoa/client skills install [projectDir]
 
 Options:
   --url           Base URL of the Lunnoa Automate deployment

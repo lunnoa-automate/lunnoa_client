@@ -27,17 +27,24 @@ npm install @lunnoa/client
 npx @lunnoa/client init my-app --url https://lunnoa.your-company.example
 ```
 
-Scaffolds the [lunnoa-starter](https://github.com/lunnoa-automate/lunnoa-starter) Next.js template (thin, Docker-deployable, both auth patterns behind `LUNNOA_AUTH_MODE`) and writes `.env`, prompting for an API key when run interactively. `--template <owner/repo[#ref]|./local-folder>` overrides the source. Then `npm install` and open the folder in Claude Code / Cursor / Codex.
+Scaffolds the [lunnoa-starter](https://github.com/lunnoa-automate/lunnoa-starter) Next.js template (thin, Docker-deployable, Lunnoa user login) and writes `.env`, prompting for an API key for CLI commands when run interactively. `--template <owner/repo[#ref]|./local-folder>` overrides the source. Then `npm install` and open the folder in Claude Code / Cursor / Codex.
 
 ## Quickstart
 
 ```typescript
-import { LunnoaClient } from '@lunnoa/client';
+import { createBrowserClient, isLoginRequires2FA } from '@lunnoa/client';
 
-const lunnoa = new LunnoaClient({
+const lunnoa = createBrowserClient({
   baseUrl: 'https://lunnoa.your-company.example',
-  apiKey: process.env.LUNNOA_API_KEY, // lna_... — server-side only
 });
+
+const result = await lunnoa.auth.login({ email, password });
+if (isLoginRequires2FA(result)) {
+  await lunnoa.auth.verify2faLogin({
+    sessionToken: result.sessionToken,
+    token: totpCode,
+  });
+}
 
 const { data: invoices } = await lunnoa.entities.list({
   objectTypeSlug: 'invoice',
@@ -46,43 +53,9 @@ const { data: invoices } = await lunnoa.entities.list({
 });
 ```
 
-A SuperAdmin creates API keys in **Adminspace → API keys**, choosing the workspace and an RBAC role for the key's service account. The role is the key's entire capability model — grant the minimum permission set, not Admin.
+People using the app sign in as Lunnoa users (invite, SSO, or SCIM). Their permissions apply. The deployment must allow your origin via `CORS_ALLOWED_ORIGINS`.
 
-## Two auth patterns
-
-| Pattern | Credential | Where |
-|---|---|---|
-| **A. Backend holds the key** | `apiKey: 'lna_...'` via `createServerClient` | Your server, background jobs, server-rendered pages. The key acts as a workspace-scoped service account. |
-| **B. End users are Lunnoa users** | User JWT via `createBrowserClient` + `lunnoa.auth.*` | Browser apps. Login, 2FA, refresh, and SSO discovery are wrapped; per-user permissions apply. |
-
-```typescript
-import {
-  createBrowserClient,
-  createServerClient,
-  isLoginRequires2FA,
-} from '@lunnoa/client';
-
-// Pattern A — server-side
-const server = createServerClient({
-  baseUrl,
-  apiKey: process.env.LUNNOA_API_KEY!,
-});
-
-// Pattern B — browser (tokens in localStorage by default; auto-refresh on 401)
-const lunnoa = createBrowserClient({ baseUrl });
-const result = await lunnoa.auth.login({ email, password });
-if (isLoginRequires2FA(result)) {
-  await lunnoa.auth.verify2faLogin({
-    sessionToken: result.sessionToken,
-    token: totpCode,
-  });
-}
-const me = await lunnoa.auth.me();
-```
-
-**API keys never ship to browsers.** The SDK enforces this: constructing a client with an `lna_` key while `window` exists throws immediately. Browser apps either use Pattern B or call your own backend, which holds the key (backend-for-frontend).
-
-For Pattern B the deployment must allow your origin via its `CORS_ALLOWED_ORIGINS` configuration. See the Authentication guide under `guides/develop/client/auth` in Lunnoa Docs for SSO redirect constraints and token stores.
+`lna_...` API keys are for the CLI (discovery, codegen, deploy), not for the app session. A SuperAdmin creates them in **Adminspace → API keys**, with a minimal RBAC role. The SDK throws if an `lna_` key is used while `window` exists. See the Authentication guide under `guides/develop/client/auth` in Lunnoa Docs for SSO redirect constraints and token stores.
 
 ### React (optional)
 
@@ -253,10 +226,10 @@ npx @lunnoa/client codegen --url https://lunnoa.your-company.example --api-key l
 This writes `lunnoa.generated.ts`:
 
 ```typescript
-import { LunnoaClient } from '@lunnoa/client';
+import { createBrowserClient } from '@lunnoa/client';
 import { createDeploymentClient } from './lunnoa/lunnoa.generated';
 
-const lunnoa = createDeploymentClient(new LunnoaClient({ baseUrl, apiKey }));
+const lunnoa = createDeploymentClient(createBrowserClient({ baseUrl }));
 
 // Entity attributes and states are compile-time checked:
 const open = await lunnoa.entities.invoice.list({ state: 'pending' });

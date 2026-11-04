@@ -7,20 +7,18 @@ export function isBrowserEnvironment(): boolean {
 }
 
 /**
- * API keys are server-to-server credentials. Shipping one to a browser exposes
- * the whole workspace the key is scoped to, so the SDK refuses outright.
+ * API keys are operator credentials (CLI, codegen, deploy). Shipping one to a
+ * browser exposes the whole workspace the key is scoped to, so the SDK refuses.
  *
- * Browser apps must authenticate end users with a Lunnoa user JWT (Pattern B)
- * or proxy through their own backend which holds the key (Pattern A / BFF).
+ * Apps authenticate end users with a Lunnoa user JWT.
  */
 export function assertApiKeyAllowedInEnvironment(apiKey: string): void {
   if (isBrowserEnvironment()) {
     throw new Error(
       'Refusing to use a Lunnoa API key (lna_...) in a browser environment. ' +
-        'API keys are server-side credentials: anyone opening dev tools could read the key ' +
-        'and act as the service account across its whole workspace. ' +
-        'Either call the Lunnoa API from your own backend which holds the key (backend-for-frontend pattern), ' +
-        'or authenticate the end user with a Lunnoa user JWT and pass it as `accessToken`.',
+        'API keys are for the CLI and operator scripts, not for app login. ' +
+        'Anyone opening dev tools could read the key and act as the service account across its whole workspace. ' +
+        'Sign the end user in with lunnoa.auth.login and pass their JWT as `accessToken`.',
     );
   }
   if (!apiKey.startsWith(API_KEY_PREFIX)) {

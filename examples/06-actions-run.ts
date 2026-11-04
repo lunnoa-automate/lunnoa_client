@@ -1,5 +1,5 @@
 /**
- * Run a single catalogue action as an ad-hoc Execution (source: SDK).
+ * Operator script (not app login): run a single catalogue action as an ad-hoc Execution.
  *
  * Run with:
  *   LUNNOA_URL=... LUNNOA_API_KEY=lna_... npx tsx examples/06-actions-run.ts

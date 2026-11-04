@@ -74,7 +74,7 @@ describe('browser API-key guard', () => {
     ).toThrow(/apiKey|accessToken|tokenStore/);
   });
 
-  it('allows tokenStore without accessToken (Pattern B)', () => {
+  it('allows tokenStore without accessToken (Lunnoa user session)', () => {
     expect(
       () =>
         new LunnoaClient({

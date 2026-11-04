@@ -42,10 +42,11 @@ interrogation.
 
 ### Actors
 
-- Who uses the custom UI: Lunnoa employees (workspace users), external
-  customers (not Lunnoa users), or a backend system only?
-- That choice drives auth: JWT (Pattern B) vs API key BFF (Pattern A). Never
-  put `lna_` keys in a browser.
+- Who uses the custom UI? They sign in as Lunnoa users. If they are not in
+  the workspace yet, they are provisioned there first (invite, SSO, or SCIM).
+- The app does not keep its own login and does not call Lunnoa with an `lna_`
+  key on their behalf. `lna_` keys are for the CLI only. Never put one in a
+  browser.
 
 ### Data and knowledge
 
@@ -70,10 +71,10 @@ interrogation.
 
 ### Auth for any custom UI
 
-| End users | Prefer |
+| End users | Auth |
 |---|---|
-| App has its own login; Lunnoa is a backend | Pattern A: server holds `lna_` |
-| End users are Lunnoa users; per-user history/permissions | Pattern B: browser JWT |
+| People using the app | Lunnoa user JWT: `createBrowserClient` + `lunnoa.auth.login` (or SSO). Provision missing people with invite, SSO, or SCIM first. |
+| Coding agent / CLI | `LUNNOA_API_KEY` for discovery, codegen, and deploy. Not the app session. |
 | Anonymous embed chat (no full login) | Out of scope for v1 client path; scoped embed tokens are a later platform bet |
 
 ---
@@ -192,7 +193,7 @@ continue in a coding turn with that skill loaded.
 **You ask:** Who chats (customers or staff)? Data source (entities vs ERP
 action)? Need approvals? Existing HTTP/CRM connections?
 
-**You conclude (example):** Pattern A BFF; Agent `order-status` with tools
+**You conclude (example):** Customers are Lunnoa users (SCIM or invite) and sign in with a browser JWT; Agent `order-status` with tools
 `defineAction` for ERP lookup (after `tools list` / `tools get`) + optional
 workflow for staff notifications; UI = chat only; no agent schedule.
 

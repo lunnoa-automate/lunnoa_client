@@ -2,10 +2,10 @@
 name: lunnoa-client
 description: >-
   Builds custom frontends and backends on top of a Lunnoa Automate deployment
-  using the @lunnoa/client TypeScript SDK. Covers the two auth patterns
-  (server-side lna_ API keys via createServerClient, browser user JWTs via
-  createBrowserClient + lunnoa.auth.login / refresh / SSO — never lna_ keys in a
-  browser), discovery of the deployment's agents, workflows, and entity
+  using the @lunnoa/client TypeScript SDK. App login is always a Lunnoa user
+  (createBrowserClient + lunnoa.auth.login / refresh / SSO). lna_ API keys are
+  for the CLI only (discovery, codegen, deploy), never for the app session and
+  never in a browser. Covers discovery of the deployment's agents, workflows, and entity
   types, running the deployment codegen first for typed accessors, querying
   and creating entities, triggering workflows and polling executions,
   resuming NEEDS_INPUT executions from custom forms, streaming agent chat
@@ -49,9 +49,10 @@ Human docs (detail): Lunnoa Docs → Develop → TypeScript client SDK.
 
 Run these before inventing resources or shipping UI code:
 
-1. **Auth** — Pattern A (`createServerClient` + `lna_` on the server) or
-   Pattern B (`createBrowserClient` + JWT). **Never** put `lna_` in the
-   browser (SDK throws when `window` exists).
+1. **Auth** — Lunnoa user JWT via `createBrowserClient` + `lunnoa.auth.login`
+   (or SSO). **Never** call Lunnoa as the app's users with an `lna_` key, and
+   **never** put `lna_` in the browser (SDK throws when `window` exists).
+   `lna_` keys are for CLI discovery, codegen, and deploy only.
 2. **Codegen** — When building typed UIs, run
    `npx @lunnoa/client codegen` against the deployment first.
 3. **Discover before inventing** — prefer the CLI (JSON for agents), then
@@ -70,36 +71,33 @@ Run these before inventing resources or shipping UI code:
 
 ---
 
-## 1. Auth: decide the pattern first
+## 1. Auth: Lunnoa users only
 
-| Pattern | Credential | Use when |
-|---|---|---|
-| **A. Backend holds the key** | `createServerClient({ apiKey: 'lna_...' })` | The app has its own users/login; Lunnoa never needs to know them. All Lunnoa calls go through the app's backend. |
-| **B. End users are Lunnoa users** | `createBrowserClient({ baseUrl })` + `lunnoa.auth.login` | Per-user permissions, agent shares, and task history must apply. The browser talks to Lunnoa directly. |
+Every person who uses the app is a Lunnoa user. If they are not in the
+workspace yet, they are provisioned there first (invite, SSO, or SCIM). The
+app does not keep its own user directory and does not call Lunnoa with an
+`lna_` key on their behalf.
+
+| Caller | Credential |
+|---|---|
+| **Person using the app** | `createBrowserClient({ baseUrl })` + `lunnoa.auth.login` (password, 2FA, or SSO). Permissions, agent shares, and task history are that user's. |
+| **CLI (codegen, discovery, deploy)** | `lna_` API key in `.env` / `--api-key`. Not the app session. |
 
 Hard rules:
 
 - **NEVER put an `lna_` key in browser code, env vars bundled into the client,
   or anything shipped to the browser.** The SDK throws if an `lna_` key is
   used while `window` exists. A leaked key exposes the whole workspace.
-- For browser apps with their own user base, use the **backend-for-frontend
-  pattern**: the browser calls your backend; your backend holds the key and
-  calls Lunnoa. Next.js route handlers / server actions count as backend.
-- Pattern B needs the deployment to allow the app's origin via
-  `CORS_ALLOWED_ORIGINS`.
-- Keys are minted by a SuperAdmin in **Adminspace → API keys** (workspace +
+- **NEVER build a backend-for-frontend that holds an `lna_` key so the app
+  can have its own users.** Next.js route handlers and server actions count
+  as the app: they must forward the signed-in user's JWT, not a service key.
+- The deployment must allow the app's origin via `CORS_ALLOWED_ORIGINS`.
+- CLI keys are minted by a SuperAdmin in **Adminspace → API keys** (workspace +
   RBAC role + optional expiry; secret shown once). Recommend a minimal custom
   role (e.g. `entities:read`, `entities:create`, `agents:use`), not Admin.
 
 ```typescript
-// Pattern A (server only)
-import { createServerClient } from '@lunnoa/client';
-const lunnoa = createServerClient({
-  baseUrl: process.env.LUNNOA_URL!,
-  apiKey: process.env.LUNNOA_API_KEY!,
-});
-
-// Pattern B (browser) — login + localStorage token store + auto-refresh on 401
+// App session — login + localStorage token store + auto-refresh on 401
 import { createBrowserClient, isLoginRequires2FA } from '@lunnoa/client';
 const lunnoa = createBrowserClient({ baseUrl });
 const result = await lunnoa.auth.login({ email, password });
@@ -150,7 +148,7 @@ const { data, setPage } = useEntityList({ objectTypeSlug: 'invoice' });
 
 Peer: `react` ≥ 18 for `/react`. `@ai-sdk/react` ships with the SDK (no extra install).
 Errors are `LunnoaApiError` with `.status`, `.body`, `.isUnauthorized`,
-`.isForbidden`, `.isRateLimited`. A 403 means the key's role or the
+`.isForbidden`, `.isRateLimited`. A 403 means the user's role or the
 deployment's licence edition does not cover the endpoint.
 
 ---
@@ -169,8 +167,9 @@ npx @lunnoa/client codegen --url <deployment-url> --api-key <lna_key> --out ./sr
 This emits `src/lunnoa/lunnoa.generated.ts` with `createDeploymentClient`:
 
 ```typescript
+import { createBrowserClient } from '@lunnoa/client';
 import { createDeploymentClient } from './lunnoa/lunnoa.generated';
-const lunnoa = createDeploymentClient(new LunnoaClient({ baseUrl, apiKey }));
+const lunnoa = createDeploymentClient(createBrowserClient({ baseUrl }));
 
 await lunnoa.entities.invoice.list({ state: 'pending' });      // typed attributes + states
 await lunnoa.workflows.processInvoice.execute({ invoiceId }); // typed trigger inputs
@@ -500,7 +499,7 @@ const { items: work } = await lunnoa.queueItems.listByObject(ticket.id);
 `lunnoa.approvals` mirrors Automate **Approvals** (`/approvals`). It uses the
 workspace API (`/api/approvals/...`), not Public API v1. The inbox is filtered
 to requests where the **current user** is eligible and has not decided yet.
-Prefer pattern B (user JWT). Role needs `approvals:read` / `approvals:decide`.
+The caller is the signed-in Lunnoa user. Role needs `approvals:read` / `approvals:decide`.
 
 ```typescript
 const { items } = await lunnoa.approvals.inbox(); // pending + partially_approved
@@ -531,9 +530,10 @@ with emails (capped; not Azure object IDs).
 
 ## 10. Ship checklist (after the mandatory checklist)
 
-1. Confirm base URL + credential pattern (A or B); wire the key server-side only.
-   For Pattern B prefer `createBrowserClient` and `lunnoa.auth.login` (not raw
-   localStorage getters unless you already hold a JWT).
+1. Confirm the base URL. Sign people in with `createBrowserClient` and
+   `lunnoa.auth.login` (not an `lna_` key, and not raw localStorage getters
+   unless you already hold that user's JWT). Allow the origin in
+   `CORS_ALLOWED_ORIGINS`.
 2. Run `npx @lunnoa/client codegen` against the deployment; commit the output.
 3. Call `discovery.enabledFeatures()` and hide unsupported areas.
 4. Build forms/tables from `attributeSchema` / `customInputConfig` (or the generated types).

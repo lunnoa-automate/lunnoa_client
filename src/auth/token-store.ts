@@ -1,5 +1,5 @@
 /**
- * Pluggable storage for Pattern B JWTs.
+ * Pluggable storage for Lunnoa user JWTs.
  * The SDK never uses httpOnly cookies: Automate auth is bearer JWT based.
  */
 export interface TokenStore {

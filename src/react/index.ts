@@ -1,5 +1,5 @@
 /**
- * Optional React helpers for Pattern B portals.
+ * Optional React helpers for apps whose users sign in to Lunnoa.
  * Import from `@lunnoa/client/react` (peer dependency: `react` ≥ 18).
  *
  * Agent chat uses `@ai-sdk/react` (a dependency of this package).

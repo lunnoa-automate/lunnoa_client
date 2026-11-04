@@ -590,8 +590,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Upsert entity type by workspace-scoped slug
-         * @description Creates or updates an entity type identified by workspace-scoped `slug`. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client entity-types deploy`) over calling this from application code. Unknown instance attributes are rejected unless `allowUnknownAttributes` is true; reserved key `extensions` is always allowed.
+         * Upsert entity type by deployment-wide slug
+         * @description Creates or updates an entity type identified by deployment-wide `slug`. A new slug is granted to the caller workspace. A type already granted to other workspaces is not rewritten unless the caller is a platform admin. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client entity-types deploy`). Unknown instance attributes are rejected unless `allowUnknownAttributes` is true; reserved key `extensions` is always allowed.
          */
         post: operations["ObjectTypesController_upsertBySlug"];
         delete?: never;
@@ -2184,7 +2184,7 @@ export interface components {
             managedByCode?: boolean;
         };
         UpsertObjectTypeBySlugDto: {
-            /** @description Stable workspace-scoped slug (lowercase, digits, hyphens). Used as the upsert key. */
+            /** @description Stable deployment-wide slug (lowercase, digits, hyphens). Used as the upsert key. Granted to the caller workspace when new. */
             slug: string;
             /** @description Singular display name. */
             name?: string;
@@ -2247,7 +2247,7 @@ export interface components {
             name: string;
             /** @description Plural display name of the entity type. */
             namePlural: string;
-            /** @description URL-safe slug, unique within the workspace. */
+            /** @description URL-safe slug, unique across the deployment. */
             slug: string;
             /** @description Icon identifier for the entity type. */
             icon: string;

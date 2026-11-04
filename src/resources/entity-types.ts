@@ -45,7 +45,7 @@ export class EntityTypesResource {
   constructor(private readonly http: HttpClient) {}
 
   /**
-   * Lists entity types in the workspace. Request
+   * Lists entity types granted to the API key's workspace. Request
    * `expansion: ['attributeSchema', 'stateSchema']` for the field and state
    * machine definitions the codegen CLI builds types from.
    */
@@ -78,7 +78,9 @@ export class EntityTypesResource {
   }
 
   /**
-   * Creates or updates an entity type by workspace-scoped slug.
+   * Creates or updates an entity type by deployment-wide slug.
+   * A new slug is granted to the API key's workspace. A slug already shared
+   * with another workspace is rejected unless the key belongs to a platform admin.
    * Prefer the CLI (`npx @lunnoa/client entity-types deploy`) for happy-path deploy.
    */
   upsertBySlug(

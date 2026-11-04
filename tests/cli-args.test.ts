@@ -32,18 +32,27 @@ describe('parseArgs', () => {
     expect(parseArgs(['tools', 'search', 'email']).path).toBe('email');
   });
 
-  it('still parses workflow deploy path', () => {
+  it('parses workflow deploy path', () => {
     const args = parseArgs([
       'workflows',
       'deploy',
       './ping.ts',
-      '--project-id',
-      'proj-1',
+      '--url',
+      'https://lunnoa.example',
+      '--api-key',
+      'lna_test',
     ]);
     expect(args.command).toBe('workflows');
     expect(args.subcommand).toBe('deploy');
     expect(args.path).toBe('./ping.ts');
-    expect(args.projectId).toBe('proj-1');
+    expect(args.url).toBe('https://lunnoa.example');
+    expect(args.apiKey).toBe('lna_test');
+  });
+
+  it('rejects a project id flag', () => {
+    expect(() =>
+      parseArgs(['workflows', 'deploy', './ping.ts', '--project-id', 'proj-1']),
+    ).toThrow(/Unknown option/);
   });
 
   it('does not consume the next flag as a boolean value', () => {

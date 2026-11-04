@@ -145,11 +145,11 @@ can execute. Use this shape:
 
 ### Auth
 - Pattern: A (server API key) | B (browser JWT)
-- Notes: <CORS, BFF, project id, env vars>
+- Notes: <CORS, BFF, env vars LUNNOA_URL and LUNNOA_API_KEY>
 
 ### Discovery (run first)
 - [ ] `npx @lunnoa/client tools list --json --for-agent` then `tools get <id>`
-- [ ] agents / workflows / entity-types / tables / projects list — reuse before create
+- [ ] agents / workflows / entity-types / tables list — reuse before create
 - [ ] codegen — if building typed entity/workflow accessors
 
 ### Resources (every row says REUSED or CREATED)

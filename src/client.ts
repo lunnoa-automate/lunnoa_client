@@ -11,7 +11,6 @@ import { TablesResource } from './resources/tables';
 import { ApprovalsResource } from './resources/approvals';
 import { ExecutionsResource } from './resources/executions';
 import { KnowledgeResource } from './resources/knowledge';
-import { ProjectsResource } from './resources/projects';
 import { QueueItemsResource } from './resources/queue-items';
 import { QueuesResource } from './resources/queues';
 import { RunsResource } from './resources/runs';
@@ -73,7 +72,6 @@ export class LunnoaClient {
   readonly variables: VariablesResource;
   readonly scorecards: ScorecardsResource;
   readonly connections: ConnectionsResource;
-  readonly projects: ProjectsResource;
   readonly workflowApps: WorkflowAppsResource;
   readonly discovery: DiscoveryResource;
 
@@ -99,7 +97,6 @@ export class LunnoaClient {
     this.variables = new VariablesResource(this.http);
     this.scorecards = new ScorecardsResource(this.http);
     this.connections = new ConnectionsResource(this.http);
-    this.projects = new ProjectsResource(this.http);
     this.discovery = new DiscoveryResource(this.http);
   }
 }

@@ -27,10 +27,10 @@ describe('init', () => {
       setEnvValues(source, {
         LUNNOA_URL: 'https://new.example/$1',
         LUNNOA_API_KEY: undefined,
-        LUNNOA_PROJECT_ID: 'p1',
+        CUSTOM_FLAG: 'p1',
       }),
     ).toBe(
-      '# url\nLUNNOA_URL=https://new.example/$1\nLUNNOA_API_KEY=\nLUNNOA_AUTH_MODE=server\nLUNNOA_PROJECT_ID=p1\n',
+      '# url\nLUNNOA_URL=https://new.example/$1\nLUNNOA_API_KEY=\nLUNNOA_AUTH_MODE=server\nCUSTOM_FLAG=p1\n',
     );
   });
 
@@ -38,7 +38,10 @@ describe('init', () => {
     const root = await mkdtemp(join(tmpdir(), 'lunnoa-init-'));
     const template = join(root, 'template');
     await mkdir(join(template, 'node_modules'), { recursive: true });
-    await writeFile(join(template, '.env.example'), 'LUNNOA_URL=\nLUNNOA_API_KEY=\n');
+    await writeFile(
+      join(template, '.env.example'),
+      'LUNNOA_URL=\nLUNNOA_API_KEY=\n# Project UUID for deploy (see `npx lunnoa-client projects list`).\nLUNNOA_PROJECT_ID=\n',
+    );
     await writeFile(join(template, 'README.md'), 'hi');
 
     vi.spyOn(console, 'log').mockImplementation(() => {});

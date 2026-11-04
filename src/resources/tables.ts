@@ -5,10 +5,8 @@ export class TablesResource {
   constructor(private readonly http: HttpClient) {}
 
   /** Lists tables in the API key's workspace (without columns and rows). */
-  list(options: { projectId?: string } = {}): Promise<Table[]> {
-    return this.http.get<Table[]>('/api/tables', {
-      query: { projectId: options.projectId },
-    });
+  list(): Promise<Table[]> {
+    return this.http.get<Table[]>('/api/tables');
   }
 
   /** Returns a single table by ID, including columns and rows. */

@@ -59,7 +59,7 @@ export interface WorkflowStepDefinition {
 
 export interface WorkflowDefinition {
   kind: typeof DEFINE_KINDS.workflow;
-  /** Stable project-scoped slug (upsert key). */
+  /** Stable slug, unique in the workspace (upsert key). */
   slug: string;
   name?: string;
   description?: string;
@@ -75,7 +75,7 @@ export type AgentToolDefinition =
 
 export interface AgentDefinition {
   kind: typeof DEFINE_KINDS.agent;
-  /** Stable project-scoped slug (upsert key). */
+  /** Stable slug, unique in the workspace (upsert key). */
   slug: string;
   name?: string;
   description?: string;

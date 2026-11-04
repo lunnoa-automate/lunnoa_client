@@ -17,7 +17,6 @@ import {
   runConnectionsList,
   runEntityTypesList,
   runFeatures,
-  runProjectsList,
   runTablesGet,
   runTablesList,
   runToolsGet,
@@ -47,7 +46,6 @@ import { workflowDefinitionToUpsert } from '../resources/workflows';
 
 async function bindClient(args: CliArgs): Promise<{
   client: LunnoaClient;
-  projectId?: string;
   url: string;
 }> {
   const fileConfig = await loadOptionalConfig();
@@ -55,10 +53,6 @@ async function bindClient(args: CliArgs): Promise<{
   const apiKey =
     args.apiKey ?? process.env.LUNNOA_API_KEY ?? fileConfig.apiKey;
   const accessToken = args.accessToken;
-  const projectId =
-    args.projectId ??
-    process.env.LUNNOA_PROJECT_ID ??
-    fileConfig.projectId;
 
   if (!url) {
     throw new Error('Missing --url (or LUNNOA_URL / lunnoa.config).');
@@ -71,7 +65,6 @@ async function bindClient(args: CliArgs): Promise<{
 
   return {
     client: new LunnoaClient({ baseUrl: url, apiKey, accessToken }),
-    projectId,
     url,
   };
 }
@@ -134,18 +127,13 @@ async function deployWorkflow(args: CliArgs): Promise<void> {
   if (!args.path) {
     throw new Error('Missing definition path. Example: workflows deploy ./workflow.ts');
   }
-  const { client, projectId } = await bindClient(args);
-  if (!projectId) {
-    throw new Error(
-      'Missing --project-id (or LUNNOA_PROJECT_ID / lunnoa.config).',
-    );
-  }
+  const { client } = await bindClient(args);
 
   const mod = await loadDefinitionModule(args.path);
   const def = pickWorkflowDefinition(mod);
   const payload = workflowDefinitionToUpsert(def);
-  console.log(`Deploying workflow slug="${payload.slug}" to project ${projectId} ...`);
-  const result = await client.workflows.upsertBySlug(projectId, payload);
+  console.log(`Deploying workflow slug="${payload.slug}" ...`);
+  const result = await client.workflows.upsertBySlug(payload);
   console.log(`Upserted workflow ${result.id} (${payload.slug})`);
 }
 
@@ -153,12 +141,7 @@ async function deployAgent(args: CliArgs): Promise<void> {
   if (!args.path) {
     throw new Error('Missing definition path. Example: agents deploy ./agent.ts');
   }
-  const { client, projectId } = await bindClient(args);
-  if (!projectId) {
-    throw new Error(
-      'Missing --project-id (or LUNNOA_PROJECT_ID / lunnoa.config).',
-    );
-  }
+  const { client } = await bindClient(args);
 
   const mod = await loadDefinitionModule(args.path);
   const def = pickAgentDefinition(mod);
@@ -175,7 +158,6 @@ async function deployAgent(args: CliArgs): Promise<void> {
     ) {
       const wf = unwrapped as import('../define').WorkflowDefinition;
       const upserted = await client.workflows.upsertBySlug(
-        projectId,
         workflowDefinitionToUpsert(wf),
       );
       if (upserted.id) {
@@ -186,8 +168,8 @@ async function deployAgent(args: CliArgs): Promise<void> {
   }
 
   const payload = agentDefinitionToUpsert(def, { workflowIds });
-  console.log(`Deploying agent slug="${payload.slug}" to project ${projectId} ...`);
-  const result = await client.agents.upsertBySlug(projectId, payload);
+  console.log(`Deploying agent slug="${payload.slug}" ...`);
+  const result = await client.agents.upsertBySlug(payload);
   console.log(`Upserted agent ${result.id} (${payload.slug})`);
 }
 
@@ -217,7 +199,6 @@ const DISCOVERY_SUBCOMMANDS: Record<string, string[] | undefined> = {
   connections: ['list', 'get'],
   tables: ['list', 'get'],
   features: undefined,
-  projects: ['list'],
 };
 
 function isDiscoveryCommand(args: CliArgs): boolean {
@@ -226,9 +207,6 @@ function isDiscoveryCommand(args: CliArgs): boolean {
     return false;
   }
   if (command === 'features') {
-    return true;
-  }
-  if (command === 'projects' && (subcommand === 'list' || !subcommand)) {
     return true;
   }
   if (
@@ -313,10 +291,6 @@ async function runDiscovery(args: CliArgs): Promise<boolean> {
   }
   if (command === 'tables' && subcommand === 'get') {
     await runTablesGet(client, args);
-    return true;
-  }
-  if (command === 'projects' && (subcommand === 'list' || !subcommand)) {
-    await runProjectsList(client, args);
     return true;
   }
   if (command === 'features') {

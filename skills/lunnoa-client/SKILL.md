@@ -57,14 +57,15 @@ Run these before inventing resources or shipping UI code:
 3. **Discover before inventing** — prefer the CLI (JSON for agents), then
    the SDK: `npx @lunnoa/client tools list --json --for-agent`,
    `tools get <actionId> --json`, `apps list`, `connections list`,
-   `agents|workflows|entity-types|tables|projects list`, `tables get <slugOrId>`,
+   `agents|workflows|entity-types|tables list`, `tables get <slugOrId>`,
    `features`.
    SDK equivalents: `workflowApps.list()`, `agents.list`, `workflows.list`,
    `entityTypes.list`, `tables.list`, `discovery.enabledFeatures()`.
    Do not invent catalogue action ids.
 4. **Run vs deploy** — Ad-hoc: `actions.run` / `runs.start` /
    `workflows.execute`. Durable shared automation: CLI
-   `npx @lunnoa/client workflows|agents deploy` (upsert by slug).
+   `npx @lunnoa/client workflows|agents deploy`. Upsert is by slug
+   inside the workspace on the API key. URL and API key are enough.
 5. **Toolkit boundary** — Client `defineAction` ≠ toolkit `createAction`.
 
 ---
@@ -319,7 +320,6 @@ const result = await lunnoa.actions.run({
   appId: 'http',
   actionId: 'http_action_send-request',
   // connectionId: '<Connection.id UUID>', // required if needsConnection + multiple
-  // projectId: '<project UUID>',          // required if multiple projects
   input: { method: 'GET', url: 'https://example.com' },
   name: 'Ping example',
 });
@@ -390,11 +390,11 @@ npx @lunnoa/client connections list --app gmail --json
 `tools get` returns `inputConfig` / `inputFields` and a `defineAction` sketch.
 `tools list` is compact; use `get` for the schema. `--json` is for coding agents.
 
-Deploy to Automate UI (upsert by slug; prefer CLI):
+Deploy to Automate UI (upsert by slug inside the workspace on the API key; prefer CLI):
 
 ```bash
-npx @lunnoa/client workflows deploy ./ping.ts --url … --api-key … --project-id …
-npx @lunnoa/client agents deploy ./triage.ts --url … --api-key … --project-id …
+npx @lunnoa/client workflows deploy ./ping.ts --url … --api-key …
+npx @lunnoa/client agents deploy ./triage.ts --url … --api-key …
 ```
 
 `defineAction` binds catalogue actions only. Toolkit `createAction` is a

@@ -7,7 +7,7 @@ TypeScript SDK for building applications **on top of** [Lunnoa Automate](https:/
 
 ## What is this?
 
-`@lunnoa/client` is the official consumption SDK for the Lunnoa Automate **Public API**: a typed client for agents and chat (with SSE streaming), workflows and executions, entities (Objects), knowledge, queues, variables, connections, and projects — plus a codegen command that types the SDK against **your** deployment's entity types, workflows, and agents.
+`@lunnoa/client` is the official consumption SDK for the Lunnoa Automate **Public API**: a typed client for agents and chat (with SSE streaming), workflows and executions, entities (Objects), knowledge, queues, variables, and connections — plus a codegen command that types the SDK against **your** deployment's entity types, workflows, and agents.
 
 **The boundary with the other Lunnoa SDK:** [`@lunnoa/toolkit`](https://github.com/lunnoa-automate/lunnoa_toolkit) is for building integration apps that run *inside* the platform (`createAction` / `createApp`); **`@lunnoa/client` is for building applications *on top of* the platform** — including `define*` factories, `runs.start`, and CLI deploy of workflows/agents.
 
@@ -117,7 +117,7 @@ Peer: `react` ≥ 18 (required for `/react`). `@ai-sdk/react` (behind `useAgentC
 
 Most namespaces map to the Public API surface (`openapi.public.json`):
 
-`auth` · `agents` · `tasks` · `agentChat` (SSE streaming) · `workflows` · `executions` · `actions` · `entities` · `entityTypes` · `knowledge` · `queues` · `queueItems` · `variables` · `connections` · `projects` · `workflowApps` · `discovery`
+`auth` · `agents` · `tasks` · `agentChat` (SSE streaming) · `workflows` · `executions` · `actions` · `entities` · `entityTypes` · `knowledge` · `queues` · `queueItems` · `variables` · `connections` · `workflowApps` · `discovery`
 
 `approvals` uses the authenticated **workspace** API (`/api/approvals/...`), not Public API v1. The inbox is filtered to requests where the current user is an eligible approver.
 
@@ -276,7 +276,7 @@ Re-run codegen whenever entity types, workflows, or agents change on the deploym
 
 ## Define, run, and CLI deploy
 
-Author local definitions with `defineWorkflow` / `defineAgent` / `defineEntityType`, run linear chains with `lunnoa.runs.start`, and upsert with the CLI (prefer CLI over calling upsert from app code). An entity type slug is unique on the deployment. Deploy grants that type to the API key's workspace when the slug is new, and will not rewrite a type already granted to other workspaces (no `--project-id`). Instance writes reject unknown attribute keys unless `allowUnknownAttributes` is true — use the reserved `extensions` object for flexible bags:
+Author local definitions with `defineWorkflow` / `defineAgent` / `defineEntityType`, run linear chains with `lunnoa.runs.start`, and upsert with the CLI (prefer CLI over calling upsert from app code). Agent and workflow upsert is by slug inside the workspace on the API key. An entity type slug is unique on the deployment. Deploy grants that type to the API key's workspace when the slug is new, and will not rewrite a type already granted to other workspaces. Instance writes reject unknown attribute keys unless `allowUnknownAttributes` is true — use the reserved `extensions` object for flexible bags:
 
 ```bash
 npx @lunnoa/client entity-types deploy ./human.ts --url https://lunnoa.example --api-key lna_...
@@ -286,9 +286,9 @@ Workflows and agents:
 
 ```bash
 npx @lunnoa/client workflows deploy ./workflows/sync-orders.ts \
-  --url https://lunnoa.example --api-key lna_... --project-id <uuid>
+  --url https://lunnoa.example --api-key lna_...
 npx @lunnoa/client agents deploy ./agents/triage.ts \
-  --url https://lunnoa.example --api-key lna_... --project-id <uuid>
+  --url https://lunnoa.example --api-key lna_...
 ```
 
 `defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
@@ -307,7 +307,6 @@ npx @lunnoa/client connections list --app gmail --json
 npx @lunnoa/client agents list --json
 npx @lunnoa/client workflows list --json
 npx @lunnoa/client entity-types list --json
-npx @lunnoa/client projects list --json
 npx @lunnoa/client features --json
 ```
 
@@ -338,7 +337,7 @@ Partner paste block:
 
 ```text
 Use @lunnoa/client skills: lunnoa-solution-design then lunnoa-client.
-LUNNOA_URL=… LUNNOA_API_KEY=lna_… (server only). Project ID=…
+LUNNOA_URL=… LUNNOA_API_KEY=lna_… (server only).
 Start by interviewing me, then workflowApps.list() / codegen.
 ```
 

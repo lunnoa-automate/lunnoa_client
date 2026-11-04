@@ -8,10 +8,10 @@ import { WorkflowsResource } from '../src/resources/workflows';
 import { FAKE_API_KEY } from './fixtures';
 
 describe('upsertBySlug', () => {
-  it('workflows.upsertBySlug POSTs the project upsert route', async () => {
+  it('workflows.upsertBySlug POSTs /api/workflows/upsert', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       expect(String(input)).toBe(
-        'https://lunnoa.example/api/projects/proj-1/workflows/upsert',
+        'https://lunnoa.example/api/workflows/upsert',
       );
       expect(init?.method).toBe('POST');
       const body = JSON.parse(String(init?.body));
@@ -34,7 +34,6 @@ describe('upsertBySlug', () => {
     );
 
     const result = await workflows.upsertBySlug(
-      'proj-1',
       defineWorkflow({
         slug: 'ping',
         steps: [{ use: defineAction({ id: 'http_action_send-request' }) }],
@@ -44,10 +43,10 @@ describe('upsertBySlug', () => {
     expect(result.id).toBe('wf-1');
   });
 
-  it('agents.upsertBySlug POSTs the project upsert route', async () => {
+  it('agents.upsertBySlug POSTs /api/agents/upsert', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       expect(String(input)).toBe(
-        'https://lunnoa.example/api/projects/proj-1/agents/upsert',
+        'https://lunnoa.example/api/agents/upsert',
       );
       const body = JSON.parse(String(init?.body));
       expect(body.slug).toBe('triage');
@@ -67,7 +66,6 @@ describe('upsertBySlug', () => {
     const agents = new AgentsResource(http);
 
     const result = await agents.upsertBySlug(
-      'proj-1',
       defineAgent({
         slug: 'triage',
         model: 'gpt-4o',

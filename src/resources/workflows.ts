@@ -83,21 +83,19 @@ export class WorkflowsResource {
   }
 
   /**
-   * Upsert a workflow by project-scoped slug from a linear step list.
+   * Upsert a workflow by slug inside the workspace on the API key.
    * Prefer the CLI (`npx @lunnoa/client workflows deploy`) for happy-path deploy.
    */
   upsertBySlug(
-    projectId: string,
     body: UpsertWorkflowBySlugInput | WorkflowDefinition,
   ): Promise<Workflow> {
     const payload =
       'kind' in body && body.kind === 'workflow'
         ? workflowDefinitionToUpsert(body)
         : body;
-    return this.http.post<Workflow>(
-      `/api/projects/${projectId}/workflows/upsert`,
-      { body: payload },
-    );
+    return this.http.post<Workflow>('/api/workflows/upsert', {
+      body: payload,
+    });
   }
 
   /**

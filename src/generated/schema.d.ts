@@ -5254,7 +5254,7 @@ export interface operations {
             query?: {
                 /** @description Comma-separated inclusion flags. Available: all, internal. Pass internal to include executions of internal workflows, which are excluded by default. */
                 includeType?: string;
-                /** @description Comma-separated key:value filters. Available: projectId, workflowId, source (WORKFLOW|SDK), objectId. Example: filterBy=workflowId:wf_123 or filterBy=objectId:<uuid> */
+                /** @description Comma-separated key:value filters. Available: workflowId, source (WORKFLOW|SDK), objectId. Example: filterBy=workflowId:wf_123 or filterBy=objectId:<uuid> */
                 filterBy?: string;
                 /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, source, name. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow,source */
                 expansion?: string;

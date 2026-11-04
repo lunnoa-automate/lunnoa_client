@@ -3334,7 +3334,7 @@
             "name": "filterBy",
             "required": false,
             "in": "query",
-            "description": "Comma-separated key:value filters. Available: projectId, workflowId, source (WORKFLOW|SDK), objectId. Example: filterBy=workflowId:wf_123 or filterBy=objectId:<uuid>",
+            "description": "Comma-separated key:value filters. Available: workflowId, source (WORKFLOW|SDK), objectId. Example: filterBy=workflowId:wf_123 or filterBy=objectId:<uuid>",
             "schema": {
               "type": "string"
             }

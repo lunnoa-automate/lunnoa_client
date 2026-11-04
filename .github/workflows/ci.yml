@@ -43,7 +43,7 @@ jobs:
       - name: Validate publish tarball includes dist + skills
         run: |
           set -euo pipefail
-          tarball=$(npm pack)
+          tarball=$(npm pack --ignore-scripts --silent)
           echo "Packed $tarball"
           tar -tzf "$tarball" | tee /tmp/tarball-files.txt
           grep -q 'package/dist/index.js' /tmp/tarball-files.txt

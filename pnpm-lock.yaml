@@ -11,13 +11,13 @@ importers:
 
   .:
     dependencies:
+      '@ai-sdk/react':
+        specifier: ^3.0.230
+        version: 3.0.230(react@19.2.7)(zod@4.4.3)
       ai:
         specifier: ^6.0.199
         version: 6.0.221(zod@4.4.3)
     devDependencies:
-      '@ai-sdk/react':
-        specifier: ^3.0.230
-        version: 3.0.230(react@19.2.7)(zod@4.4.3)
       '@semantic-release/changelog':
         specifier: ^6.0.3
         version: 6.0.3(semantic-release@25.0.5(typescript@5.7.3))

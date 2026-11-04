@@ -1901,16 +1901,271 @@
         "x-public": true
       }
     },
+    "/api/agents": {
+      "get": {
+        "description": "Lists every agent in the caller's active workspace, most recently updated first. By default each item carries only `id`, `name`, and `FK_aiConnectionId`; request additional fields with the `expansion` query parameter.",
+        "operationId": "AgentsController_findAllForWorkspace",
+        "parameters": [
+          {
+            "name": "includeType",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated include flags, e.g. `includeType=all`. Available: all",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterBy",
+            "required": false,
+            "in": "query",
+            "description": "Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agents in the current workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List agents in current workspace",
+        "tags": [
+          "Agents"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/agents/{agentId}": {
+      "get": {
+        "description": "Returns a single agent. By default only `id`, `name`, and `FK_aiConnectionId` are returned; request additional fields with the `expansion` query parameter. Access is gated by the `agents:use` permission, so agents reachable via a share grant can also be fetched.",
+        "operationId": "AgentsController_findOne",
+        "parameters": [
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get agent by ID",
+        "tags": [
+          "Agents"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/projects/{projectId}/agents/upsert": {
+      "post": {
+        "description": "Creates or updates an agent identified by project-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.",
+        "operationId": "ProjectAgentsController_upsertBySlug",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertAgentBySlugDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created or updated agent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upsert an agent by slug",
+        "tags": [
+          "Agents"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/workflow-apps": {
+      "get": {
+        "description": "Returns the full catalogue of app definitions, including their actions and triggers. Custom UIs use this catalogue to resolve executionPath step appId/actionId pairs to names and icons. Each action and trigger exposes declarative UI metadata (inputConfig) describing its configuration fields.",
+        "operationId": "WorkflowAppsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All workflow app definitions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkflowAppResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all workflow apps",
+        "tags": [
+          "Workflow Apps"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/workflow-apps/{appId}/connections/{connectionId}/connect": {
+      "post": {
+        "description": "Creates a connection for an app using non-interactive credentials such as an API key or basic auth username and password. OAuth2 connection types require the interactive browser flow and cannot be created through this endpoint with machine credentials.",
+        "operationId": "WorkflowAppsController_connectApp",
+        "parameters": [
+          {
+            "name": "appId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "connectionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Connection field values as defined by the app connection type (e.g. apiKey, username/password)"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Result of the connection attempt, written by the app connection handler.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Connect workflow app",
+        "tags": [
+          "Workflow Apps"
+        ],
+        "x-public": true
+      }
+    },
     "/api/object-types": {
       "get": {
-        "description": "Returns entity types in the workspace, sorted by name. Disabled types are excluded unless includeDisabled is true.",
+        "description": "Returns object types granted to the active workspace. Set includeCatalog to also list enabled types the workspace does not have, as name and description only.",
         "operationId": "ObjectTypesController_findAll",
         "parameters": [
           {
             "name": "includeDisabled",
             "required": false,
             "in": "query",
-            "description": "Set to true to include disabled entity types.",
+            "description": "Set to true to include disabled entity types the workspace is granted.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "includeCatalog",
+            "required": false,
+            "in": "query",
+            "description": "Set to true to include enabled types that are not granted to the active workspace.",
             "schema": {
               "type": "boolean"
             }
@@ -2102,7 +2357,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: attributes, objectType, owner, createdBy, createdAt, updatedAt, stateHistory.",
+            "description": "Comma-separated fields to expand. Available: attributes, objectType, createdBy, createdAt, updatedAt, stateHistory.",
             "schema": {
               "type": "string"
             }
@@ -2150,6 +2405,15 @@
             "required": false,
             "in": "query",
             "description": "Filter by entity type ID.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "workspaceId",
+            "required": false,
+            "in": "query",
+            "description": "Platform admin only. Limit records to this workspace. Omit to list every workspace.",
             "schema": {
               "type": "string"
             }
@@ -2236,7 +2500,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: attributes, objectType, owner, createdBy, createdAt, updatedAt, stateHistory.",
+            "description": "Comma-separated fields to expand. Available: attributes, objectType, createdBy, createdAt, updatedAt, stateHistory.",
             "schema": {
               "type": "string"
             }
@@ -2282,7 +2546,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: attributes, objectType, owner, createdBy, createdAt, updatedAt, stateHistory.",
+            "description": "Comma-separated fields to expand. Available: attributes, objectType, createdBy, createdAt, updatedAt, stateHistory.",
             "schema": {
               "type": "string"
             }
@@ -2327,7 +2591,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: attributes, objectType, owner, createdBy, createdAt, updatedAt, stateHistory.",
+            "description": "Comma-separated fields to expand. Available: attributes, objectType, createdBy, createdAt, updatedAt, stateHistory.",
             "schema": {
               "type": "string"
             }
@@ -2769,252 +3033,6 @@
         "x-public": true
       }
     },
-    "/api/workflow-apps": {
-      "get": {
-        "description": "Returns the full catalogue of app definitions, including their actions and triggers. Custom UIs use this catalogue to resolve executionPath step appId/actionId pairs to names and icons. Each action and trigger exposes declarative UI metadata (inputConfig) describing its configuration fields.",
-        "operationId": "WorkflowAppsController_findAll",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "All workflow app definitions.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/WorkflowAppResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List all workflow apps",
-        "tags": [
-          "Workflow Apps"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/workflow-apps/{appId}/connections/{connectionId}/connect": {
-      "post": {
-        "description": "Creates a connection for an app using non-interactive credentials such as an API key or basic auth username and password. OAuth2 connection types require the interactive browser flow and cannot be created through this endpoint with machine credentials.",
-        "operationId": "WorkflowAppsController_connectApp",
-        "parameters": [
-          {
-            "name": "appId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "connectionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true,
-                "description": "Connection field values as defined by the app connection type (e.g. apiKey, username/password)"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Result of the connection attempt, written by the app connection handler.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Connect workflow app",
-        "tags": [
-          "Workflow Apps"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/agents": {
-      "get": {
-        "description": "Lists every agent in the caller's active workspace, most recently updated first. By default each item carries only `id`, `name`, and `FK_aiConnectionId`; request additional fields with the `expansion` query parameter.",
-        "operationId": "AgentsController_findAllForWorkspace",
-        "parameters": [
-          {
-            "name": "includeType",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated include flags, e.g. `includeType=all`. Available: all",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "filterBy",
-            "required": false,
-            "in": "query",
-            "description": "Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Agents in the current workspace",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AgentResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List agents in current workspace",
-        "tags": [
-          "Agents"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/agents/{agentId}": {
-      "get": {
-        "description": "Returns a single agent. By default only `id`, `name`, and `FK_aiConnectionId` are returned; request additional fields with the `expansion` query parameter. Access is gated by the `agents:use` permission, so agents reachable via a share grant can also be fetched.",
-        "operationId": "AgentsController_findOne",
-        "parameters": [
-          {
-            "name": "agentId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The requested agent",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get agent by ID",
-        "tags": [
-          "Agents"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/projects/{projectId}/agents/upsert": {
-      "post": {
-        "description": "Creates or updates an agent identified by project-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.",
-        "operationId": "ProjectAgentsController_upsertBySlug",
-        "parameters": [
-          {
-            "name": "projectId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpsertAgentBySlugDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The created or updated agent.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Upsert an agent by slug",
-        "tags": [
-          "Agents"
-        ],
-        "x-public": true
-      }
-    },
     "/api/knowledge": {
       "post": {
         "description": "Creates a workspace-wide knowledge base with a dedicated vector index. Embedding model, provider and dimensions default to the platform configuration when omitted.",
@@ -3413,6 +3431,278 @@
         "x-public": true
       }
     },
+    "/api/executions/workflows/{workflowId}/execute": {
+      "post": {
+        "description": "Starts a new execution of the workflow immediately. The workflow must be active and use a manual or scheduled trigger strategy. The optional inputData object supplies values for the custom input fields configured on the workflow \"Manually Run\" trigger.",
+        "operationId": "ExecutionsController_manuallyExecuteWorkflow",
+        "parameters": [
+          {
+            "name": "workflowId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManuallyRunWorkflowInputDataDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The newly created execution. Only the execution ID is returned; poll GET /executions/{executionId} to track progress.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecuteWorkflowResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Manually execute workflow by ID",
+        "tags": [
+          "Executions"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/executions": {
+      "get": {
+        "description": "Returns the executions in the current workspace, most recently started first. By default only the execution ID is returned per item; use the expansion query parameter to include further fields.",
+        "operationId": "ExecutionsController_findAll",
+        "parameters": [
+          {
+            "name": "includeType",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated inclusion flags. Available: all, internal. Pass internal to include executions of internal workflows, which are excluded by default.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filterBy",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated key:value filters. Available: projectId, workflowId, source (WORKFLOW|SDK), objectId. Example: filterBy=workflowId:wf_123 or filterBy=objectId:<uuid>",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, source, name. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow,source",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of executions. Fields beyond the ID are included according to the expansion query parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExecutionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List executions in current workspace",
+        "tags": [
+          "Executions"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/executions/{executionId}": {
+      "get": {
+        "description": "Returns a single execution. The ID and startedAt timestamp are always returned; use the expansion query parameter to include further fields. Request the executionPath expansion to receive the business-readable step list (step labels, per-step status including NEEDS_INPUT, timings, and loop iterations) that custom UIs render progress from. Request the pendingInput expansion to receive the field schemas for steps currently waiting for user input.",
+        "operationId": "ExecutionsController_findOne",
+        "parameters": [
+          {
+            "name": "executionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expansion",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, executionPath, pendingInput, source, name. executionPath is the derived, ordered list of executed (or queued) steps with labels, per-step status, timings, and loop iteration metadata. pendingInput is the field schema for steps paused in NEEDS_INPUT. Example: expansion=status,executionPath,pendingInput,source",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The execution. Fields beyond the ID and startedAt are included according to the expansion query parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get execution by ID",
+        "tags": [
+          "Executions"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/executions/{executionId}/stream": {
+      "get": {
+        "description": "Server-Sent Events stream for real-time execution updates. Emits `execution.progress` snapshots (status + executionPath + pendingInput) as steps change, `loop.progress` while For Each / Repeat loops run, `execution.finished` on terminal status, and periodic heartbeats. Use fetch with Authorization header (EventSource cannot send Bearer tokens). Ideal for custom timeline / progress UIs.",
+        "operationId": "ExecutionsController_streamExecution",
+        "parameters": [
+          {
+            "name": "executionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSE stream of execution progress, loop progress, finished, and heartbeat events",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "SSE-framed events: execution.progress, loop.progress, execution.finished, heartbeat"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Stream execution updates (SSE)",
+        "tags": [
+          "Executions"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/actions/run": {
+      "post": {
+        "description": "Creates a one-step Execution with `source: SDK`, runs the catalogue action via the same prepareAndRunAction path used by workflows, then finalises the Execution. Discover `appId` / `actionId` / `inputConfig` via GET /workflow-apps. Pass `connectionId` (Connection instance UUID) when the action needs a connection and more than one exists for the app. Poll GET /executions/{id} with expansion=executionPath for the same record.",
+        "operationId": "ActionsController_run",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunActionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The ad-hoc Execution id plus the synchronous action result (status, output, single-step executionPath).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunActionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Run a single app action as an ad-hoc Execution",
+        "tags": [
+          "Actions"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/runs": {
+      "post": {
+        "description": "Creates one Execution with `source: SDK` and a linear multi-step `executionPath`. Each step is a catalogue action run via prepareAndRunAction (same path as workflows and POST /actions/run). Connection resolution per step: sole usable connection, else workspace default (`isDefault`), else 400 with candidates. Poll GET /executions/{id} with expansion=executionPath for the same record.",
+        "operationId": "RunsController_start",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartRunDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The ad-hoc Execution id plus the synchronous multi-step result (status, last-step output, executionPath).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunActionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start a multi-step ad-hoc Execution",
+        "tags": [
+          "Runs"
+        ],
+        "x-public": true
+      }
+    },
     "/api/variables": {
       "post": {
         "description": "Creates a variable in the current workspace. Provide projectId to scope the variable to a project.",
@@ -3658,6 +3948,162 @@
         "x-public": true
       }
     },
+    "/api/tables": {
+      "get": {
+        "description": "Lists tables in the current workspace, without rows.",
+        "operationId": "TablesController_findAll",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tables in the workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List tables",
+        "tags": [
+          "Tables"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/tables/upsert": {
+      "post": {
+        "description": "Creates or updates the table with this workspace `slug`. Omitted columns or rows keep their current value. Marks `managedByCode` by default.",
+        "operationId": "TablesController_upsertBySlug",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertTableBySlugDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created or updated table, including columns and rows.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upsert table by slug",
+        "tags": [
+          "Tables"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/tables/slug/{slug}": {
+      "get": {
+        "description": "Returns a table, including columns and rows.",
+        "operationId": "TablesController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested table.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get table by slug",
+        "tags": [
+          "Tables"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/tables/{tableId}": {
+      "get": {
+        "description": "Returns a table, including columns and rows.",
+        "operationId": "TablesController_findOne",
+        "parameters": [
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested table.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get table",
+        "tags": [
+          "Tables"
+        ],
+        "x-public": true
+      }
+    },
     "/api/connections": {
       "get": {
         "description": "Returns all connections available to the current user: OAuth connections belonging to the workspace and managed connections assigned to the user. Credential values are never returned.",
@@ -3761,278 +4207,6 @@
         "summary": "Get connection by ID",
         "tags": [
           "Connections"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/executions/workflows/{workflowId}/execute": {
-      "post": {
-        "description": "Starts a new execution of the workflow immediately. The workflow must be active and use a manual or scheduled trigger strategy. The optional inputData object supplies values for the custom input fields configured on the workflow \"Manually Run\" trigger.",
-        "operationId": "ExecutionsController_manuallyExecuteWorkflow",
-        "parameters": [
-          {
-            "name": "workflowId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ManuallyRunWorkflowInputDataDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "The newly created execution. Only the execution ID is returned; poll GET /executions/{executionId} to track progress.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExecuteWorkflowResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Manually execute workflow by ID",
-        "tags": [
-          "Executions"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/executions": {
-      "get": {
-        "description": "Returns the executions in the current workspace, most recently started first. By default only the execution ID is returned per item; use the expansion query parameter to include further fields.",
-        "operationId": "ExecutionsController_findAll",
-        "parameters": [
-          {
-            "name": "includeType",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated inclusion flags. Available: all, internal. Pass internal to include executions of internal workflows, which are excluded by default.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "filterBy",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated key:value filters. Available: projectId, workflowId, source (WORKFLOW|SDK). Example: filterBy=workflowId:wf_123 or filterBy=source:SDK",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, source, name. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow,source",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of executions. Fields beyond the ID are included according to the expansion query parameter.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExecutionResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List executions in current workspace",
-        "tags": [
-          "Executions"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/executions/{executionId}": {
-      "get": {
-        "description": "Returns a single execution. The ID and startedAt timestamp are always returned; use the expansion query parameter to include further fields. Request the executionPath expansion to receive the business-readable step list (step labels, per-step status including NEEDS_INPUT, timings, and loop iterations) that custom UIs render progress from. Request the pendingInput expansion to receive the field schemas for steps currently waiting for user input.",
-        "operationId": "ExecutionsController_findOne",
-        "parameters": [
-          {
-            "name": "executionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "expansion",
-            "required": false,
-            "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, executionPath, pendingInput, source, name. executionPath is the derived, ordered list of executed (or queued) steps with labels, per-step status, timings, and loop iteration metadata. pendingInput is the field schema for steps paused in NEEDS_INPUT. Example: expansion=status,executionPath,pendingInput,source",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The execution. Fields beyond the ID and startedAt are included according to the expansion query parameter.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExecutionResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get execution by ID",
-        "tags": [
-          "Executions"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/executions/{executionId}/stream": {
-      "get": {
-        "description": "Server-Sent Events stream for real-time execution updates. Emits `execution.progress` snapshots (status + executionPath + pendingInput) as steps change, `loop.progress` while For Each / Repeat loops run, `execution.finished` on terminal status, and periodic heartbeats. Use fetch with Authorization header (EventSource cannot send Bearer tokens). Ideal for custom timeline / progress UIs.",
-        "operationId": "ExecutionsController_streamExecution",
-        "parameters": [
-          {
-            "name": "executionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "SSE stream of execution progress, loop progress, finished, and heartbeat events",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "type": "string",
-                  "description": "SSE-framed events: execution.progress, loop.progress, execution.finished, heartbeat"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Stream execution updates (SSE)",
-        "tags": [
-          "Executions"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/actions/run": {
-      "post": {
-        "description": "Creates a one-step Execution with `source: SDK`, runs the catalogue action via the same prepareAndRunAction path used by workflows, then finalises the Execution. Discover `appId` / `actionId` / `inputConfig` via GET /workflow-apps. Pass `connectionId` (Connection instance UUID) when the action needs a connection and more than one exists for the app. Poll GET /executions/{id} with expansion=executionPath for the same record.",
-        "operationId": "ActionsController_run",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RunActionDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "The ad-hoc Execution id plus the synchronous action result (status, output, single-step executionPath).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunActionResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Run a single app action as an ad-hoc Execution",
-        "tags": [
-          "Actions"
-        ],
-        "x-public": true
-      }
-    },
-    "/api/runs": {
-      "post": {
-        "description": "Creates one Execution with `source: SDK` and a linear multi-step `executionPath`. Each step is a catalogue action run via prepareAndRunAction (same path as workflows and POST /actions/run). Connection resolution per step: sole usable connection, else workspace default (`isDefault`), else 400 with candidates. Poll GET /executions/{id} with expansion=executionPath for the same record.",
-        "operationId": "RunsController_start",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartRunDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "The ad-hoc Execution id plus the synchronous multi-step result (status, last-step output, executionPath).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RunActionResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Start a multi-step ad-hoc Execution",
-        "tags": [
-          "Runs"
         ],
         "x-public": true
       }
@@ -6364,8 +6538,9 @@
             "description": "Error message to record against the queue item."
           },
           "errorDetails": {
-            "type": "string",
-            "description": "Additional structured error details, supplied as a JSON string."
+            "type": "object",
+            "description": "Additional structured error details, supplied as a JSON string.",
+            "additionalProperties": true
           }
         },
         "required": [
@@ -6474,6 +6649,25 @@
           "isInternal": {
             "type": "boolean",
             "description": "Whether the workflow is internal (hidden from default listings). Included when `expansion=isInternal` is requested."
+          },
+          "objectTypeId": {
+            "type": "string",
+            "description": "Object type whose records list this workflow's runs. Included when `expansion=objectLink` is requested.",
+            "nullable": true
+          },
+          "objectIdPath": {
+            "type": "string",
+            "description": "Dot path on the trigger payload. A Lunnoa id when the type has no unique key, otherwise that key's value. Included when `expansion=objectLink` is requested.",
+            "nullable": true
+          },
+          "createObjectIfMissing": {
+            "type": "boolean",
+            "description": "Create a record when the unique key value is not found, then file the run on it. Included when `expansion=objectLink` is requested."
+          },
+          "uniqueKeyField": {
+            "type": "string",
+            "description": "Unique key on the linked object type (`name` or `attribute:<field>`). Included when `expansion=objectLink` is requested.",
+            "nullable": true
           },
           "nodes": {
             "type": "array",
@@ -6631,938 +6825,6 @@
         "required": [
           "slug",
           "steps"
-        ]
-      },
-      "UpsertObjectTypeBySlugDto": {
-        "type": "object",
-        "properties": {
-          "slug": {
-            "type": "string",
-            "description": "Stable deployment-wide slug (lowercase, digits, hyphens). Used as the upsert key. Granted to the caller workspace when new."
-          },
-          "name": {
-            "type": "string",
-            "description": "Singular display name."
-          },
-          "namePlural": {
-            "type": "string",
-            "description": "Plural display name."
-          },
-          "description": {
-            "type": "string",
-            "description": "Description."
-          },
-          "icon": {
-            "type": "string",
-            "description": "Icon identifier.",
-            "default": "box"
-          },
-          "color": {
-            "type": "string",
-            "description": "Hex colour.",
-            "default": "#3B82F6"
-          },
-          "attributeSchema": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Field definitions grouped into sections."
-          },
-          "stateSchema": {
-            "type": "object",
-            "additionalProperties": true,
-            "nullable": true,
-            "description": "Optional state machine definition."
-          },
-          "isEnabled": {
-            "type": "boolean",
-            "description": "Whether the type is enabled."
-          },
-          "allowUnknownAttributes": {
-            "type": "boolean",
-            "description": "When false (default), reject unknown attribute keys on entity writes.",
-            "default": false
-          },
-          "managedByCode": {
-            "type": "boolean",
-            "description": "Marks the type as code-managed. Defaults to true on upsert.",
-            "default": true
-          }
-        },
-        "required": [
-          "slug",
-          "attributeSchema"
-        ]
-      },
-      "ObjectTypeUserSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "User ID."
-          },
-          "email": {
-            "type": "string",
-            "description": "Email address of the user."
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name of the user."
-          }
-        },
-        "required": [
-          "id",
-          "email",
-          "name"
-        ]
-      },
-      "ObjectTypeCreatedByDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Workspace user ID."
-          },
-          "user": {
-            "$ref": "#/components/schemas/ObjectTypeUserSummaryDto"
-          }
-        },
-        "required": [
-          "id",
-          "user"
-        ]
-      },
-      "ObjectTypeCountDto": {
-        "type": "object",
-        "properties": {
-          "objects": {
-            "type": "number",
-            "description": "Number of non-deleted entities of this type."
-          }
-        },
-        "required": [
-          "objects"
-        ]
-      },
-      "ObjectTypeResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Entity type ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Singular display name of the entity type."
-          },
-          "namePlural": {
-            "type": "string",
-            "description": "Plural display name of the entity type."
-          },
-          "slug": {
-            "type": "string",
-            "description": "URL-safe slug, unique across the deployment."
-          },
-          "icon": {
-            "type": "string",
-            "description": "Icon identifier for the entity type."
-          },
-          "color": {
-            "type": "string",
-            "description": "Hex colour of the entity type."
-          },
-          "isEnabled": {
-            "type": "boolean",
-            "description": "Whether the entity type is enabled."
-          },
-          "allowUnknownAttributes": {
-            "type": "boolean",
-            "description": "When false, entity create/update rejects attribute keys not declared on the type. Reserved key `extensions` is always allowed."
-          },
-          "managedByCode": {
-            "type": "boolean",
-            "description": "True when last written by code (CLI / SDK upsert)."
-          },
-          "schemaRevision": {
-            "type": "number",
-            "description": "Incremented when attributeSchema, stateSchema, or allowUnknownAttributes changes."
-          },
-          "description": {
-            "type": "string",
-            "nullable": true,
-            "description": "Description of the entity type. Included when `expansion=description` is requested."
-          },
-          "attributeSchema": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Field definitions grouped into sections. Included when `expansion=attributeSchema` is requested."
-          },
-          "stateSchema": {
-            "type": "object",
-            "additionalProperties": true,
-            "nullable": true,
-            "description": "State machine definition. Included when `expansion=stateSchema` is requested."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Included when `expansion=createdAt` is requested."
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Included when `expansion=updatedAt` is requested."
-          },
-          "createdBy": {
-            "description": "Workspace member who created the entity type. Included when `expansion=createdBy` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ObjectTypeCreatedByDto"
-              }
-            ]
-          },
-          "_count": {
-            "description": "Included when `expansion=countObjects` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ObjectTypeCountDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "namePlural",
-          "slug",
-          "icon",
-          "color",
-          "isEnabled",
-          "allowUnknownAttributes",
-          "managedByCode",
-          "schemaRevision"
-        ]
-      },
-      "CreateObjectDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Display name of the entity.",
-            "minLength": 1,
-            "maxLength": 255
-          },
-          "objectTypeId": {
-            "type": "string",
-            "description": "ID of the entity type to create the entity under.",
-            "format": "uuid"
-          },
-          "state": {
-            "type": "string",
-            "description": "Initial state ID. Must exist in the entity type state schema. Defaults to the schema initial state when omitted.",
-            "maxLength": 100
-          },
-          "attributes": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Dynamic attribute values keyed by field ID."
-          }
-        },
-        "required": [
-          "name",
-          "objectTypeId"
-        ]
-      },
-      "ObjectTypeSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Entity type ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Singular display name of the entity type."
-          },
-          "slug": {
-            "type": "string",
-            "description": "URL-safe slug of the entity type."
-          },
-          "icon": {
-            "type": "string",
-            "description": "Icon identifier for the entity type."
-          },
-          "color": {
-            "type": "string",
-            "description": "Hex colour of the entity type."
-          },
-          "namePlural": {
-            "type": "string",
-            "description": "Plural display name. Included when `expansion=objectType` is requested."
-          },
-          "attributeSchema": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Field definitions grouped into sections. Included when `expansion=objectType` is requested on single-entity reads."
-          },
-          "stateSchema": {
-            "type": "object",
-            "additionalProperties": true,
-            "nullable": true,
-            "description": "State machine definition. Included when `expansion=objectType` is requested."
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "slug",
-          "icon",
-          "color"
-        ]
-      },
-      "ObjectUserSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "User ID."
-          },
-          "email": {
-            "type": "string",
-            "description": "Email address of the user."
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name of the user."
-          }
-        },
-        "required": [
-          "id",
-          "email",
-          "name"
-        ]
-      },
-      "ObjectWorkspaceUserSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Workspace user ID."
-          },
-          "user": {
-            "$ref": "#/components/schemas/ObjectUserSummaryDto"
-          }
-        },
-        "required": [
-          "id",
-          "user"
-        ]
-      },
-      "ObjectStateHistoryUserSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "User ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name of the user."
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ]
-      },
-      "ObjectStateHistoryChangedByDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Workspace user ID."
-          },
-          "user": {
-            "$ref": "#/components/schemas/ObjectStateHistoryUserSummaryDto"
-          }
-        },
-        "required": [
-          "id",
-          "user"
-        ]
-      },
-      "ObjectStateHistoryItemDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "State history entry ID."
-          },
-          "fromState": {
-            "type": "string",
-            "nullable": true,
-            "description": "State the entity moved from. Null for the initial state."
-          },
-          "toState": {
-            "type": "string",
-            "description": "State the entity moved to."
-          },
-          "reason": {
-            "type": "string",
-            "nullable": true,
-            "description": "Reason recorded for the state change, if any."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the state change occurred."
-          },
-          "changedBy": {
-            "nullable": true,
-            "description": "Workspace member who made the change, if recorded.",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ObjectStateHistoryChangedByDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "fromState",
-          "toState",
-          "reason",
-          "createdAt",
-          "changedBy"
-        ]
-      },
-      "ObjectResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Entity ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name of the entity."
-          },
-          "state": {
-            "type": "string",
-            "nullable": true,
-            "description": "Current state of the entity, if the type defines states."
-          },
-          "attributes": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Dynamic attribute values keyed by field ID."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Included when `expansion=createdAt` is requested."
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Included by default on list responses, otherwise when `expansion=updatedAt` is requested."
-          },
-          "objectType": {
-            "description": "Included by default on list responses with a minimal shape, otherwise when `expansion=objectType` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ObjectTypeSummaryDto"
-              }
-            ]
-          },
-          "owner": {
-            "nullable": true,
-            "description": "Included when `expansion=owner` is requested.",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ObjectWorkspaceUserSummaryDto"
-              }
-            ]
-          },
-          "createdBy": {
-            "nullable": true,
-            "description": "Included when `expansion=createdBy` is requested.",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ObjectWorkspaceUserSummaryDto"
-              }
-            ]
-          },
-          "stateHistory": {
-            "description": "Most recent state changes (up to 50, newest first). Included when `expansion=stateHistory` is requested.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ObjectStateHistoryItemDto"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "state",
-          "attributes"
-        ]
-      },
-      "ObjectPaginationDto": {
-        "type": "object",
-        "properties": {
-          "page": {
-            "type": "number",
-            "description": "Current page number (1-based)."
-          },
-          "pageSize": {
-            "type": "number",
-            "description": "Number of items per page (maximum 100)."
-          },
-          "totalCount": {
-            "type": "number",
-            "description": "Total number of matching entities."
-          },
-          "totalPages": {
-            "type": "number",
-            "description": "Total number of pages."
-          }
-        },
-        "required": [
-          "page",
-          "pageSize",
-          "totalCount",
-          "totalPages"
-        ]
-      },
-      "PaginatedObjectsResponseDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ObjectResponseDto"
-            }
-          },
-          "pagination": {
-            "$ref": "#/components/schemas/ObjectPaginationDto"
-          }
-        },
-        "required": [
-          "data",
-          "pagination"
-        ]
-      },
-      "UpdateObjectDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "New display name of the entity.",
-            "minLength": 1,
-            "maxLength": 255
-          },
-          "attributes": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Attribute values keyed by field ID. Merged into the existing attributes; fields not supplied are left unchanged."
-          }
-        }
-      },
-      "ChangeObjectStateDto": {
-        "type": "object",
-        "properties": {
-          "newState": {
-            "type": "string",
-            "description": "ID of the target state. Must be a valid transition from the current state when the entity type defines transitions.",
-            "minLength": 1,
-            "maxLength": 100
-          },
-          "reason": {
-            "type": "string",
-            "description": "Reason for the state change. Required when the transition is configured with requiresReason.",
-            "maxLength": 500
-          }
-        },
-        "required": [
-          "newState"
-        ]
-      },
-      "ChangeObjectStateResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Entity ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name of the entity."
-          },
-          "state": {
-            "type": "string",
-            "nullable": true,
-            "description": "State of the entity after the change."
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the entity was last updated."
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "state",
-          "updatedAt"
-        ]
-      },
-      "StateHistoryUserSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "User ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name of the user."
-          },
-          "email": {
-            "type": "string",
-            "description": "Email address of the user."
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "email"
-        ]
-      },
-      "StateHistoryChangedByDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Workspace user ID."
-          },
-          "user": {
-            "$ref": "#/components/schemas/StateHistoryUserSummaryDto"
-          }
-        },
-        "required": [
-          "id",
-          "user"
-        ]
-      },
-      "ObjectStateHistoryEntryResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "State history entry ID."
-          },
-          "fromState": {
-            "type": "string",
-            "nullable": true,
-            "description": "State the entity moved from. Null for the initial state."
-          },
-          "toState": {
-            "type": "string",
-            "description": "State the entity moved to."
-          },
-          "reason": {
-            "type": "string",
-            "nullable": true,
-            "description": "Reason recorded for the state change, if any."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the state change occurred."
-          },
-          "changedBy": {
-            "nullable": true,
-            "description": "Workspace member who made the change, if recorded.",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StateHistoryChangedByDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "fromState",
-          "toState",
-          "reason",
-          "createdAt",
-          "changedBy"
-        ]
-      },
-      "ObjectStateInfoDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "State ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name of the state."
-          },
-          "color": {
-            "type": "string",
-            "description": "Colour associated with the state."
-          },
-          "icon": {
-            "type": "string",
-            "description": "Icon associated with the state."
-          },
-          "isFinal": {
-            "type": "boolean",
-            "description": "Whether the state is a final state."
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "isFinal"
-        ]
-      },
-      "ObjectStateTransitionDto": {
-        "type": "object",
-        "properties": {
-          "transitionId": {
-            "type": "string",
-            "description": "Transition ID from the state schema."
-          },
-          "toStateId": {
-            "type": "string",
-            "description": "ID of the target state."
-          },
-          "toStateName": {
-            "type": "string",
-            "description": "Display name of the target state."
-          },
-          "toStateColor": {
-            "type": "string",
-            "description": "Colour of the target state."
-          },
-          "toStateIcon": {
-            "type": "string",
-            "description": "Icon of the target state."
-          },
-          "requiresReason": {
-            "type": "boolean",
-            "description": "Whether a reason must be supplied for this transition."
-          },
-          "confirmationMessage": {
-            "type": "string",
-            "description": "Confirmation message to show before applying the transition."
-          }
-        },
-        "required": [
-          "transitionId",
-          "toStateId",
-          "toStateName",
-          "requiresReason"
-        ]
-      },
-      "ObjectStateTransitionsResponseDto": {
-        "type": "object",
-        "properties": {
-          "currentState": {
-            "nullable": true,
-            "description": "Current state of the entity. Null when the entity has no state or the type defines no state schema.",
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ObjectStateInfoDto"
-              }
-            ]
-          },
-          "validTransitions": {
-            "description": "Transitions allowed from the current state.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ObjectStateTransitionDto"
-            }
-          },
-          "allStates": {
-            "description": "All states defined by the entity type, for cases where no transitions are defined.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ObjectStateInfoDto"
-            }
-          }
-        },
-        "required": [
-          "currentState",
-          "validTransitions",
-          "allStates"
-        ]
-      },
-      "ImportRowErrorDto": {
-        "type": "object",
-        "properties": {
-          "row": {
-            "type": "number",
-            "description": "Row number the error relates to (1-based)."
-          },
-          "field": {
-            "type": "string",
-            "description": "Field ID the error relates to, when applicable."
-          },
-          "message": {
-            "type": "string",
-            "description": "Human-readable error message."
-          }
-        },
-        "required": [
-          "row",
-          "message"
-        ]
-      },
-      "ImportEntitiesResponseDto": {
-        "type": "object",
-        "properties": {
-          "totalRows": {
-            "type": "number",
-            "description": "Total number of rows processed."
-          },
-          "successCount": {
-            "type": "number",
-            "description": "Number of rows imported successfully."
-          },
-          "errorCount": {
-            "type": "number",
-            "description": "Number of rows that failed to import."
-          },
-          "errors": {
-            "description": "Per-row errors encountered during the import.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ImportRowErrorDto"
-            }
-          },
-          "createdIds": {
-            "description": "IDs of entities created by the import.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "updatedIds": {
-            "description": "IDs of existing entities updated by the import.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "totalRows",
-          "successCount",
-          "errorCount",
-          "errors",
-          "createdIds",
-          "updatedIds"
-        ]
-      },
-      "ImportTemplateResponseDto": {
-        "type": "object",
-        "properties": {
-          "columns": {
-            "description": "Column headers for the import file. Always starts with \"name\".",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "sampleRow": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "description": "Sample row with an example value for each column."
-          }
-        },
-        "required": [
-          "columns",
-          "sampleRow"
-        ]
-      },
-      "WorkflowAppResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "App ID, e.g. `gmail`. Matches the appId used in workflow execution steps."
-          },
-          "name": {
-            "type": "string",
-            "description": "Human-readable app name."
-          },
-          "description": {
-            "type": "string",
-            "description": "App description."
-          },
-          "logoUrl": {
-            "type": "string",
-            "description": "URL of the app logo."
-          },
-          "isPublished": {
-            "type": "boolean",
-            "description": "Whether the app is published and available for use."
-          },
-          "needsConnection": {
-            "type": "boolean",
-            "description": "Whether the app requires a connection before its actions and triggers can run."
-          },
-          "availableForAgent": {
-            "type": "boolean",
-            "description": "Whether the app can be used by agents."
-          },
-          "actions": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "description": "Action definitions, each with id, name, description, iconUrl, needsConnection, availableForAgent, viewOptions and the declarative inputConfig field metadata used to render action UIs."
-          },
-          "triggers": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "description": "Trigger definitions, each with id, name, description, iconUrl, needsConnection and the declarative inputConfig field metadata used to render trigger UIs."
-          },
-          "connections": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "description": "Connection type definitions supported by the app (e.g. oauth2, apiKey, basic), each with id, name, description, connectionType and any declarative inputConfig fields."
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "description",
-          "logoUrl",
-          "isPublished",
-          "needsConnection",
-          "availableForAgent",
-          "actions",
-          "triggers",
-          "connections"
         ]
       },
       "AgentResponseDto": {
@@ -8265,6 +7527,938 @@
           "model"
         ]
       },
+      "WorkflowAppResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "App ID, e.g. `gmail`. Matches the appId used in workflow execution steps."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable app name."
+          },
+          "description": {
+            "type": "string",
+            "description": "App description."
+          },
+          "logoUrl": {
+            "type": "string",
+            "description": "URL of the app logo."
+          },
+          "isPublished": {
+            "type": "boolean",
+            "description": "Whether the app is published and available for use."
+          },
+          "needsConnection": {
+            "type": "boolean",
+            "description": "Whether the app requires a connection before its actions and triggers can run."
+          },
+          "availableForAgent": {
+            "type": "boolean",
+            "description": "Whether the app can be used by agents."
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Action definitions, each with id, name, description, iconUrl, needsConnection, availableForAgent, viewOptions and the declarative inputConfig field metadata used to render action UIs."
+          },
+          "triggers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Trigger definitions, each with id, name, description, iconUrl, needsConnection and the declarative inputConfig field metadata used to render trigger UIs."
+          },
+          "connections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Connection type definitions supported by the app (e.g. oauth2, apiKey, basic), each with id, name, description, connectionType and any declarative inputConfig fields."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "logoUrl",
+          "isPublished",
+          "needsConnection",
+          "availableForAgent",
+          "actions",
+          "triggers",
+          "connections"
+        ]
+      },
+      "UpsertObjectTypeBySlugDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Stable deployment-wide slug (lowercase, digits, hyphens). Used as the upsert key. Granted to the caller workspace when new."
+          },
+          "name": {
+            "type": "string",
+            "description": "Singular display name."
+          },
+          "namePlural": {
+            "type": "string",
+            "description": "Plural display name."
+          },
+          "description": {
+            "type": "string",
+            "description": "Description."
+          },
+          "icon": {
+            "type": "string",
+            "description": "Icon identifier.",
+            "default": "box"
+          },
+          "color": {
+            "type": "string",
+            "description": "Hex colour.",
+            "default": "#3B82F6"
+          },
+          "attributeSchema": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Field definitions grouped into sections."
+          },
+          "stateSchema": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true,
+            "description": "Optional state machine definition."
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "Whether the type is enabled."
+          },
+          "allowUnknownAttributes": {
+            "type": "boolean",
+            "description": "When false (default), reject unknown attribute keys on entity writes.",
+            "default": false
+          },
+          "managedByCode": {
+            "type": "boolean",
+            "description": "Marks the type as code-managed. Defaults to true on upsert.",
+            "default": true
+          }
+        },
+        "required": [
+          "slug",
+          "attributeSchema"
+        ]
+      },
+      "ObjectTypeUserSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID."
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the user."
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name"
+        ]
+      },
+      "ObjectTypeCreatedByDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Workspace user ID."
+          },
+          "user": {
+            "$ref": "#/components/schemas/ObjectTypeUserSummaryDto"
+          }
+        },
+        "required": [
+          "id",
+          "user"
+        ]
+      },
+      "ObjectTypeCountDto": {
+        "type": "object",
+        "properties": {
+          "objects": {
+            "type": "number",
+            "description": "Number of non-deleted entities of this type."
+          }
+        },
+        "required": [
+          "objects"
+        ]
+      },
+      "ObjectTypeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Entity type ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Singular display name of the entity type."
+          },
+          "namePlural": {
+            "type": "string",
+            "description": "Plural display name of the entity type."
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-safe slug, unique across the deployment."
+          },
+          "icon": {
+            "type": "string",
+            "description": "Icon identifier for the entity type."
+          },
+          "color": {
+            "type": "string",
+            "description": "Hex colour of the entity type."
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "Whether the entity type is enabled."
+          },
+          "allowUnknownAttributes": {
+            "type": "boolean",
+            "description": "When false, entity create/update rejects attribute keys not declared on the type. Reserved key `extensions` is always allowed."
+          },
+          "managedByCode": {
+            "type": "boolean",
+            "description": "True when last written by code (CLI / SDK upsert)."
+          },
+          "schemaRevision": {
+            "type": "number",
+            "description": "Incremented when attributeSchema, stateSchema, or allowUnknownAttributes changes."
+          },
+          "uniqueKeyField": {
+            "type": "string",
+            "nullable": true,
+            "description": "Field that identifies a record besides the Lunnoa id. `name`, or `attribute:<field name>`."
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Description of the entity type. Included when `expansion=description` is requested."
+          },
+          "attributeSchema": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Field definitions grouped into sections. Included when `expansion=attributeSchema` is requested."
+          },
+          "stateSchema": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true,
+            "description": "State machine definition. Included when `expansion=stateSchema` is requested."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Included when `expansion=createdAt` is requested."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Included when `expansion=updatedAt` is requested."
+          },
+          "createdBy": {
+            "description": "Workspace member who created the entity type. Included when `expansion=createdBy` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ObjectTypeCreatedByDto"
+              }
+            ]
+          },
+          "_count": {
+            "description": "Included when `expansion=countObjects` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ObjectTypeCountDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "namePlural",
+          "slug",
+          "icon",
+          "color",
+          "isEnabled",
+          "allowUnknownAttributes",
+          "managedByCode",
+          "schemaRevision"
+        ]
+      },
+      "CreateObjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the entity.",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "workspaceId": {
+            "type": "string",
+            "description": "Platform admin only. Workspace the record is created in. Builders always use their active workspace.",
+            "format": "uuid"
+          },
+          "objectTypeId": {
+            "type": "string",
+            "description": "ID of the entity type to create the entity under.",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string",
+            "description": "Initial state ID. Must exist in the entity type state schema. Defaults to the schema initial state when omitted.",
+            "maxLength": 100
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Attribute values keyed by field ID. Unknown keys are rejected unless the entity type has allowUnknownAttributes=true. Reserved key `extensions` (JSON object) is always allowed."
+          }
+        },
+        "required": [
+          "name",
+          "objectTypeId"
+        ]
+      },
+      "ObjectTypeSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Entity type ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Singular display name of the entity type."
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-safe slug of the entity type."
+          },
+          "icon": {
+            "type": "string",
+            "description": "Icon identifier for the entity type."
+          },
+          "color": {
+            "type": "string",
+            "description": "Hex colour of the entity type."
+          },
+          "namePlural": {
+            "type": "string",
+            "description": "Plural display name. Included when `expansion=objectType` is requested."
+          },
+          "attributeSchema": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Field definitions grouped into sections. Included when `expansion=objectType` is requested on single-entity reads."
+          },
+          "stateSchema": {
+            "type": "object",
+            "additionalProperties": true,
+            "nullable": true,
+            "description": "State machine definition. Included when `expansion=objectType` is requested."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "icon",
+          "color"
+        ]
+      },
+      "ObjectUserSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID."
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the user."
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name"
+        ]
+      },
+      "ObjectWorkspaceUserSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Workspace user ID."
+          },
+          "user": {
+            "$ref": "#/components/schemas/ObjectUserSummaryDto"
+          }
+        },
+        "required": [
+          "id",
+          "user"
+        ]
+      },
+      "ObjectStateHistoryUserSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the user."
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ObjectStateHistoryChangedByDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Workspace user ID."
+          },
+          "user": {
+            "$ref": "#/components/schemas/ObjectStateHistoryUserSummaryDto"
+          }
+        },
+        "required": [
+          "id",
+          "user"
+        ]
+      },
+      "ObjectStateHistoryItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "State history entry ID."
+          },
+          "fromState": {
+            "type": "string",
+            "nullable": true,
+            "description": "State the entity moved from. Null for the initial state."
+          },
+          "toState": {
+            "type": "string",
+            "description": "State the entity moved to."
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Reason recorded for the state change, if any."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the state change occurred."
+          },
+          "changedBy": {
+            "nullable": true,
+            "description": "Workspace member who made the change, if recorded.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ObjectStateHistoryChangedByDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "fromState",
+          "toState",
+          "reason",
+          "createdAt",
+          "changedBy"
+        ]
+      },
+      "ObjectResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Entity ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the entity."
+          },
+          "state": {
+            "type": "string",
+            "nullable": true,
+            "description": "Current state of the entity, if the type defines states."
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Dynamic attribute values keyed by field ID."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Included when `expansion=createdAt` is requested."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Included by default on list responses, otherwise when `expansion=updatedAt` is requested."
+          },
+          "objectType": {
+            "description": "Included by default on list responses with a minimal shape, otherwise when `expansion=objectType` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ObjectTypeSummaryDto"
+              }
+            ]
+          },
+          "createdBy": {
+            "nullable": true,
+            "description": "Included when `expansion=createdBy` is requested.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ObjectWorkspaceUserSummaryDto"
+              }
+            ]
+          },
+          "stateHistory": {
+            "description": "Most recent state changes (up to 50, newest first). Included when `expansion=stateHistory` is requested.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectStateHistoryItemDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "state",
+          "attributes"
+        ]
+      },
+      "ObjectPaginationDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "description": "Current page number (1-based)."
+          },
+          "pageSize": {
+            "type": "number",
+            "description": "Number of items per page (maximum 100)."
+          },
+          "totalCount": {
+            "type": "number",
+            "description": "Total number of matching entities."
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total number of pages."
+          }
+        },
+        "required": [
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ]
+      },
+      "PaginatedObjectsResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectResponseDto"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/ObjectPaginationDto"
+          }
+        },
+        "required": [
+          "data",
+          "pagination"
+        ]
+      },
+      "UpdateObjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "New display name of the entity.",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Attribute values keyed by field ID. Merged into existing attributes. Unknown keys are rejected unless the entity type has allowUnknownAttributes=true. Reserved key `extensions` is always allowed."
+          }
+        }
+      },
+      "ChangeObjectStateDto": {
+        "type": "object",
+        "properties": {
+          "newState": {
+            "type": "string",
+            "description": "ID of the target state. Must be a valid transition from the current state when the entity type defines transitions.",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the state change. Required when the transition is configured with requiresReason.",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "newState"
+        ]
+      },
+      "ChangeObjectStateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Entity ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the entity."
+          },
+          "state": {
+            "type": "string",
+            "nullable": true,
+            "description": "State of the entity after the change."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the entity was last updated."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "state",
+          "updatedAt"
+        ]
+      },
+      "StateHistoryUserSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the user."
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email"
+        ]
+      },
+      "StateHistoryChangedByDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Workspace user ID."
+          },
+          "user": {
+            "$ref": "#/components/schemas/StateHistoryUserSummaryDto"
+          }
+        },
+        "required": [
+          "id",
+          "user"
+        ]
+      },
+      "ObjectStateHistoryEntryResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "State history entry ID."
+          },
+          "fromState": {
+            "type": "string",
+            "nullable": true,
+            "description": "State the entity moved from. Null for the initial state."
+          },
+          "toState": {
+            "type": "string",
+            "description": "State the entity moved to."
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Reason recorded for the state change, if any."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the state change occurred."
+          },
+          "changedBy": {
+            "nullable": true,
+            "description": "Workspace member who made the change, if recorded.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StateHistoryChangedByDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "fromState",
+          "toState",
+          "reason",
+          "createdAt",
+          "changedBy"
+        ]
+      },
+      "ObjectStateInfoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "State ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the state."
+          },
+          "color": {
+            "type": "string",
+            "description": "Colour associated with the state."
+          },
+          "icon": {
+            "type": "string",
+            "description": "Icon associated with the state."
+          },
+          "isFinal": {
+            "type": "boolean",
+            "description": "Whether the state is a final state."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isFinal"
+        ]
+      },
+      "ObjectStateTransitionDto": {
+        "type": "object",
+        "properties": {
+          "transitionId": {
+            "type": "string",
+            "description": "Transition ID from the state schema."
+          },
+          "toStateId": {
+            "type": "string",
+            "description": "ID of the target state."
+          },
+          "toStateName": {
+            "type": "string",
+            "description": "Display name of the target state."
+          },
+          "toStateColor": {
+            "type": "string",
+            "description": "Colour of the target state."
+          },
+          "toStateIcon": {
+            "type": "string",
+            "description": "Icon of the target state."
+          },
+          "requiresReason": {
+            "type": "boolean",
+            "description": "Whether a reason must be supplied for this transition."
+          },
+          "confirmationMessage": {
+            "type": "string",
+            "description": "Confirmation message to show before applying the transition."
+          }
+        },
+        "required": [
+          "transitionId",
+          "toStateId",
+          "toStateName",
+          "requiresReason"
+        ]
+      },
+      "ObjectStateTransitionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "currentState": {
+            "nullable": true,
+            "description": "Current state of the entity. Null when the entity has no state or the type defines no state schema.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ObjectStateInfoDto"
+              }
+            ]
+          },
+          "validTransitions": {
+            "description": "Transitions allowed from the current state.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectStateTransitionDto"
+            }
+          },
+          "allStates": {
+            "description": "All states defined by the entity type, for cases where no transitions are defined.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObjectStateInfoDto"
+            }
+          }
+        },
+        "required": [
+          "currentState",
+          "validTransitions",
+          "allStates"
+        ]
+      },
+      "ImportRowErrorDto": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "number",
+            "description": "Row number the error relates to (1-based)."
+          },
+          "field": {
+            "type": "string",
+            "description": "Field ID the error relates to, when applicable."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message."
+          }
+        },
+        "required": [
+          "row",
+          "message"
+        ]
+      },
+      "ImportEntitiesResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalRows": {
+            "type": "number",
+            "description": "Total number of rows processed."
+          },
+          "successCount": {
+            "type": "number",
+            "description": "Number of rows imported successfully."
+          },
+          "errorCount": {
+            "type": "number",
+            "description": "Number of rows that failed to import."
+          },
+          "errors": {
+            "description": "Per-row errors encountered during the import.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportRowErrorDto"
+            }
+          },
+          "createdIds": {
+            "description": "IDs of entities created by the import.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updatedIds": {
+            "description": "IDs of existing entities updated by the import.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "totalRows",
+          "successCount",
+          "errorCount",
+          "errors",
+          "createdIds",
+          "updatedIds"
+        ]
+      },
+      "ImportTemplateResponseDto": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "description": "Column headers for the import file. Always starts with \"name\".",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sampleRow": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Sample row with an example value for each column."
+          }
+        },
+        "required": [
+          "columns",
+          "sampleRow"
+        ]
+      },
       "CreateKnowledgeDto": {
         "type": "object",
         "properties": {
@@ -8619,270 +8813,6 @@
           "createdAt",
           "FK_knowledgeId",
           "vectorRefs"
-        ]
-      },
-      "CreateVariableDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "description": "Name of the variable."
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 1000,
-            "description": "Description of the variable."
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "system",
-              "workspace",
-              "project"
-            ],
-            "description": "Scope of the variable (system, workspace or project)."
-          },
-          "dataType": {
-            "type": "string",
-            "enum": [
-              "string",
-              "number",
-              "boolean",
-              "date",
-              "json"
-            ],
-            "description": "Data type of the variable value."
-          },
-          "projectId": {
-            "type": "string",
-            "description": "Project ID to scope the variable to. Must belong to the current workspace."
-          },
-          "value": {
-            "type": "string",
-            "description": "Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save."
-          }
-        },
-        "required": [
-          "name",
-          "type",
-          "dataType",
-          "value"
-        ]
-      },
-      "VariableWorkspaceDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Workspace ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Workspace name."
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ]
-      },
-      "VariableProjectDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Project ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Project name."
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ]
-      },
-      "VariableResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Variable ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Variable name."
-          },
-          "dataType": {
-            "type": "string",
-            "enum": [
-              "string",
-              "number",
-              "boolean",
-              "date",
-              "json"
-            ],
-            "description": "Data type of the variable value."
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "system",
-              "workspace",
-              "project"
-            ],
-            "description": "Scope of the variable (system, workspace or project)."
-          },
-          "value": {
-            "type": "object",
-            "description": "Variable value. Included when `expansion=value` is requested."
-          },
-          "description": {
-            "type": "string",
-            "description": "Variable description. Included when `expansion=description` is requested."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp. Included when `expansion=createdAt` is requested."
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested."
-          },
-          "workspace": {
-            "description": "Owning workspace. Included when `expansion=workspace` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/VariableWorkspaceDto"
-              }
-            ]
-          },
-          "project": {
-            "description": "Owning project for project-scoped variables. Included when `expansion=project` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/VariableProjectDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "dataType",
-          "type"
-        ]
-      },
-      "UpdateVariableDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100,
-            "description": "Name of the variable."
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 1000,
-            "description": "Description of the variable."
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "system",
-              "workspace",
-              "project"
-            ],
-            "description": "Scope of the variable (system, workspace or project)."
-          },
-          "dataType": {
-            "type": "string",
-            "enum": [
-              "string",
-              "number",
-              "boolean",
-              "date",
-              "json"
-            ],
-            "description": "Data type of the variable value."
-          },
-          "projectId": {
-            "type": "string",
-            "description": "Project ID to scope the variable to. Must belong to the current workspace."
-          },
-          "value": {
-            "type": "string",
-            "description": "Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save."
-          }
-        }
-      },
-      "ConnectionWorkspaceDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Workspace ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Workspace name."
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ]
-      },
-      "ConnectionResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Connection ID."
-          },
-          "name": {
-            "type": "string",
-            "description": "Connection name."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Creation timestamp. Included when `expansion=createdAt` is requested."
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested."
-          },
-          "connectionId": {
-            "type": "string",
-            "description": "App connection type ID (e.g. the OAuth2 or API key connection definition of the app). Included when `expansion=connectionId` is requested."
-          },
-          "workflowAppId": {
-            "type": "string",
-            "description": "ID of the workflow app this connection belongs to. Included when `expansion=workflowAppId` or `expansion=workflowApp` is requested."
-          },
-          "workflowApp": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Full workflow app definition for this connection. Included when `expansion=workflowApp` is requested on the list endpoint."
-          },
-          "workspace": {
-            "description": "Owning workspace. Included when `expansion=workspace` is requested.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ConnectionWorkspaceDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "name"
         ]
       },
       "ManuallyRunWorkflowInputDataDto": {
@@ -9415,6 +9345,420 @@
           "steps"
         ]
       },
+      "CreateVariableDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the variable."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Description of the variable."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "system",
+              "workspace",
+              "project"
+            ],
+            "description": "Scope of the variable (system, workspace or project)."
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "date",
+              "json"
+            ],
+            "description": "Data type of the variable value."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Project ID to scope the variable to. Must belong to the current workspace."
+          },
+          "value": {
+            "type": "string",
+            "description": "Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save."
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "dataType",
+          "value"
+        ]
+      },
+      "VariableWorkspaceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Workspace ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Workspace name."
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "VariableProjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Project ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Project name."
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "VariableResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Variable ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Variable name."
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "date",
+              "json"
+            ],
+            "description": "Data type of the variable value."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "system",
+              "workspace",
+              "project"
+            ],
+            "description": "Scope of the variable (system, workspace or project)."
+          },
+          "value": {
+            "type": "object",
+            "description": "Variable value. Included when `expansion=value` is requested."
+          },
+          "description": {
+            "type": "string",
+            "description": "Variable description. Included when `expansion=description` is requested."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp. Included when `expansion=createdAt` is requested."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested."
+          },
+          "workspace": {
+            "description": "Owning workspace. Included when `expansion=workspace` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VariableWorkspaceDto"
+              }
+            ]
+          },
+          "project": {
+            "description": "Owning project for project-scoped variables. Included when `expansion=project` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VariableProjectDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "dataType",
+          "type"
+        ]
+      },
+      "UpdateVariableDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Name of the variable."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Description of the variable."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "system",
+              "workspace",
+              "project"
+            ],
+            "description": "Scope of the variable (system, workspace or project)."
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "date",
+              "json"
+            ],
+            "description": "Data type of the variable value."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Project ID to scope the variable to. Must belong to the current workspace."
+          },
+          "value": {
+            "type": "string",
+            "description": "Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save."
+          }
+        }
+      },
+      "UpsertTableBySlugDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Display name of the table."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "What the table contains. Agents use this to choose a table."
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Project ID to scope the table to. Omit for a workspace-wide table."
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Column names: [{ key }]."
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Rows as objects keyed by column name."
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Stable workspace-unique key. Used as the upsert key."
+          },
+          "managedByCode": {
+            "type": "boolean",
+            "description": "Marks the table as code-managed. Defaults to true on upsert."
+          }
+        },
+        "required": [
+          "slug"
+        ]
+      },
+      "TableProjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "TableColumnDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Column key used in rows."
+          },
+          "label": {
+            "type": "string",
+            "description": "Display label."
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ]
+      },
+      "TableResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Table ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name."
+          },
+          "slug": {
+            "type": "string",
+            "description": "Stable key, unique within the workspace."
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "What the table contains."
+          },
+          "managedByCode": {
+            "type": "boolean",
+            "description": "Whether the table is managed by code (CLI / API upsert)."
+          },
+          "FK_projectId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Project the table is scoped to, or null for workspace-wide."
+          },
+          "project": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TableProjectDto"
+              }
+            ]
+          },
+          "columns": {
+            "description": "Columns. Returned by get and upsert, not by list.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableColumnDto"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Rows keyed by column key. Returned by get and upsert, not by list."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "managedByCode",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ConnectionWorkspaceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Workspace ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Workspace name."
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ConnectionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Connection ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Connection name."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp. Included when `expansion=createdAt` is requested."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "App connection type ID (e.g. the OAuth2 or API key connection definition of the app). Included when `expansion=connectionId` is requested."
+          },
+          "workflowAppId": {
+            "type": "string",
+            "description": "ID of the workflow app this connection belongs to. Included when `expansion=workflowAppId` or `expansion=workflowApp` is requested."
+          },
+          "workflowApp": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Full workflow app definition for this connection. Included when `expansion=workflowApp` is requested on the list endpoint."
+          },
+          "workspace": {
+            "description": "Owning workspace. Included when `expansion=workspace` is requested.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectionWorkspaceDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
       "TaskListItemResponseDto": {
         "type": "object",
         "properties": {
@@ -9840,19 +10184,13 @@
           "data": {
             "type": "object",
             "description": "Optional attachment data for the message",
-            "properties": {
-              "imageUrl": {
-                "type": "string",
-                "description": "URL of an image attached to the message."
-              }
-            },
             "example": {
               "imageUrl": "https://example.com/image.png"
             }
           },
           "piiResolution": {
             "type": "string",
-            "description": "Answer to an ask-before-sending personal-data prompt. Applies to this message only.",
+            "description": "Answer to an \"ask before sending\" personal-data prompt. Applies to this message only.",
             "enum": [
               "anonymize",
               "fallback"

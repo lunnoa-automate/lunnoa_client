@@ -35,7 +35,7 @@ function createTaskId(): string {
 /**
  * Thin AI SDK wrapper for Lunnoa agent chat.
  *
- * Requires optional peer `@ai-sdk/react` (and the `ai` package already shipped
+ * Uses `@ai-sdk/react` (and the `ai` package already shipped
  * with `@lunnoa/client`). Points `DefaultChatTransport` at the Automate
  * stream-message endpoint with a Bearer token from the auth provider.
  *

@@ -21,6 +21,14 @@ npm install @lunnoa/client
 
 **Requirements:** Node.js ≥ 20 (or any runtime with `fetch` and web streams).
 
+### Start a new app
+
+```bash
+npx @lunnoa/client init my-app --url https://lunnoa.your-company.example
+```
+
+Scaffolds the [lunnoa-starter](https://github.com/lunnoa-automate/lunnoa-starter) Next.js template (thin, Docker-deployable, both auth patterns behind `LUNNOA_AUTH_MODE`) and writes `.env`, prompting for an API key when run interactively. `--template <owner/repo[#ref]|./local-folder>` overrides the source. Then `npm install` and open the folder in Claude Code / Cursor / Codex.
+
 ## Quickstart
 
 ```typescript
@@ -98,12 +106,12 @@ const { user, status, login, logout } = useLunnoaAuth();
 const lunnoa = useLunnoaClient();
 const { progress, status: progressStatus } = useExecutionProgress(executionId);
 const { waiting, pendingInput, submitInput } = useNeedsInput(progress);
-const { messages, send, stop, taskId } = useAgentChat(agentId); // needs @ai-sdk/react
+const { messages, send, stop, taskId } = useAgentChat(agentId);
 const { items, decide } = useApprovalsInbox({ pollIntervalMs: 15_000 });
 const { data, page, setPage } = useEntityList({ objectTypeSlug: 'invoice' });
 ```
 
-Peers: `react` ≥ 18 (required for `/react`); `@ai-sdk/react` only for `useAgentChat`. Core `@lunnoa/client` stays headless.
+Peer: `react` ≥ 18 (required for `/react`). `@ai-sdk/react` (behind `useAgentChat`) ships as a dependency. Core `@lunnoa/client` stays headless.
 
 ## Resources
 
@@ -303,7 +311,7 @@ npx @lunnoa/client projects list --json
 npx @lunnoa/client features --json
 ```
 
-`tools list` is compact (`appId`, `actionId`, name, flags). `tools get` prints `inputConfig` and a `defineAction({ id, appId, input })` sketch. Auth flags and `LUNNOA_URL` / `LUNNOA_API_KEY` / `lunnoa.config` work the same as deploy.
+`tools list` is compact (`appId`, `actionId`, name, flags). `tools get` prints `inputConfig` and a `defineAction({ id, appId, input })` sketch. Auth flags and `LUNNOA_URL` / `LUNNOA_API_KEY` / `lunnoa.config` work the same as deploy. The CLI also reads `./.env` (real environment variables win).
 
 ## Regenerating the API types
 

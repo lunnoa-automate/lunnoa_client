@@ -560,6 +560,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List agents in current workspace
+         * @description Lists every agent in the caller's active workspace, most recently updated first. By default each item carries only `id`, `name`, and `FK_aiConnectionId`; request additional fields with the `expansion` query parameter.
+         */
+        get: operations["AgentsController_findAllForWorkspace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{agentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get agent by ID
+         * @description Returns a single agent. By default only `id`, `name`, and `FK_aiConnectionId` are returned; request additional fields with the `expansion` query parameter. Access is gated by the `agents:use` permission, so agents reachable via a share grant can also be fetched.
+         */
+        get: operations["AgentsController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{projectId}/agents/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upsert an agent by slug
+         * @description Creates or updates an agent identified by project-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.
+         */
+        post: operations["ProjectAgentsController_upsertBySlug"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workflow-apps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all workflow apps
+         * @description Returns the full catalogue of app definitions, including their actions and triggers. Custom UIs use this catalogue to resolve executionPath step appId/actionId pairs to names and icons. Each action and trigger exposes declarative UI metadata (inputConfig) describing its configuration fields.
+         */
+        get: operations["WorkflowAppsController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workflow-apps/{appId}/connections/{connectionId}/connect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Connect workflow app
+         * @description Creates a connection for an app using non-interactive credentials such as an API key or basic auth username and password. OAuth2 connection types require the interactive browser flow and cannot be created through this endpoint with machine credentials.
+         */
+        post: operations["WorkflowAppsController_connectApp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/object-types": {
         parameters: {
             query?: never;
@@ -569,7 +669,7 @@ export interface paths {
         };
         /**
          * Get all entity types for workspace
-         * @description Returns entity types in the workspace, sorted by name. Disabled types are excluded unless includeDisabled is true.
+         * @description Returns object types granted to the active workspace. Set includeCatalog to also list enabled types the workspace does not have, as name and description only.
          */
         get: operations["ObjectTypesController_findAll"];
         put?: never;
@@ -800,106 +900,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/workflow-apps": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List all workflow apps
-         * @description Returns the full catalogue of app definitions, including their actions and triggers. Custom UIs use this catalogue to resolve executionPath step appId/actionId pairs to names and icons. Each action and trigger exposes declarative UI metadata (inputConfig) describing its configuration fields.
-         */
-        get: operations["WorkflowAppsController_findAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/workflow-apps/{appId}/connections/{connectionId}/connect": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Connect workflow app
-         * @description Creates a connection for an app using non-interactive credentials such as an API key or basic auth username and password. OAuth2 connection types require the interactive browser flow and cannot be created through this endpoint with machine credentials.
-         */
-        post: operations["WorkflowAppsController_connectApp"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/agents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List agents in current workspace
-         * @description Lists every agent in the caller's active workspace, most recently updated first. By default each item carries only `id`, `name`, and `FK_aiConnectionId`; request additional fields with the `expansion` query parameter.
-         */
-        get: operations["AgentsController_findAllForWorkspace"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/agents/{agentId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get agent by ID
-         * @description Returns a single agent. By default only `id`, `name`, and `FK_aiConnectionId` are returned; request additional fields with the `expansion` query parameter. Access is gated by the `agents:use` permission, so agents reachable via a share grant can also be fetched.
-         */
-        get: operations["AgentsController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{projectId}/agents/upsert": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Upsert an agent by slug
-         * @description Creates or updates an agent identified by project-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.
-         */
-        post: operations["ProjectAgentsController_upsertBySlug"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/knowledge": {
         parameters: {
             query?: never;
@@ -1011,98 +1011,6 @@ export interface paths {
          * @description Deletes a document group and all of its parts, including stored files and vector index entries. This action cannot be undone.
          */
         delete: operations["KnowledgeController_deleteDocumentGroup"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/variables": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List variables in current workspace
-         * @description Returns all variables in the current workspace, ordered by most recently updated.
-         */
-        get: operations["VariablesController_findAllForWorkspace"];
-        put?: never;
-        /**
-         * Create variable in current workspace
-         * @description Creates a variable in the current workspace. Provide projectId to scope the variable to a project.
-         */
-        post: operations["VariablesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/variables/{variableId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get variable by ID
-         * @description Returns a single variable.
-         */
-        get: operations["VariablesController_findOne"];
-        put?: never;
-        post?: never;
-        /**
-         * Delete variable by ID
-         * @description Deletes a variable. This action cannot be undone.
-         */
-        delete: operations["VariablesController_delete"];
-        options?: never;
-        head?: never;
-        /**
-         * Update variable by ID
-         * @description Updates variable properties. All body fields are optional; only provided fields are changed.
-         */
-        patch: operations["VariablesController_update"];
-        trace?: never;
-    };
-    "/api/connections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List connections in current workspace
-         * @description Returns all connections available to the current user: OAuth connections belonging to the workspace and managed connections assigned to the user. Credential values are never returned.
-         */
-        get: operations["ConnectionsController_findAllForWorkspace"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/connections/{connectionId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get connection by ID
-         * @description Returns a single connection. Credential values are never returned.
-         */
-        get: operations["ConnectionsController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1222,6 +1130,178 @@ export interface paths {
          * @description Creates one Execution with `source: SDK` and a linear multi-step `executionPath`. Each step is a catalogue action run via prepareAndRunAction (same path as workflows and POST /actions/run). Connection resolution per step: sole usable connection, else workspace default (`isDefault`), else 400 with candidates. Poll GET /executions/{id} with expansion=executionPath for the same record.
          */
         post: operations["RunsController_start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/variables": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List variables in current workspace
+         * @description Returns all variables in the current workspace, ordered by most recently updated.
+         */
+        get: operations["VariablesController_findAllForWorkspace"];
+        put?: never;
+        /**
+         * Create variable in current workspace
+         * @description Creates a variable in the current workspace. Provide projectId to scope the variable to a project.
+         */
+        post: operations["VariablesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/variables/{variableId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get variable by ID
+         * @description Returns a single variable.
+         */
+        get: operations["VariablesController_findOne"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete variable by ID
+         * @description Deletes a variable. This action cannot be undone.
+         */
+        delete: operations["VariablesController_delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update variable by ID
+         * @description Updates variable properties. All body fields are optional; only provided fields are changed.
+         */
+        patch: operations["VariablesController_update"];
+        trace?: never;
+    };
+    "/api/tables": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List tables
+         * @description Lists tables in the current workspace, without rows.
+         */
+        get: operations["TablesController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tables/upsert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upsert table by slug
+         * @description Creates or updates the table with this workspace `slug`. Omitted columns or rows keep their current value. Marks `managedByCode` by default.
+         */
+        post: operations["TablesController_upsertBySlug"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tables/slug/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get table by slug
+         * @description Returns a table, including columns and rows.
+         */
+        get: operations["TablesController_findBySlug"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tables/{tableId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get table
+         * @description Returns a table, including columns and rows.
+         */
+        get: operations["TablesController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List connections in current workspace
+         * @description Returns all connections available to the current user: OAuth connections belonging to the workspace and managed connections assigned to the user. Credential values are never returned.
+         */
+        get: operations["ConnectionsController_findAllForWorkspace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/connections/{connectionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get connection by ID
+         * @description Returns a single connection. Credential values are never returned.
+         */
+        get: operations["ConnectionsController_findOne"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2065,7 +2145,9 @@ export interface components {
             /** @description Error message to record against the queue item. */
             error: string;
             /** @description Additional structured error details, supplied as a JSON string. */
-            errorDetails?: string;
+            errorDetails?: {
+                [key: string]: unknown;
+            };
         };
         BulkDeleteItemsDto: {
             /** @description IDs of the queue items to delete. */
@@ -2114,6 +2196,14 @@ export interface components {
             isActive?: boolean;
             /** @description Whether the workflow is internal (hidden from default listings). Included when `expansion=isInternal` is requested. */
             isInternal?: boolean;
+            /** @description Object type whose records list this workflow's runs. Included when `expansion=objectLink` is requested. */
+            objectTypeId?: string | null;
+            /** @description Dot path on the trigger payload. A Lunnoa id when the type has no unique key, otherwise that key's value. Included when `expansion=objectLink` is requested. */
+            objectIdPath?: string | null;
+            /** @description Create a record when the unique key value is not found, then file the run on it. Included when `expansion=objectLink` is requested. */
+            createObjectIfMissing?: boolean;
+            /** @description Unique key on the linked object type (`name` or `attribute:<field>`). Included when `expansion=objectLink` is requested. */
+            uniqueKeyField?: string | null;
             /** @description Workflow node definitions (JSON). Included when `expansion=nodes` is requested. */
             nodes?: {
                 [key: string]: unknown;
@@ -2182,382 +2272,6 @@ export interface components {
             steps: components["schemas"]["UpsertWorkflowStepDto"][];
             /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
             managedByCode?: boolean;
-        };
-        UpsertObjectTypeBySlugDto: {
-            /** @description Stable deployment-wide slug (lowercase, digits, hyphens). Used as the upsert key. Granted to the caller workspace when new. */
-            slug: string;
-            /** @description Singular display name. */
-            name?: string;
-            /** @description Plural display name. */
-            namePlural?: string;
-            /** @description Description. */
-            description?: string;
-            /**
-             * @description Icon identifier.
-             * @default box
-             */
-            icon: string;
-            /**
-             * @description Hex colour.
-             * @default #3B82F6
-             */
-            color: string;
-            /** @description Field definitions grouped into sections. */
-            attributeSchema: {
-                [key: string]: unknown;
-            };
-            /** @description Optional state machine definition. */
-            stateSchema?: {
-                [key: string]: unknown;
-            } | null;
-            /** @description Whether the type is enabled. */
-            isEnabled?: boolean;
-            /**
-             * @description When false (default), reject unknown attribute keys on entity writes.
-             * @default false
-             */
-            allowUnknownAttributes: boolean;
-            /**
-             * @description Marks the type as code-managed. Defaults to true on upsert.
-             * @default true
-             */
-            managedByCode: boolean;
-        };
-        ObjectTypeUserSummaryDto: {
-            /** @description User ID. */
-            id: string;
-            /** @description Email address of the user. */
-            email: string;
-            /** @description Display name of the user. */
-            name: string;
-        };
-        ObjectTypeCreatedByDto: {
-            /** @description Workspace user ID. */
-            id: string;
-            user: components["schemas"]["ObjectTypeUserSummaryDto"];
-        };
-        ObjectTypeCountDto: {
-            /** @description Number of non-deleted entities of this type. */
-            objects: number;
-        };
-        ObjectTypeResponseDto: {
-            /** @description Entity type ID. */
-            id: string;
-            /** @description Singular display name of the entity type. */
-            name: string;
-            /** @description Plural display name of the entity type. */
-            namePlural: string;
-            /** @description URL-safe slug, unique across the deployment. */
-            slug: string;
-            /** @description Icon identifier for the entity type. */
-            icon: string;
-            /** @description Hex colour of the entity type. */
-            color: string;
-            /** @description Whether the entity type is enabled. */
-            isEnabled: boolean;
-            /** @description When false, entity create/update rejects attribute keys not declared on the type. Reserved key `extensions` is always allowed. */
-            allowUnknownAttributes: boolean;
-            /** @description True when last written by code (CLI / SDK upsert). */
-            managedByCode: boolean;
-            /** @description Incremented when attributeSchema, stateSchema, or allowUnknownAttributes changes. */
-            schemaRevision: number;
-            /** @description Description of the entity type. Included when `expansion=description` is requested. */
-            description?: string | null;
-            /** @description Field definitions grouped into sections. Included when `expansion=attributeSchema` is requested. */
-            attributeSchema?: {
-                [key: string]: unknown;
-            };
-            /** @description State machine definition. Included when `expansion=stateSchema` is requested. */
-            stateSchema?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Format: date-time
-             * @description Included when `expansion=createdAt` is requested.
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Included when `expansion=updatedAt` is requested.
-             */
-            updatedAt?: string;
-            /** @description Workspace member who created the entity type. Included when `expansion=createdBy` is requested. */
-            createdBy?: components["schemas"]["ObjectTypeCreatedByDto"];
-            /** @description Included when `expansion=countObjects` is requested. */
-            _count?: components["schemas"]["ObjectTypeCountDto"];
-        };
-        CreateObjectDto: {
-            /** @description Display name of the entity. */
-            name: string;
-            /**
-             * Format: uuid
-             * @description ID of the entity type to create the entity under.
-             */
-            objectTypeId: string;
-            /** @description Initial state ID. Must exist in the entity type state schema. Defaults to the schema initial state when omitted. */
-            state?: string;
-            /** @description Dynamic attribute values keyed by field ID. */
-            attributes?: {
-                [key: string]: unknown;
-            };
-        };
-        ObjectTypeSummaryDto: {
-            /** @description Entity type ID. */
-            id: string;
-            /** @description Singular display name of the entity type. */
-            name: string;
-            /** @description URL-safe slug of the entity type. */
-            slug: string;
-            /** @description Icon identifier for the entity type. */
-            icon: string;
-            /** @description Hex colour of the entity type. */
-            color: string;
-            /** @description Plural display name. Included when `expansion=objectType` is requested. */
-            namePlural?: string;
-            /** @description Field definitions grouped into sections. Included when `expansion=objectType` is requested on single-entity reads. */
-            attributeSchema?: {
-                [key: string]: unknown;
-            };
-            /** @description State machine definition. Included when `expansion=objectType` is requested. */
-            stateSchema?: {
-                [key: string]: unknown;
-            } | null;
-        };
-        ObjectUserSummaryDto: {
-            /** @description User ID. */
-            id: string;
-            /** @description Email address of the user. */
-            email: string;
-            /** @description Display name of the user. */
-            name: string;
-        };
-        ObjectWorkspaceUserSummaryDto: {
-            /** @description Workspace user ID. */
-            id: string;
-            user: components["schemas"]["ObjectUserSummaryDto"];
-        };
-        ObjectStateHistoryUserSummaryDto: {
-            /** @description User ID. */
-            id: string;
-            /** @description Display name of the user. */
-            name: string;
-        };
-        ObjectStateHistoryChangedByDto: {
-            /** @description Workspace user ID. */
-            id: string;
-            user: components["schemas"]["ObjectStateHistoryUserSummaryDto"];
-        };
-        ObjectStateHistoryItemDto: {
-            /** @description State history entry ID. */
-            id: string;
-            /** @description State the entity moved from. Null for the initial state. */
-            fromState: string | null;
-            /** @description State the entity moved to. */
-            toState: string;
-            /** @description Reason recorded for the state change, if any. */
-            reason: string | null;
-            /**
-             * Format: date-time
-             * @description When the state change occurred.
-             */
-            createdAt: string;
-            /** @description Workspace member who made the change, if recorded. */
-            changedBy: components["schemas"]["ObjectStateHistoryChangedByDto"] | null;
-        };
-        ObjectResponseDto: {
-            /** @description Entity ID. */
-            id: string;
-            /** @description Display name of the entity. */
-            name: string;
-            /** @description Current state of the entity, if the type defines states. */
-            state: string | null;
-            /** @description Dynamic attribute values keyed by field ID. */
-            attributes: {
-                [key: string]: unknown;
-            };
-            /**
-             * Format: date-time
-             * @description Included when `expansion=createdAt` is requested.
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Included by default on list responses, otherwise when `expansion=updatedAt` is requested.
-             */
-            updatedAt?: string;
-            /** @description Included by default on list responses with a minimal shape, otherwise when `expansion=objectType` is requested. */
-            objectType?: components["schemas"]["ObjectTypeSummaryDto"];
-            /** @description Included when `expansion=owner` is requested. */
-            owner?: components["schemas"]["ObjectWorkspaceUserSummaryDto"] | null;
-            /** @description Included when `expansion=createdBy` is requested. */
-            createdBy?: components["schemas"]["ObjectWorkspaceUserSummaryDto"] | null;
-            /** @description Most recent state changes (up to 50, newest first). Included when `expansion=stateHistory` is requested. */
-            stateHistory?: components["schemas"]["ObjectStateHistoryItemDto"][];
-        };
-        ObjectPaginationDto: {
-            /** @description Current page number (1-based). */
-            page: number;
-            /** @description Number of items per page (maximum 100). */
-            pageSize: number;
-            /** @description Total number of matching entities. */
-            totalCount: number;
-            /** @description Total number of pages. */
-            totalPages: number;
-        };
-        PaginatedObjectsResponseDto: {
-            data: components["schemas"]["ObjectResponseDto"][];
-            pagination: components["schemas"]["ObjectPaginationDto"];
-        };
-        UpdateObjectDto: {
-            /** @description New display name of the entity. */
-            name?: string;
-            /** @description Attribute values keyed by field ID. Merged into the existing attributes; fields not supplied are left unchanged. */
-            attributes?: {
-                [key: string]: unknown;
-            };
-        };
-        ChangeObjectStateDto: {
-            /** @description ID of the target state. Must be a valid transition from the current state when the entity type defines transitions. */
-            newState: string;
-            /** @description Reason for the state change. Required when the transition is configured with requiresReason. */
-            reason?: string;
-        };
-        ChangeObjectStateResponseDto: {
-            /** @description Entity ID. */
-            id: string;
-            /** @description Display name of the entity. */
-            name: string;
-            /** @description State of the entity after the change. */
-            state: string | null;
-            /**
-             * Format: date-time
-             * @description When the entity was last updated.
-             */
-            updatedAt: string;
-        };
-        StateHistoryUserSummaryDto: {
-            /** @description User ID. */
-            id: string;
-            /** @description Display name of the user. */
-            name: string;
-            /** @description Email address of the user. */
-            email: string;
-        };
-        StateHistoryChangedByDto: {
-            /** @description Workspace user ID. */
-            id: string;
-            user: components["schemas"]["StateHistoryUserSummaryDto"];
-        };
-        ObjectStateHistoryEntryResponseDto: {
-            /** @description State history entry ID. */
-            id: string;
-            /** @description State the entity moved from. Null for the initial state. */
-            fromState: string | null;
-            /** @description State the entity moved to. */
-            toState: string;
-            /** @description Reason recorded for the state change, if any. */
-            reason: string | null;
-            /**
-             * Format: date-time
-             * @description When the state change occurred.
-             */
-            createdAt: string;
-            /** @description Workspace member who made the change, if recorded. */
-            changedBy: components["schemas"]["StateHistoryChangedByDto"] | null;
-        };
-        ObjectStateInfoDto: {
-            /** @description State ID. */
-            id: string;
-            /** @description Display name of the state. */
-            name: string;
-            /** @description Colour associated with the state. */
-            color?: string;
-            /** @description Icon associated with the state. */
-            icon?: string;
-            /** @description Whether the state is a final state. */
-            isFinal: boolean;
-        };
-        ObjectStateTransitionDto: {
-            /** @description Transition ID from the state schema. */
-            transitionId: string;
-            /** @description ID of the target state. */
-            toStateId: string;
-            /** @description Display name of the target state. */
-            toStateName: string;
-            /** @description Colour of the target state. */
-            toStateColor?: string;
-            /** @description Icon of the target state. */
-            toStateIcon?: string;
-            /** @description Whether a reason must be supplied for this transition. */
-            requiresReason: boolean;
-            /** @description Confirmation message to show before applying the transition. */
-            confirmationMessage?: string;
-        };
-        ObjectStateTransitionsResponseDto: {
-            /** @description Current state of the entity. Null when the entity has no state or the type defines no state schema. */
-            currentState: components["schemas"]["ObjectStateInfoDto"] | null;
-            /** @description Transitions allowed from the current state. */
-            validTransitions: components["schemas"]["ObjectStateTransitionDto"][];
-            /** @description All states defined by the entity type, for cases where no transitions are defined. */
-            allStates: components["schemas"]["ObjectStateInfoDto"][];
-        };
-        ImportRowErrorDto: {
-            /** @description Row number the error relates to (1-based). */
-            row: number;
-            /** @description Field ID the error relates to, when applicable. */
-            field?: string;
-            /** @description Human-readable error message. */
-            message: string;
-        };
-        ImportEntitiesResponseDto: {
-            /** @description Total number of rows processed. */
-            totalRows: number;
-            /** @description Number of rows imported successfully. */
-            successCount: number;
-            /** @description Number of rows that failed to import. */
-            errorCount: number;
-            /** @description Per-row errors encountered during the import. */
-            errors: components["schemas"]["ImportRowErrorDto"][];
-            /** @description IDs of entities created by the import. */
-            createdIds: string[];
-            /** @description IDs of existing entities updated by the import. */
-            updatedIds: string[];
-        };
-        ImportTemplateResponseDto: {
-            /** @description Column headers for the import file. Always starts with "name". */
-            columns: string[];
-            /** @description Sample row with an example value for each column. */
-            sampleRow: {
-                [key: string]: string;
-            };
-        };
-        WorkflowAppResponseDto: {
-            /** @description App ID, e.g. `gmail`. Matches the appId used in workflow execution steps. */
-            id: string;
-            /** @description Human-readable app name. */
-            name: string;
-            /** @description App description. */
-            description: string;
-            /** @description URL of the app logo. */
-            logoUrl: string;
-            /** @description Whether the app is published and available for use. */
-            isPublished: boolean;
-            /** @description Whether the app requires a connection before its actions and triggers can run. */
-            needsConnection: boolean;
-            /** @description Whether the app can be used by agents. */
-            availableForAgent: boolean;
-            /** @description Action definitions, each with id, name, description, iconUrl, needsConnection, availableForAgent, viewOptions and the declarative inputConfig field metadata used to render action UIs. */
-            actions: {
-                [key: string]: unknown;
-            }[];
-            /** @description Trigger definitions, each with id, name, description, iconUrl, needsConnection and the declarative inputConfig field metadata used to render trigger UIs. */
-            triggers: {
-                [key: string]: unknown;
-            }[];
-            /** @description Connection type definitions supported by the app (e.g. oauth2, apiKey, basic), each with id, name, description, connectionType and any declarative inputConfig fields. */
-            connections: {
-                [key: string]: unknown;
-            }[];
         };
         AgentResponseDto: {
             /**
@@ -2859,6 +2573,387 @@ export interface components {
             /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
             managedByCode?: boolean;
         };
+        WorkflowAppResponseDto: {
+            /** @description App ID, e.g. `gmail`. Matches the appId used in workflow execution steps. */
+            id: string;
+            /** @description Human-readable app name. */
+            name: string;
+            /** @description App description. */
+            description: string;
+            /** @description URL of the app logo. */
+            logoUrl: string;
+            /** @description Whether the app is published and available for use. */
+            isPublished: boolean;
+            /** @description Whether the app requires a connection before its actions and triggers can run. */
+            needsConnection: boolean;
+            /** @description Whether the app can be used by agents. */
+            availableForAgent: boolean;
+            /** @description Action definitions, each with id, name, description, iconUrl, needsConnection, availableForAgent, viewOptions and the declarative inputConfig field metadata used to render action UIs. */
+            actions: {
+                [key: string]: unknown;
+            }[];
+            /** @description Trigger definitions, each with id, name, description, iconUrl, needsConnection and the declarative inputConfig field metadata used to render trigger UIs. */
+            triggers: {
+                [key: string]: unknown;
+            }[];
+            /** @description Connection type definitions supported by the app (e.g. oauth2, apiKey, basic), each with id, name, description, connectionType and any declarative inputConfig fields. */
+            connections: {
+                [key: string]: unknown;
+            }[];
+        };
+        UpsertObjectTypeBySlugDto: {
+            /** @description Stable deployment-wide slug (lowercase, digits, hyphens). Used as the upsert key. Granted to the caller workspace when new. */
+            slug: string;
+            /** @description Singular display name. */
+            name?: string;
+            /** @description Plural display name. */
+            namePlural?: string;
+            /** @description Description. */
+            description?: string;
+            /**
+             * @description Icon identifier.
+             * @default box
+             */
+            icon: string;
+            /**
+             * @description Hex colour.
+             * @default #3B82F6
+             */
+            color: string;
+            /** @description Field definitions grouped into sections. */
+            attributeSchema: {
+                [key: string]: unknown;
+            };
+            /** @description Optional state machine definition. */
+            stateSchema?: {
+                [key: string]: unknown;
+            } | null;
+            /** @description Whether the type is enabled. */
+            isEnabled?: boolean;
+            /**
+             * @description When false (default), reject unknown attribute keys on entity writes.
+             * @default false
+             */
+            allowUnknownAttributes: boolean;
+            /**
+             * @description Marks the type as code-managed. Defaults to true on upsert.
+             * @default true
+             */
+            managedByCode: boolean;
+        };
+        ObjectTypeUserSummaryDto: {
+            /** @description User ID. */
+            id: string;
+            /** @description Email address of the user. */
+            email: string;
+            /** @description Display name of the user. */
+            name: string;
+        };
+        ObjectTypeCreatedByDto: {
+            /** @description Workspace user ID. */
+            id: string;
+            user: components["schemas"]["ObjectTypeUserSummaryDto"];
+        };
+        ObjectTypeCountDto: {
+            /** @description Number of non-deleted entities of this type. */
+            objects: number;
+        };
+        ObjectTypeResponseDto: {
+            /** @description Entity type ID. */
+            id: string;
+            /** @description Singular display name of the entity type. */
+            name: string;
+            /** @description Plural display name of the entity type. */
+            namePlural: string;
+            /** @description URL-safe slug, unique across the deployment. */
+            slug: string;
+            /** @description Icon identifier for the entity type. */
+            icon: string;
+            /** @description Hex colour of the entity type. */
+            color: string;
+            /** @description Whether the entity type is enabled. */
+            isEnabled: boolean;
+            /** @description When false, entity create/update rejects attribute keys not declared on the type. Reserved key `extensions` is always allowed. */
+            allowUnknownAttributes: boolean;
+            /** @description True when last written by code (CLI / SDK upsert). */
+            managedByCode: boolean;
+            /** @description Incremented when attributeSchema, stateSchema, or allowUnknownAttributes changes. */
+            schemaRevision: number;
+            /** @description Field that identifies a record besides the Lunnoa id. `name`, or `attribute:<field name>`. */
+            uniqueKeyField?: string | null;
+            /** @description Description of the entity type. Included when `expansion=description` is requested. */
+            description?: string | null;
+            /** @description Field definitions grouped into sections. Included when `expansion=attributeSchema` is requested. */
+            attributeSchema?: {
+                [key: string]: unknown;
+            };
+            /** @description State machine definition. Included when `expansion=stateSchema` is requested. */
+            stateSchema?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Format: date-time
+             * @description Included when `expansion=createdAt` is requested.
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description Included when `expansion=updatedAt` is requested.
+             */
+            updatedAt?: string;
+            /** @description Workspace member who created the entity type. Included when `expansion=createdBy` is requested. */
+            createdBy?: components["schemas"]["ObjectTypeCreatedByDto"];
+            /** @description Included when `expansion=countObjects` is requested. */
+            _count?: components["schemas"]["ObjectTypeCountDto"];
+        };
+        CreateObjectDto: {
+            /** @description Display name of the entity. */
+            name: string;
+            /**
+             * Format: uuid
+             * @description Platform admin only. Workspace the record is created in. Builders always use their active workspace.
+             */
+            workspaceId?: string;
+            /**
+             * Format: uuid
+             * @description ID of the entity type to create the entity under.
+             */
+            objectTypeId: string;
+            /** @description Initial state ID. Must exist in the entity type state schema. Defaults to the schema initial state when omitted. */
+            state?: string;
+            /** @description Attribute values keyed by field ID. Unknown keys are rejected unless the entity type has allowUnknownAttributes=true. Reserved key `extensions` (JSON object) is always allowed. */
+            attributes?: {
+                [key: string]: unknown;
+            };
+        };
+        ObjectTypeSummaryDto: {
+            /** @description Entity type ID. */
+            id: string;
+            /** @description Singular display name of the entity type. */
+            name: string;
+            /** @description URL-safe slug of the entity type. */
+            slug: string;
+            /** @description Icon identifier for the entity type. */
+            icon: string;
+            /** @description Hex colour of the entity type. */
+            color: string;
+            /** @description Plural display name. Included when `expansion=objectType` is requested. */
+            namePlural?: string;
+            /** @description Field definitions grouped into sections. Included when `expansion=objectType` is requested on single-entity reads. */
+            attributeSchema?: {
+                [key: string]: unknown;
+            };
+            /** @description State machine definition. Included when `expansion=objectType` is requested. */
+            stateSchema?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        ObjectUserSummaryDto: {
+            /** @description User ID. */
+            id: string;
+            /** @description Email address of the user. */
+            email: string;
+            /** @description Display name of the user. */
+            name: string;
+        };
+        ObjectWorkspaceUserSummaryDto: {
+            /** @description Workspace user ID. */
+            id: string;
+            user: components["schemas"]["ObjectUserSummaryDto"];
+        };
+        ObjectStateHistoryUserSummaryDto: {
+            /** @description User ID. */
+            id: string;
+            /** @description Display name of the user. */
+            name: string;
+        };
+        ObjectStateHistoryChangedByDto: {
+            /** @description Workspace user ID. */
+            id: string;
+            user: components["schemas"]["ObjectStateHistoryUserSummaryDto"];
+        };
+        ObjectStateHistoryItemDto: {
+            /** @description State history entry ID. */
+            id: string;
+            /** @description State the entity moved from. Null for the initial state. */
+            fromState: string | null;
+            /** @description State the entity moved to. */
+            toState: string;
+            /** @description Reason recorded for the state change, if any. */
+            reason: string | null;
+            /**
+             * Format: date-time
+             * @description When the state change occurred.
+             */
+            createdAt: string;
+            /** @description Workspace member who made the change, if recorded. */
+            changedBy: components["schemas"]["ObjectStateHistoryChangedByDto"] | null;
+        };
+        ObjectResponseDto: {
+            /** @description Entity ID. */
+            id: string;
+            /** @description Display name of the entity. */
+            name: string;
+            /** @description Current state of the entity, if the type defines states. */
+            state: string | null;
+            /** @description Dynamic attribute values keyed by field ID. */
+            attributes: {
+                [key: string]: unknown;
+            };
+            /**
+             * Format: date-time
+             * @description Included when `expansion=createdAt` is requested.
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description Included by default on list responses, otherwise when `expansion=updatedAt` is requested.
+             */
+            updatedAt?: string;
+            /** @description Included by default on list responses with a minimal shape, otherwise when `expansion=objectType` is requested. */
+            objectType?: components["schemas"]["ObjectTypeSummaryDto"];
+            /** @description Included when `expansion=createdBy` is requested. */
+            createdBy?: components["schemas"]["ObjectWorkspaceUserSummaryDto"] | null;
+            /** @description Most recent state changes (up to 50, newest first). Included when `expansion=stateHistory` is requested. */
+            stateHistory?: components["schemas"]["ObjectStateHistoryItemDto"][];
+        };
+        ObjectPaginationDto: {
+            /** @description Current page number (1-based). */
+            page: number;
+            /** @description Number of items per page (maximum 100). */
+            pageSize: number;
+            /** @description Total number of matching entities. */
+            totalCount: number;
+            /** @description Total number of pages. */
+            totalPages: number;
+        };
+        PaginatedObjectsResponseDto: {
+            data: components["schemas"]["ObjectResponseDto"][];
+            pagination: components["schemas"]["ObjectPaginationDto"];
+        };
+        UpdateObjectDto: {
+            /** @description New display name of the entity. */
+            name?: string;
+            /** @description Attribute values keyed by field ID. Merged into existing attributes. Unknown keys are rejected unless the entity type has allowUnknownAttributes=true. Reserved key `extensions` is always allowed. */
+            attributes?: {
+                [key: string]: unknown;
+            };
+        };
+        ChangeObjectStateDto: {
+            /** @description ID of the target state. Must be a valid transition from the current state when the entity type defines transitions. */
+            newState: string;
+            /** @description Reason for the state change. Required when the transition is configured with requiresReason. */
+            reason?: string;
+        };
+        ChangeObjectStateResponseDto: {
+            /** @description Entity ID. */
+            id: string;
+            /** @description Display name of the entity. */
+            name: string;
+            /** @description State of the entity after the change. */
+            state: string | null;
+            /**
+             * Format: date-time
+             * @description When the entity was last updated.
+             */
+            updatedAt: string;
+        };
+        StateHistoryUserSummaryDto: {
+            /** @description User ID. */
+            id: string;
+            /** @description Display name of the user. */
+            name: string;
+            /** @description Email address of the user. */
+            email: string;
+        };
+        StateHistoryChangedByDto: {
+            /** @description Workspace user ID. */
+            id: string;
+            user: components["schemas"]["StateHistoryUserSummaryDto"];
+        };
+        ObjectStateHistoryEntryResponseDto: {
+            /** @description State history entry ID. */
+            id: string;
+            /** @description State the entity moved from. Null for the initial state. */
+            fromState: string | null;
+            /** @description State the entity moved to. */
+            toState: string;
+            /** @description Reason recorded for the state change, if any. */
+            reason: string | null;
+            /**
+             * Format: date-time
+             * @description When the state change occurred.
+             */
+            createdAt: string;
+            /** @description Workspace member who made the change, if recorded. */
+            changedBy: components["schemas"]["StateHistoryChangedByDto"] | null;
+        };
+        ObjectStateInfoDto: {
+            /** @description State ID. */
+            id: string;
+            /** @description Display name of the state. */
+            name: string;
+            /** @description Colour associated with the state. */
+            color?: string;
+            /** @description Icon associated with the state. */
+            icon?: string;
+            /** @description Whether the state is a final state. */
+            isFinal: boolean;
+        };
+        ObjectStateTransitionDto: {
+            /** @description Transition ID from the state schema. */
+            transitionId: string;
+            /** @description ID of the target state. */
+            toStateId: string;
+            /** @description Display name of the target state. */
+            toStateName: string;
+            /** @description Colour of the target state. */
+            toStateColor?: string;
+            /** @description Icon of the target state. */
+            toStateIcon?: string;
+            /** @description Whether a reason must be supplied for this transition. */
+            requiresReason: boolean;
+            /** @description Confirmation message to show before applying the transition. */
+            confirmationMessage?: string;
+        };
+        ObjectStateTransitionsResponseDto: {
+            /** @description Current state of the entity. Null when the entity has no state or the type defines no state schema. */
+            currentState: components["schemas"]["ObjectStateInfoDto"] | null;
+            /** @description Transitions allowed from the current state. */
+            validTransitions: components["schemas"]["ObjectStateTransitionDto"][];
+            /** @description All states defined by the entity type, for cases where no transitions are defined. */
+            allStates: components["schemas"]["ObjectStateInfoDto"][];
+        };
+        ImportRowErrorDto: {
+            /** @description Row number the error relates to (1-based). */
+            row: number;
+            /** @description Field ID the error relates to, when applicable. */
+            field?: string;
+            /** @description Human-readable error message. */
+            message: string;
+        };
+        ImportEntitiesResponseDto: {
+            /** @description Total number of rows processed. */
+            totalRows: number;
+            /** @description Number of rows imported successfully. */
+            successCount: number;
+            /** @description Number of rows that failed to import. */
+            errorCount: number;
+            /** @description Per-row errors encountered during the import. */
+            errors: components["schemas"]["ImportRowErrorDto"][];
+            /** @description IDs of entities created by the import. */
+            createdIds: string[];
+            /** @description IDs of existing entities updated by the import. */
+            updatedIds: string[];
+        };
+        ImportTemplateResponseDto: {
+            /** @description Column headers for the import file. Always starts with "name". */
+            columns: string[];
+            /** @description Sample row with an example value for each column. */
+            sampleRow: {
+                [key: string]: string;
+            };
+        };
         CreateKnowledgeDto: {
             /** @description Name of the knowledge base. */
             name: string;
@@ -3006,124 +3101,6 @@ export interface components {
             FK_knowledgeId: string | null;
             /** @description Vector references (parts) in the group, ordered by part number. */
             vectorRefs: components["schemas"]["KnowledgeDocumentGroupVectorRefDto"][];
-        };
-        CreateVariableDto: {
-            /** @description Name of the variable. */
-            name: string;
-            /** @description Description of the variable. */
-            description?: string;
-            /**
-             * @description Scope of the variable (system, workspace or project).
-             * @enum {string}
-             */
-            type: "system" | "workspace" | "project";
-            /**
-             * @description Data type of the variable value.
-             * @enum {string}
-             */
-            dataType: "string" | "number" | "boolean" | "date" | "json";
-            /** @description Project ID to scope the variable to. Must belong to the current workspace. */
-            projectId?: string;
-            /** @description Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save. */
-            value: string;
-        };
-        VariableWorkspaceDto: {
-            /** @description Workspace ID. */
-            id: string;
-            /** @description Workspace name. */
-            name: string;
-        };
-        VariableProjectDto: {
-            /** @description Project ID. */
-            id: string;
-            /** @description Project name. */
-            name: string;
-        };
-        VariableResponseDto: {
-            /** @description Variable ID. */
-            id: string;
-            /** @description Variable name. */
-            name: string;
-            /**
-             * @description Data type of the variable value.
-             * @enum {string}
-             */
-            dataType: "string" | "number" | "boolean" | "date" | "json";
-            /**
-             * @description Scope of the variable (system, workspace or project).
-             * @enum {string}
-             */
-            type: "system" | "workspace" | "project";
-            /** @description Variable value. Included when `expansion=value` is requested. */
-            value?: Record<string, never>;
-            /** @description Variable description. Included when `expansion=description` is requested. */
-            description?: string;
-            /**
-             * Format: date-time
-             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
-             */
-            updatedAt?: string;
-            /** @description Owning workspace. Included when `expansion=workspace` is requested. */
-            workspace?: components["schemas"]["VariableWorkspaceDto"];
-            /** @description Owning project for project-scoped variables. Included when `expansion=project` is requested. */
-            project?: components["schemas"]["VariableProjectDto"];
-        };
-        UpdateVariableDto: {
-            /** @description Name of the variable. */
-            name?: string;
-            /** @description Description of the variable. */
-            description?: string;
-            /**
-             * @description Scope of the variable (system, workspace or project).
-             * @enum {string}
-             */
-            type?: "system" | "workspace" | "project";
-            /**
-             * @description Data type of the variable value.
-             * @enum {string}
-             */
-            dataType?: "string" | "number" | "boolean" | "date" | "json";
-            /** @description Project ID to scope the variable to. Must belong to the current workspace. */
-            projectId?: string;
-            /** @description Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save. */
-            value?: string;
-        };
-        ConnectionWorkspaceDto: {
-            /** @description Workspace ID. */
-            id: string;
-            /** @description Workspace name. */
-            name: string;
-        };
-        ConnectionResponseDto: {
-            /** @description Connection ID. */
-            id: string;
-            /** @description Connection name. */
-            name: string;
-            /**
-             * Format: date-time
-             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
-             */
-            createdAt?: string;
-            /**
-             * Format: date-time
-             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
-             */
-            updatedAt?: string;
-            /** @description App connection type ID (e.g. the OAuth2 or API key connection definition of the app). Included when `expansion=connectionId` is requested. */
-            connectionId?: string;
-            /** @description ID of the workflow app this connection belongs to. Included when `expansion=workflowAppId` or `expansion=workflowApp` is requested. */
-            workflowAppId?: string;
-            /** @description Full workflow app definition for this connection. Included when `expansion=workflowApp` is requested on the list endpoint. */
-            workflowApp?: {
-                [key: string]: unknown;
-            };
-            /** @description Owning workspace. Included when `expansion=workspace` is requested. */
-            workspace?: components["schemas"]["ConnectionWorkspaceDto"];
         };
         ManuallyRunWorkflowInputDataDto: {
             /**
@@ -3357,6 +3334,179 @@ export interface components {
             /** @description Optional display name for the ad-hoc Execution. */
             name?: string;
         };
+        CreateVariableDto: {
+            /** @description Name of the variable. */
+            name: string;
+            /** @description Description of the variable. */
+            description?: string;
+            /**
+             * @description Scope of the variable (system, workspace or project).
+             * @enum {string}
+             */
+            type: "system" | "workspace" | "project";
+            /**
+             * @description Data type of the variable value.
+             * @enum {string}
+             */
+            dataType: "string" | "number" | "boolean" | "date" | "json";
+            /** @description Project ID to scope the variable to. Must belong to the current workspace. */
+            projectId?: string;
+            /** @description Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save. */
+            value: string;
+        };
+        VariableWorkspaceDto: {
+            /** @description Workspace ID. */
+            id: string;
+            /** @description Workspace name. */
+            name: string;
+        };
+        VariableProjectDto: {
+            /** @description Project ID. */
+            id: string;
+            /** @description Project name. */
+            name: string;
+        };
+        VariableResponseDto: {
+            /** @description Variable ID. */
+            id: string;
+            /** @description Variable name. */
+            name: string;
+            /**
+             * @description Data type of the variable value.
+             * @enum {string}
+             */
+            dataType: "string" | "number" | "boolean" | "date" | "json";
+            /**
+             * @description Scope of the variable (system, workspace or project).
+             * @enum {string}
+             */
+            type: "system" | "workspace" | "project";
+            /** @description Variable value. Included when `expansion=value` is requested. */
+            value?: Record<string, never>;
+            /** @description Variable description. Included when `expansion=description` is requested. */
+            description?: string;
+            /**
+             * Format: date-time
+             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
+             */
+            updatedAt?: string;
+            /** @description Owning workspace. Included when `expansion=workspace` is requested. */
+            workspace?: components["schemas"]["VariableWorkspaceDto"];
+            /** @description Owning project for project-scoped variables. Included when `expansion=project` is requested. */
+            project?: components["schemas"]["VariableProjectDto"];
+        };
+        UpdateVariableDto: {
+            /** @description Name of the variable. */
+            name?: string;
+            /** @description Description of the variable. */
+            description?: string;
+            /**
+             * @description Scope of the variable (system, workspace or project).
+             * @enum {string}
+             */
+            type?: "system" | "workspace" | "project";
+            /**
+             * @description Data type of the variable value.
+             * @enum {string}
+             */
+            dataType?: "string" | "number" | "boolean" | "date" | "json";
+            /** @description Project ID to scope the variable to. Must belong to the current workspace. */
+            projectId?: string;
+            /** @description Variable value, submitted as a string. Values with dataType `number` are converted to numbers on save. */
+            value?: string;
+        };
+        UpsertTableBySlugDto: {
+            /** @description Display name of the table. */
+            name?: string;
+            /** @description What the table contains. Agents use this to choose a table. */
+            description?: string;
+            /** @description Project ID to scope the table to. Omit for a workspace-wide table. */
+            projectId?: string;
+            /** @description Column names: [{ key }]. */
+            columns?: {
+                [key: string]: unknown;
+            }[];
+            /** @description Rows as objects keyed by column name. */
+            rows?: {
+                [key: string]: unknown;
+            }[];
+            /** @description Stable workspace-unique key. Used as the upsert key. */
+            slug: string;
+            /** @description Marks the table as code-managed. Defaults to true on upsert. */
+            managedByCode?: boolean;
+        };
+        TableProjectDto: {
+            id: string;
+            name: string;
+        };
+        TableColumnDto: {
+            /** @description Column key used in rows. */
+            key: string;
+            /** @description Display label. */
+            label: string;
+        };
+        TableResponseDto: {
+            /** @description Table ID. */
+            id: string;
+            /** @description Display name. */
+            name: string;
+            /** @description Stable key, unique within the workspace. */
+            slug: string;
+            /** @description What the table contains. */
+            description?: string | null;
+            /** @description Whether the table is managed by code (CLI / API upsert). */
+            managedByCode: boolean;
+            /** @description Project the table is scoped to, or null for workspace-wide. */
+            FK_projectId?: string | null;
+            project?: components["schemas"]["TableProjectDto"] | null;
+            /** @description Columns. Returned by get and upsert, not by list. */
+            columns?: components["schemas"]["TableColumnDto"][];
+            /** @description Rows keyed by column key. Returned by get and upsert, not by list. */
+            rows?: {
+                [key: string]: unknown;
+            }[];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ConnectionWorkspaceDto: {
+            /** @description Workspace ID. */
+            id: string;
+            /** @description Workspace name. */
+            name: string;
+        };
+        ConnectionResponseDto: {
+            /** @description Connection ID. */
+            id: string;
+            /** @description Connection name. */
+            name: string;
+            /**
+             * Format: date-time
+             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
+             */
+            updatedAt?: string;
+            /** @description App connection type ID (e.g. the OAuth2 or API key connection definition of the app). Included when `expansion=connectionId` is requested. */
+            connectionId?: string;
+            /** @description ID of the workflow app this connection belongs to. Included when `expansion=workflowAppId` or `expansion=workflowApp` is requested. */
+            workflowAppId?: string;
+            /** @description Full workflow app definition for this connection. Included when `expansion=workflowApp` is requested on the list endpoint. */
+            workflowApp?: {
+                [key: string]: unknown;
+            };
+            /** @description Owning workspace. Included when `expansion=workspace` is requested. */
+            workspace?: components["schemas"]["ConnectionWorkspaceDto"];
+        };
         TaskListItemResponseDto: {
             /**
              * @description Task ID (UUID)
@@ -3576,12 +3726,9 @@ export interface components {
              *       "imageUrl": "https://example.com/image.png"
              *     }
              */
-            data?: {
-                /** @description URL of an image attached to the message. */
-                imageUrl?: string;
-            };
+            data?: Record<string, never>;
             /**
-             * @description Answer to an ask-before-sending personal-data prompt. Applies to this message only.
+             * @description Answer to an "ask before sending" personal-data prompt. Applies to this message only.
              * @enum {string}
              */
             piiResolution?: "anonymize" | "fallback";
@@ -4536,11 +4683,142 @@ export interface operations {
             };
         };
     };
+    AgentsController_findAllForWorkspace: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated include flags, e.g. `includeType=all`. Available: all */
+                includeType?: string;
+                /** @description Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId */
+                filterBy?: string;
+                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
+                expansion?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Agents in the current workspace */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentResponseDto"][];
+                };
+            };
+        };
+    };
+    AgentsController_findOne: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
+                expansion?: string;
+            };
+            header?: never;
+            path: {
+                agentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested agent */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentResponseDto"];
+                };
+            };
+        };
+    };
+    ProjectAgentsController_upsertBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                projectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertAgentBySlugDto"];
+            };
+        };
+        responses: {
+            /** @description The created or updated agent. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentResponseDto"];
+                };
+            };
+        };
+    };
+    WorkflowAppsController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All workflow app definitions. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkflowAppResponseDto"][];
+                };
+            };
+        };
+    };
+    WorkflowAppsController_connectApp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                appId: string;
+                connectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description Result of the connection attempt, written by the app connection handler. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     ObjectTypesController_findAll: {
         parameters: {
             query?: {
-                /** @description Set to true to include disabled entity types. */
+                /** @description Set to true to include disabled entity types the workspace is granted. */
                 includeDisabled?: boolean;
+                /** @description Set to true to include enabled types that are not granted to the active workspace. */
+                includeCatalog?: boolean;
                 /** @description Comma-separated fields to expand. Available: description, attributeSchema, stateSchema, createdAt, updatedAt, createdBy, countObjects. */
                 expansion?: string;
             };
@@ -4643,6 +4921,8 @@ export interface operations {
             query?: {
                 /** @description Filter by entity type ID. */
                 objectTypeId?: string;
+                /** @description Platform admin only. Limit records to this workspace. Omit to list every workspace. */
+                workspaceId?: string;
                 /** @description Filter by entity type slug. */
                 objectTypeSlug?: string;
                 /** @description Filter by a single state ID. */
@@ -4659,7 +4939,7 @@ export interface operations {
                 page?: number;
                 /** @description Items per page. Defaults to 25, capped at 100. */
                 pageSize?: number;
-                /** @description Comma-separated fields to expand. Available: attributes, objectType, owner, createdBy, createdAt, updatedAt, stateHistory. */
+                /** @description Comma-separated fields to expand. Available: attributes, objectType, createdBy, createdAt, updatedAt, stateHistory. */
                 expansion?: string;
             };
             header?: never;
@@ -4682,7 +4962,7 @@ export interface operations {
     ObjectsController_create: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: attributes, objectType, owner, createdBy, createdAt, updatedAt, stateHistory. */
+                /** @description Comma-separated fields to expand. Available: attributes, objectType, createdBy, createdAt, updatedAt, stateHistory. */
                 expansion?: string;
             };
             header?: never;
@@ -4709,7 +4989,7 @@ export interface operations {
     ObjectsController_findOne: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: attributes, objectType, owner, createdBy, createdAt, updatedAt, stateHistory. */
+                /** @description Comma-separated fields to expand. Available: attributes, objectType, createdBy, createdAt, updatedAt, stateHistory. */
                 expansion?: string;
             };
             header?: never;
@@ -4756,7 +5036,7 @@ export interface operations {
     ObjectsController_update: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: attributes, objectType, owner, createdBy, createdAt, updatedAt, stateHistory. */
+                /** @description Comma-separated fields to expand. Available: attributes, objectType, createdBy, createdAt, updatedAt, stateHistory. */
                 expansion?: string;
             };
             header?: never;
@@ -4965,135 +5245,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImportTemplateResponseDto"];
-                };
-            };
-        };
-    };
-    WorkflowAppsController_findAll: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description All workflow app definitions. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["WorkflowAppResponseDto"][];
-                };
-            };
-        };
-    };
-    WorkflowAppsController_connectApp: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                appId: string;
-                connectionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        responses: {
-            /** @description Result of the connection attempt, written by the app connection handler. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
-    AgentsController_findAllForWorkspace: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated include flags, e.g. `includeType=all`. Available: all */
-                includeType?: string;
-                /** @description Filters in `key:value` format, comma-separated, e.g. `filterBy=projectId:<uuid>`. Available: projectId */
-                filterBy?: string;
-                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
-                expansion?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Agents in the current workspace */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AgentResponseDto"][];
-                };
-            };
-        };
-    };
-    AgentsController_findOne: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, project, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
-                expansion?: string;
-            };
-            header?: never;
-            path: {
-                agentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The requested agent */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AgentResponseDto"];
-                };
-            };
-        };
-    };
-    ProjectAgentsController_upsertBySlug: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                projectId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertAgentBySlugDto"];
-            };
-        };
-        responses: {
-            /** @description The created or updated agent. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AgentResponseDto"];
                 };
             };
         };
@@ -5317,6 +5468,154 @@ export interface operations {
             };
         };
     };
+    ExecutionsController_manuallyExecuteWorkflow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workflowId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManuallyRunWorkflowInputDataDto"];
+            };
+        };
+        responses: {
+            /** @description The newly created execution. Only the execution ID is returned; poll GET /executions/{executionId} to track progress. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecuteWorkflowResponseDto"];
+                };
+            };
+        };
+    };
+    ExecutionsController_findAll: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated inclusion flags. Available: all, internal. Pass internal to include executions of internal workflows, which are excluded by default. */
+                includeType?: string;
+                /** @description Comma-separated key:value filters. Available: projectId, workflowId, source (WORKFLOW|SDK), objectId. Example: filterBy=workflowId:wf_123 or filterBy=objectId:<uuid> */
+                filterBy?: string;
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, source, name. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow,source */
+                expansion?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of executions. Fields beyond the ID are included according to the expansion query parameter. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecutionResponseDto"][];
+                };
+            };
+        };
+    };
+    ExecutionsController_findOne: {
+        parameters: {
+            query?: {
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, executionPath, pendingInput, source, name. executionPath is the derived, ordered list of executed (or queued) steps with labels, per-step status, timings, and loop iteration metadata. pendingInput is the field schema for steps paused in NEEDS_INPUT. Example: expansion=status,executionPath,pendingInput,source */
+                expansion?: string;
+            };
+            header?: never;
+            path: {
+                executionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The execution. Fields beyond the ID and startedAt are included according to the expansion query parameter. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExecutionResponseDto"];
+                };
+            };
+        };
+    };
+    ExecutionsController_streamExecution: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                executionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description SSE stream of execution progress, loop progress, finished, and heartbeat events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
+                };
+            };
+        };
+    };
+    ActionsController_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunActionDto"];
+            };
+        };
+        responses: {
+            /** @description The ad-hoc Execution id plus the synchronous action result (status, output, single-step executionPath). */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunActionResponseDto"];
+                };
+            };
+        };
+    };
+    RunsController_start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartRunDto"];
+            };
+        };
+        responses: {
+            /** @description The ad-hoc Execution id plus the synchronous multi-step result (status, last-step output, executionPath). */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunActionResponseDto"];
+                };
+            };
+        };
+    };
     VariablesController_findAllForWorkspace: {
         parameters: {
             query?: {
@@ -5447,6 +5746,96 @@ export interface operations {
             };
         };
     };
+    TablesController_findAll: {
+        parameters: {
+            query?: {
+                projectId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tables in the workspace. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TableResponseDto"][];
+                };
+            };
+        };
+    };
+    TablesController_upsertBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertTableBySlugDto"];
+            };
+        };
+        responses: {
+            /** @description The created or updated table, including columns and rows. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TableResponseDto"];
+                };
+            };
+        };
+    };
+    TablesController_findBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested table. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TableResponseDto"];
+                };
+            };
+        };
+    };
+    TablesController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tableId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested table. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TableResponseDto"];
+                };
+            };
+        };
+    };
     ConnectionsController_findAllForWorkspace: {
         parameters: {
             query?: {
@@ -5495,154 +5884,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConnectionResponseDto"];
-                };
-            };
-        };
-    };
-    ExecutionsController_manuallyExecuteWorkflow: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workflowId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ManuallyRunWorkflowInputDataDto"];
-            };
-        };
-        responses: {
-            /** @description The newly created execution. Only the execution ID is returned; poll GET /executions/{executionId} to track progress. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExecuteWorkflowResponseDto"];
-                };
-            };
-        };
-    };
-    ExecutionsController_findAll: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated inclusion flags. Available: all, internal. Pass internal to include executions of internal workflows, which are excluded by default. */
-                includeType?: string;
-                /** @description Comma-separated key:value filters. Available: projectId, workflowId, source (WORKFLOW|SDK). Example: filterBy=workflowId:wf_123 or filterBy=source:SDK */
-                filterBy?: string;
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, source, name. The executionPath expansion is only honoured on GET /executions/{executionId}. Example: expansion=status,startedAt,workflow,source */
-                expansion?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of executions. Fields beyond the ID are included according to the expansion query parameter. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExecutionResponseDto"][];
-                };
-            };
-        };
-    };
-    ExecutionsController_findOne: {
-        parameters: {
-            query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, startedAt, stoppedAt, executionNumber, nodes, edges, status, statusMessage, continueExecutionAt, workflow, project, workspace, output, orientation, executionVariables, executionPath, pendingInput, source, name. executionPath is the derived, ordered list of executed (or queued) steps with labels, per-step status, timings, and loop iteration metadata. pendingInput is the field schema for steps paused in NEEDS_INPUT. Example: expansion=status,executionPath,pendingInput,source */
-                expansion?: string;
-            };
-            header?: never;
-            path: {
-                executionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The execution. Fields beyond the ID and startedAt are included according to the expansion query parameter. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExecutionResponseDto"];
-                };
-            };
-        };
-    };
-    ExecutionsController_streamExecution: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                executionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description SSE stream of execution progress, loop progress, finished, and heartbeat events */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/event-stream": string;
-                };
-            };
-        };
-    };
-    ActionsController_run: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RunActionDto"];
-            };
-        };
-        responses: {
-            /** @description The ad-hoc Execution id plus the synchronous action result (status, output, single-step executionPath). */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunActionResponseDto"];
-                };
-            };
-        };
-    };
-    RunsController_start: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StartRunDto"];
-            };
-        };
-        responses: {
-            /** @description The ad-hoc Execution id plus the synchronous multi-step result (status, last-step output, executionPath). */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RunActionResponseDto"];
                 };
             };
         };

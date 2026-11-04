@@ -11,6 +11,7 @@ import {
 
 import {
   createBrowserClient,
+  createMemoryTokenStore,
   type CreateBrowserClientOptions,
 } from '../auth/create-client';
 import {
@@ -89,7 +90,10 @@ function resolveClient(props: LunnoaAuthProviderProps): LunnoaClient {
   }
   return createBrowserClient({
     baseUrl: options.baseUrl,
-    tokenStore: options.tokenStore,
+    // SSR (e.g. Next.js) has no localStorage; the browser builds its own client on hydration.
+    tokenStore:
+      options.tokenStore ??
+      (typeof window === 'undefined' ? createMemoryTokenStore() : undefined),
     autoRefresh: options.autoRefresh,
     fetch: options.fetch,
     headers: options.headers,

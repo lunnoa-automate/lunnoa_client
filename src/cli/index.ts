@@ -18,6 +18,8 @@ import {
   runEntityTypesList,
   runFeatures,
   runProjectsList,
+  runTablesGet,
+  runTablesList,
   runToolsGet,
   runToolsList,
   runToolsSearch,
@@ -37,6 +39,7 @@ import {
   pickEntityTypeDefinition,
   pickWorkflowDefinition,
 } from './load-definition';
+import { runInit } from './init';
 import { installSkills } from './skills';
 import { agentDefinitionToUpsert } from '../resources/agents';
 import { entityTypeDefinitionToUpsert } from '../resources/entity-types';
@@ -212,6 +215,7 @@ const DISCOVERY_SUBCOMMANDS: Record<string, string[] | undefined> = {
   tools: ['list', 'get', 'search'],
   apps: ['list', 'get'],
   connections: ['list', 'get'],
+  tables: ['list', 'get'],
   features: undefined,
   projects: ['list'],
 };
@@ -254,7 +258,7 @@ function assertKnownDiscoveryShape(args: CliArgs): void {
 
 async function runDiscovery(args: CliArgs): Promise<boolean> {
   const { command, subcommand } = args;
-  if (command === 'tools' || command === 'apps' || command === 'connections') {
+  if (command === 'tools' || command === 'apps' || command === 'connections' || command === 'tables') {
     assertKnownDiscoveryShape(args);
   }
   if (!isDiscoveryCommand(args)) {
@@ -303,6 +307,14 @@ async function runDiscovery(args: CliArgs): Promise<boolean> {
     await runEntityTypesList(client, args);
     return true;
   }
+  if (command === 'tables' && subcommand === 'list') {
+    await runTablesList(client, args);
+    return true;
+  }
+  if (command === 'tables' && subcommand === 'get') {
+    await runTablesGet(client, args);
+    return true;
+  }
   if (command === 'projects' && (subcommand === 'list' || !subcommand)) {
     await runProjectsList(client, args);
     return true;
@@ -317,6 +329,9 @@ async function runDiscovery(args: CliArgs): Promise<boolean> {
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+  try {
+    process.loadEnvFile(); // ./.env; real env vars win. Missing file or Node < 20.12: ignore.
+  } catch {}
 
   if (
     !args.command ||
@@ -325,6 +340,11 @@ async function main(): Promise<void> {
     args.help
   ) {
     console.log(USAGE);
+    return;
+  }
+
+  if (args.command === 'init') {
+    await runInit(args);
     return;
   }
 

@@ -105,6 +105,7 @@ export {
   type EntityTypeReadOptions,
   type UpsertEntityTypeBySlugInput,
 } from './resources/entity-types';
+export { TablesResource } from './resources/tables';
 export { KnowledgeResource } from './resources/knowledge';
 export { QueuesResource } from './resources/queues';
 export {

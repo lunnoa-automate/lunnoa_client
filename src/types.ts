@@ -56,6 +56,10 @@ export type ImportTemplate = Schemas['ImportTemplateResponseDto'];
 // Entity types
 export type EntityType = Schemas['ObjectTypeResponseDto'];
 
+// Tables (small reference / lookup data)
+export type Table = Schemas['TableResponseDto'];
+export type UpsertTableBySlugInput = Schemas['UpsertTableBySlugDto'];
+
 // Knowledge
 export type Knowledge = Schemas['KnowledgeResponseDto'];
 export type CreateKnowledgeInput = Schemas['CreateKnowledgeDto'];

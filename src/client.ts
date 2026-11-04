@@ -7,6 +7,7 @@ import { ConnectionsResource } from './resources/connections';
 import { DiscoveryResource } from './resources/discovery';
 import { EntitiesResource } from './resources/entities';
 import { EntityTypesResource } from './resources/entity-types';
+import { TablesResource } from './resources/tables';
 import { ApprovalsResource } from './resources/approvals';
 import { ExecutionsResource } from './resources/executions';
 import { KnowledgeResource } from './resources/knowledge';
@@ -64,6 +65,8 @@ export class LunnoaClient {
   readonly approvals: ApprovalsResource;
   readonly entities: EntitiesResource;
   readonly entityTypes: EntityTypesResource;
+  /** Small reference / lookup tables (rows stored inline; use entities for transactional data). */
+  readonly tables: TablesResource;
   readonly knowledge: KnowledgeResource;
   readonly queues: QueuesResource;
   readonly queueItems: QueueItemsResource;
@@ -89,6 +92,7 @@ export class LunnoaClient {
     this.workflows = new WorkflowsResource(this.http, this.executions);
     this.entities = new EntitiesResource(this.http);
     this.entityTypes = new EntityTypesResource(this.http);
+    this.tables = new TablesResource(this.http);
     this.knowledge = new KnowledgeResource(this.http);
     this.queues = new QueuesResource(this.http);
     this.queueItems = new QueueItemsResource(this.http);

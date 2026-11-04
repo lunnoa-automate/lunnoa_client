@@ -1954,7 +1954,7 @@
     },
     "/api/object-types/upsert": {
       "post": {
-        "description": "Creates or updates an entity type identified by workspace-scoped `slug`. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client entity-types deploy`) over calling this from application code. Unknown instance attributes are rejected unless `allowUnknownAttributes` is true; reserved key `extensions` is always allowed.",
+        "description": "Creates or updates an entity type identified by deployment-wide `slug`. A new slug is granted to the caller workspace. A type already granted to other workspaces is not rewritten unless the caller is a platform admin. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client entity-types deploy`). Unknown instance attributes are rejected unless `allowUnknownAttributes` is true; reserved key `extensions` is always allowed.",
         "operationId": "ObjectTypesController_upsertBySlug",
         "parameters": [
           {
@@ -1994,7 +1994,7 @@
             "bearer": []
           }
         ],
-        "summary": "Upsert entity type by workspace-scoped slug",
+        "summary": "Upsert entity type by deployment-wide slug",
         "tags": [
           "Entity Types"
         ],
@@ -6638,7 +6638,7 @@
         "properties": {
           "slug": {
             "type": "string",
-            "description": "Stable workspace-scoped slug (lowercase, digits, hyphens). Used as the upsert key."
+            "description": "Stable deployment-wide slug (lowercase, digits, hyphens). Used as the upsert key. Granted to the caller workspace when new."
           },
           "name": {
             "type": "string",
@@ -6760,7 +6760,7 @@
           },
           "slug": {
             "type": "string",
-            "description": "URL-safe slug, unique within the workspace."
+            "description": "URL-safe slug, unique across the deployment."
           },
           "icon": {
             "type": "string",

@@ -37,6 +37,7 @@ import {
   pickEntityTypeDefinition,
   pickWorkflowDefinition,
 } from './load-definition';
+import { installSkills } from './skills';
 import { agentDefinitionToUpsert } from '../resources/agents';
 import { entityTypeDefinitionToUpsert } from '../resources/entity-types';
 import { workflowDefinitionToUpsert } from '../resources/workflows';
@@ -324,6 +325,14 @@ async function main(): Promise<void> {
     args.help
   ) {
     console.log(USAGE);
+    return;
+  }
+
+  if (args.command === 'skills' && args.subcommand === 'install') {
+    const written = await installSkills(resolve(process.cwd(), args.path ?? '.'));
+    for (const dest of written) {
+      console.log(`Installed Lunnoa skills into ${dest}`);
+    }
     return;
   }
 

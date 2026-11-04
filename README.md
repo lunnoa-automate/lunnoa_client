@@ -268,7 +268,7 @@ Re-run codegen whenever entity types, workflows, or agents change on the deploym
 
 ## Define, run, and CLI deploy
 
-Author local definitions with `defineWorkflow` / `defineAgent` / `defineEntityType`, run linear chains with `lunnoa.runs.start`, and upsert with the CLI (prefer CLI over calling upsert from app code). Entity types are workspace-scoped (no `--project-id`); instance writes reject unknown attribute keys unless `allowUnknownAttributes` is true — use the reserved `extensions` object for flexible bags:
+Author local definitions with `defineWorkflow` / `defineAgent` / `defineEntityType`, run linear chains with `lunnoa.runs.start`, and upsert with the CLI (prefer CLI over calling upsert from app code). An entity type slug is unique on the deployment. Deploy grants that type to the API key's workspace when the slug is new, and will not rewrite a type already granted to other workspaces (no `--project-id`). Instance writes reject unknown attribute keys unless `allowUnknownAttributes` is true — use the reserved `extensions` object for flexible bags:
 
 ```bash
 npx @lunnoa/client entity-types deploy ./human.ts --url https://lunnoa.example --api-key lna_...
@@ -322,7 +322,9 @@ Two Cursor / Claude Code skills ship in the published package under `skills/`:
 | **lunnoa-solution-design** | [`skills/lunnoa-solution-design/SKILL.md`](./skills/lunnoa-solution-design/SKILL.md) | Interview the human, map intent to Lunnoa primitives, produce a build brief |
 | **lunnoa-client** | [`skills/lunnoa-client/SKILL.md`](./skills/lunnoa-client/SKILL.md) | Implement with auth, discovery, codegen, `define*` / `runs` / CLI deploy, React hooks |
 
-After install, copy or enable them from `node_modules/@lunnoa/client/skills/` into your app’s `.cursor/skills/` (or Claude Code skills directory). Prefer **solution-design** first when requirements are unclear, then **lunnoa-client**.
+Install them into your app with `npx @lunnoa/client skills install`. It copies the skills of the installed SDK version into `.claude/skills/` and `.cursor/skills/`. Add it as a `postinstall` script and gitignore both folders so the skills stay in step with the SDK. Prefer **solution-design** first when requirements are unclear, then **lunnoa-client**.
+
+In this repo, edit `skills/` only; `pnpm install` copies it into the local `.cursor/skills/` and `.claude/skills/`.
 
 Partner paste block:
 

@@ -4,3 +4,6 @@ dist
 *.log
 .env
 .env.*
+# copied from skills/ by `prepare`; edit skills/ only
+.cursor/skills/
+.claude/skills/

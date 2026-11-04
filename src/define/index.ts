@@ -139,7 +139,7 @@ export function defineAgent(
 
 export interface EntityTypeDefinition {
   kind: typeof DEFINE_KINDS.entityType;
-  /** Stable workspace-scoped slug (upsert key). */
+  /** Stable deployment-wide slug (upsert key). Granted to the deployer's workspace when new. */
   slug: string;
   name?: string;
   namePlural?: string;

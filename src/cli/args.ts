@@ -29,6 +29,7 @@ const GROUPS_WITH_SUBCOMMAND = new Set([
   'apps',
   'connections',
   'projects',
+  'skills',
 ]);
 
 const VALUE_FLAGS = new Set([
@@ -142,6 +143,9 @@ export const USAGE = `Usage:
   npx @lunnoa/client agents deploy <path> --url <url> --api-key <key> --project-id <uuid>
   npx @lunnoa/client entity-types deploy <path> --url <url> --api-key <key>
 
+  Agent skills (copies this version's skills into .claude/skills and .cursor/skills):
+  npx @lunnoa/client skills install [projectDir]
+
 Options:
   --url           Base URL of the Lunnoa Automate deployment
   --api-key       Machine API key (lna_...)
@@ -157,7 +161,8 @@ Environment: LUNNOA_URL, LUNNOA_API_KEY, LUNNOA_PROJECT_ID
 Optional config file: lunnoa.config.ts | .mjs | .js | .json
 
 tools get prints inputConfig and a defineAction() sketch. tools list is compact;
-run tools get for the schema. Entity-type deploy is workspace-scoped (no
---project-id). Unknown instance attributes are rejected unless
+run tools get for the schema. Entity-type deploy uses a deployment-wide slug
+and grants the API key's workspace when the slug is new (no --project-id).
+A slug already granted to other workspaces is not rewritten. Unknown instance attributes are rejected unless
 allowUnknownAttributes is true; use extensions.
 `;

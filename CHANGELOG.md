@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.3.0...v1.4.0) (2026-11-04)
+
+### Features
+
+* add a CLI command to install bundled agent skills ([4700d9a](https://github.com/lunnoa-automate/lunnoa_client/commit/4700d9a307435acdfe0b097eb20dcfdea809255a))
+
 ## [1.3.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v1.2.0...v1.3.0) (2026-10-21)
 
 ### Features

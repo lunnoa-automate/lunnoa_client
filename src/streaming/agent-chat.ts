@@ -6,7 +6,10 @@ import { parseSseStream } from './sse';
 export type ChatMode = 'builder' | 'preview';
 
 export interface StreamMessageOptions {
-  /** Agent chat mode; defaults to the server default (`builder`). */
+  /**
+   * Agent chat mode. Defaults to `preview` (10 model rounds, a normal agent run).
+   * `builder` is the agent-editor interview and stops after 4 rounds.
+   */
   chatMode?: ChatMode;
   /** Optional image attachment forwarded with this turn. */
   data?: { imageUrl?: string };
@@ -224,7 +227,7 @@ export function messageTaskBody(
 ) {
   return {
     messages: [message],
-    ...(options.chatMode ? { chatMode: options.chatMode } : {}),
+    chatMode: options.chatMode ?? 'preview',
     ...(options.data ? { data: options.data } : {}),
     ...(options.piiResolution ? { piiResolution: options.piiResolution } : {}),
   };

@@ -30,6 +30,7 @@ const GROUPS_WITH_SUBCOMMAND = new Set([
   'tools',
   'apps',
   'connections',
+  'ai-connections',
   'skills',
 ]);
 
@@ -134,6 +135,7 @@ export const USAGE = `Usage:
   npx @lunnoa/client apps get <appId> [--json]
   npx @lunnoa/client connections list [--app <appId>] [--json]
   npx @lunnoa/client connections get <connectionId> [--json]
+  npx @lunnoa/client ai-connections list [--json]
   npx @lunnoa/client agents list [--json]
   npx @lunnoa/client workflows list [--json]
   npx @lunnoa/client entity-types list [--json]
@@ -163,6 +165,9 @@ Options:
 Environment: LUNNOA_URL, LUNNOA_API_KEY (also read from ./.env)
 Optional config file: lunnoa.config.ts | .mjs | .js | .json
 
+ai-connections list prints the model ids each AI connection accepts. Use
+models[].id as defineAgent({ model }). connections list is app connections
+(Gmail, HTTP), not model providers.
 tools get prints inputConfig and a defineAction() sketch. tools list is compact;
 run tools get for the schema. An entity-type slug is unique on the deployment
 and grants the API key's workspace when the slug is new.

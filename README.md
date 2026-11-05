@@ -277,13 +277,14 @@ npx @lunnoa/client tools get http_action_send-request --json
 npx @lunnoa/client apps list --json
 npx @lunnoa/client apps get http --json
 npx @lunnoa/client connections list --app gmail --json
+npx @lunnoa/client ai-connections list --json
 npx @lunnoa/client agents list --json
 npx @lunnoa/client workflows list --json
 npx @lunnoa/client entity-types list --json
 npx @lunnoa/client features --json
 ```
 
-`tools list` is compact (`appId`, `actionId`, name, flags). `tools get` prints `inputConfig` and a `defineAction({ id, appId, input })` sketch. Auth flags and `LUNNOA_URL` / `LUNNOA_API_KEY` / `lunnoa.config` work the same as deploy. The CLI also reads `./.env` (real environment variables win).
+`tools list` is compact (`appId`, `actionId`, name, flags). `tools get` prints `inputConfig` and a `defineAction({ id, appId, input })` sketch. `ai-connections list --json` prints the model ids each AI connection accepts; use `models[].id` as `defineAgent({ model })`. Auth flags and `LUNNOA_URL` / `LUNNOA_API_KEY` / `lunnoa.config` work the same as deploy. The CLI also reads `./.env` (real environment variables win).
 
 ## Regenerating the API types
 

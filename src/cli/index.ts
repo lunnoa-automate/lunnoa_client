@@ -11,6 +11,7 @@ import { DEFINE_KINDS } from '../define';
 import { parseArgs, USAGE, type CliArgs } from './args';
 import {
   runAgentsList,
+  runAiConnectionsList,
   runAppsGet,
   runAppsList,
   runConnectionsGet,
@@ -197,6 +198,7 @@ const DISCOVERY_SUBCOMMANDS: Record<string, string[] | undefined> = {
   tools: ['list', 'get', 'search'],
   apps: ['list', 'get'],
   connections: ['list', 'get'],
+  'ai-connections': ['list'],
   tables: ['list', 'get'],
   features: undefined,
 };
@@ -236,7 +238,13 @@ function assertKnownDiscoveryShape(args: CliArgs): void {
 
 async function runDiscovery(args: CliArgs): Promise<boolean> {
   const { command, subcommand } = args;
-  if (command === 'tools' || command === 'apps' || command === 'connections' || command === 'tables') {
+  if (
+    command === 'tools' ||
+    command === 'apps' ||
+    command === 'connections' ||
+    command === 'ai-connections' ||
+    command === 'tables'
+  ) {
     assertKnownDiscoveryShape(args);
   }
   if (!isDiscoveryCommand(args)) {
@@ -271,6 +279,10 @@ async function runDiscovery(args: CliArgs): Promise<boolean> {
   }
   if (command === 'connections' && subcommand === 'get') {
     await runConnectionsGet(client, args);
+    return true;
+  }
+  if (command === 'ai-connections' && subcommand === 'list') {
+    await runAiConnectionsList(client, args);
     return true;
   }
   if (command === 'agents' && subcommand === 'list') {

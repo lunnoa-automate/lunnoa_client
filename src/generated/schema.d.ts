@@ -1224,6 +1224,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai-connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List AI connections available to the caller
+         * @description Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model`. `isDefault` marks the connection and model applied when a deploy omits them. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.
+         */
+        get: operations["AiConnectionsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/connections": {
         parameters: {
             query?: never;
@@ -2182,7 +2202,7 @@ export interface components {
             description?: string;
             /** @description System instructions / prompt for the agent. */
             instructions: string;
-            /** @description Selected model id on the AI provider connection (e.g. `gpt-4o`). */
+            /** @description Catalogue model id enabled on the AI connection. Example: `deepseek-ai/DeepSeek-V4-Pro`. Discover ids with GET /api/ai-connections. */
             model: string;
             /** @description AiProviderConnection UUID. When omitted, platform AI defaults apply. */
             aiConnectionId?: string;
@@ -3318,6 +3338,32 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        PublicAiModelResponseDto: {
+            /** @description Catalogue model id passed to agent deploy as `model`. Example: `deepseek-ai/DeepSeek-V4-Pro`. */
+            id: string;
+            /** @description Display name. */
+            name: string;
+            /** @description True when this is the model used if an agent deploy omits `model` on this connection. */
+            isDefault: boolean;
+            /** @description Whether the model can call tools. */
+            supportsTools: boolean;
+            /** @description Whether the model accepts image input. */
+            supportsVision: boolean;
+            /** @description Whether the model exposes a reasoning mode. */
+            supportsReasoning: boolean;
+        };
+        PublicAiConnectionResponseDto: {
+            /** @description AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })` when this connection is not the default. */
+            id: string;
+            /** @description Connection display name. Example: `Lunnoa LLMs`. */
+            name: string;
+            /** @description Provider slug. Example: `featherless` or `openai`. */
+            provider: string;
+            /** @description True for the connection used when an agent deploy omits `aiConnectionId`. */
+            isDefault: boolean;
+            /** @description Models this connection accepts. Inactive models are omitted. */
+            models: components["schemas"]["PublicAiModelResponseDto"][];
         };
         ConnectionWorkspaceDto: {
             /** @description Workspace ID. */
@@ -5585,6 +5631,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TableResponseDto"];
+                };
+            };
+        };
+    };
+    AiConnectionsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description AI connections and the models each one accepts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicAiConnectionResponseDto"][];
                 };
             };
         };

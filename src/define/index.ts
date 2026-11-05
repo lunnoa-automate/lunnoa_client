@@ -79,7 +79,10 @@ export interface AgentDefinition {
   slug: string;
   name?: string;
   description?: string;
-  /** Selected model id on the AI provider connection. */
+  /**
+   * Catalogue model id from `ai-connections list` (`models[].id`).
+   * Example on Lunnoa LLMs: `deepseek-ai/DeepSeek-V4-Pro`.
+   */
   model: string;
   instructions: string;
   aiConnection?: AiConnectionDefinition;

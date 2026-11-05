@@ -5,7 +5,10 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAccessToken, useLunnoaClient } from './auth';
 
 export interface UseAgentChatOptions {
-  /** Agent chat mode forwarded in the request body. */
+  /**
+   * Agent chat mode forwarded in the request body.
+   * Defaults to `preview` (10 model rounds). `builder` stops after 4 rounds.
+   */
   chatMode?: 'builder' | 'preview';
 }
 
@@ -84,7 +87,7 @@ export function useAgentChat(
         if (!token) return {};
         return { Authorization: `Bearer ${token}` };
       },
-      body: chatMode ? { chatMode } : undefined,
+      body: { chatMode: chatMode ?? 'preview' },
       prepareReconnectToStreamRequest: ({ headers, credentials }) => ({
         api,
         headers,

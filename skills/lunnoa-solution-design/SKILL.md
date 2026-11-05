@@ -106,18 +106,28 @@ interrogation.
 1. **Agents have no schedules or event triggers.** If something must run on a
    cron or webhook, use a **Workflow** that messages the agent (or runs
    actions). Do not invent an agent trigger.
-2. **Connections stay on Lunnoa.** Definitions only reference connection ids
+2. **A tool-using agent gets 10 model rounds per turn** from an app or a
+   Message Agent step. That covers a handful of tool calls plus a final reply.
+   If the job chains many calls (read every record, then write), the brief must
+   say to turn on **Long-horizon mode** for that agent in Lunnoa (50 rounds).
+   Do not plan around `chatMode: 'builder'`; that is the editor interview and
+   stops after 4 rounds.
+3. **Connections stay on Lunnoa.** Definitions only reference connection ids
    (or omit for sole/default resolution). Never ask the partner to put OAuth
    secrets in their app.
-3. **Do not invent catalogue actions.** Discover with
+4. **Do not invent catalogue actions or model ids.** Discover actions with
    `npx @lunnoa/client tools list|get|search --json` (or `workflowApps.list()`
-   / codegen). Client `defineAction` binds existing catalogue actions; toolkit
-   `createAction` is a different product (in-platform apps).
-4. **Durable vs ephemeral:** experiments → `runs.start`; shared production
+   / codegen). Discover models with
+   `npx @lunnoa/client ai-connections list --json` and use a returned
+   `models[].id` (Lunnoa LLMs uses catalogue ids such as
+   `deepseek-ai/DeepSeek-V4-Pro`). Client `defineAction` binds existing
+   catalogue actions; toolkit `createAction` is a different product
+   (in-platform apps).
+5. **Durable vs ephemeral:** experiments → `runs.start`; shared production
    automation → CLI `workflows deploy` / `agents deploy` by slug.
-5. **UI is headless.** `@lunnoa/client` has no design system. Optional React
+6. **UI is headless.** `@lunnoa/client` has no design system. Optional React
    hooks in `@lunnoa/client/react`. Partners bring their own UI.
-6. **Reuse before create.** Before proposing any new entity type, table,
+7. **Reuse before create.** Before proposing any new entity type, table,
    workflow, or agent, run `npx @lunnoa/client entity-types list --json`,
    `tables list --json`, `workflows list --json`, and `agents list --json`.
    The build brief must state explicitly what is **reused** vs **created**.
@@ -125,11 +135,13 @@ interrogation.
 ### Common anti-patterns to reject
 
 - Putting an agent on a schedule without a workflow wrapper
+- Expecting an agent to loop tools indefinitely, or sending `chatMode: 'builder'` from an app (4 rounds, editor only)
 - Building a fake multi-step “batch” as many unrelated `actions.run` calls
   when the user wanted one Execution (use `runs.start` / workflow)
 - Shipping `lna_` to the browser “just for the demo”
 - Using `@lunnoa/toolkit` to build a customer portal
 - Designing a local LangChain loop instead of Lunnoa-hosted agents
+- Hardcoding `model: 'gpt-4o'` without reading `ai-connections list`
 
 ---
 
@@ -150,6 +162,7 @@ can execute. Use this shape:
 
 ### Discovery (run first)
 - [ ] `npx @lunnoa/client tools list --json --for-agent` then `tools get <id>`
+- [ ] `npx @lunnoa/client ai-connections list --json` before choosing an agent model
 - [ ] agents / workflows / entity-types / tables list — reuse before create
 - [ ] codegen — if building typed entity/workflow accessors
 

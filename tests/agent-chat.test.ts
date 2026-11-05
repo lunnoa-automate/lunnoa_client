@@ -135,6 +135,7 @@ describe('AgentChatClient', () => {
     expect(body.messages[0].role).toBe('user');
     expect(body.messages[0].parts).toEqual([{ type: 'text', text: 'Hi there' }]);
     expect(typeof body.messages[0].id).toBe('string');
+    expect(body.chatMode).toBe('preview');
   });
 
   it('resumeStream returns null on 204 (nothing to resume)', async () => {

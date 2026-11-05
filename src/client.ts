@@ -3,6 +3,7 @@ import { AgentChatClient } from './streaming/agent-chat';
 import { ActionsResource } from './resources/actions';
 import { AgentsResource } from './resources/agents';
 import { AuthResource } from './resources/auth';
+import { AiConnectionsResource } from './resources/ai-connections';
 import { ConnectionsResource } from './resources/connections';
 import { DiscoveryResource } from './resources/discovery';
 import { EntitiesResource } from './resources/entities';
@@ -65,6 +66,8 @@ export class LunnoaClient {
   readonly variables: VariablesResource;
   readonly scorecards: ScorecardsResource;
   readonly connections: ConnectionsResource;
+  /** AI provider connections and the model ids each one accepts. */
+  readonly aiConnections: AiConnectionsResource;
   readonly workflowApps: WorkflowAppsResource;
   readonly discovery: DiscoveryResource;
 
@@ -90,6 +93,7 @@ export class LunnoaClient {
     this.variables = new VariablesResource(this.http);
     this.scorecards = new ScorecardsResource(this.http);
     this.connections = new ConnectionsResource(this.http);
+    this.aiConnections = new AiConnectionsResource(this.http);
     this.discovery = new DiscoveryResource(this.http);
   }
 }

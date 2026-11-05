@@ -58,11 +58,15 @@ Run these before inventing resources or shipping UI code:
 3. **Discover before inventing** — prefer the CLI (JSON for agents), then
    the SDK: `npx @lunnoa/client tools list --json --for-agent`,
    `tools get <actionId> --json`, `apps list`, `connections list`,
+   `ai-connections list --json`,
    `agents|workflows|entity-types|tables list`, `tables get <slugOrId>`,
    `features`.
    SDK equivalents: `workflowApps.list()`, `agents.list`, `workflows.list`,
-   `entityTypes.list`, `tables.list`, `discovery.enabledFeatures()`.
-   Do not invent catalogue action ids.
+   `entityTypes.list`, `tables.list`, `aiConnections.list()`,
+   `discovery.enabledFeatures()`.
+   Do not invent catalogue action ids or model ids. `connections list` is
+   app connections (Gmail, HTTP). `ai-connections list` is the model
+   provider connection and the `models[].id` values `defineAgent` accepts.
 4. **Run vs deploy** — Ad-hoc: `actions.run` / `runs.start` /
    `workflows.execute`. Durable shared automation: CLI
    `npx @lunnoa/client workflows|agents deploy`. Upsert is by slug
@@ -364,7 +368,8 @@ export const ping = defineWorkflow({
 
 export const triage = defineAgent({
   slug: 'support-triage',
-  model: 'gpt-4o',
+  // models[].id from `npx @lunnoa/client ai-connections list --json`
+  model: 'deepseek-ai/DeepSeek-V4-Pro',
   instructions: 'Triage mail. Be concise.',
   tools: [defineAction({ id: 'http_action_send-request' })],
 });
@@ -384,10 +389,19 @@ npx @lunnoa/client tools list --json --for-agent
 npx @lunnoa/client tools search email --json --for-agent
 npx @lunnoa/client tools get http_action_send-request --json
 npx @lunnoa/client connections list --app gmail --json
+npx @lunnoa/client ai-connections list --json
 ```
 
 `tools get` returns `inputConfig` / `inputFields` and a `defineAction` sketch.
 `tools list` is compact; use `get` for the schema. `--json` is for coding agents.
+
+`ai-connections list` returns the AI connections this key can assign to an
+agent. Set `defineAgent({ model })` to a `models[].id` from that JSON
+(on Lunnoa LLMs that is a catalogue id such as
+`deepseek-ai/DeepSeek-V4-Pro`). Omit `aiConnection` to
+use the connection with `isDefault: true`. Pass
+`defineAiConnection({ id })` only for a different connection. SDK:
+`lunnoa.aiConnections.list()`.
 
 Deploy to Automate UI (upsert by slug inside the workspace on the API key; prefer CLI):
 
@@ -441,6 +455,8 @@ for await (const chunk of stream) {
   if (chunk.type === 'text-delta') appendToUi(chunk.delta);
 }
 ```
+
+A turn from an app runs in **preview**: 10 model rounds, so the agent can call tools a few times and still send a final reply. The SDK sends `chatMode: 'preview'` for you. Do not pass `chatMode: 'builder'` from an app. That is the agent-editor interview: 4 rounds, and it stops a tool-using agent halfway. The workflow then fails with "Agent did not generate a response" even when a tool already saved the data. A workflow Message Agent step uses the same preview budget. For a job that chains many tool calls (read every record, then write a result), turn on **Long-horizon mode** on that agent in Lunnoa. That raises the budget to 50 rounds. `defineAgent` cannot set the switch, and a later deploy leaves it as you set it.
 
 - **React apps:** prefer `useAgentChat` from `@lunnoa/client/react`, which wraps AI SDK `useChat` + `DefaultChatTransport`
   pointed at
@@ -538,7 +554,7 @@ with emails (capped; not Azure object IDs).
 3. Call `discovery.enabledFeatures()` and hide unsupported areas.
 4. Build forms/tables from `attributeSchema` / `customInputConfig` (or the generated types).
 5. Render workflow progress from `executionPath`; handle `NEEDS_INPUT` with `submitInput`.
-6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover catalogue via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`).
+6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover catalogue via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
 7. For Request Approval nodes, use `approvals.inbox` / `approvals.decide` (or `executions.submitApproval`).
 8. Chat: stream via SSE, handle resume (reconnects) and stop, load history from the task.
 9. Handle `LunnoaApiError`: 401 → re-auth; 403 → hide the capability; 429 → back off.

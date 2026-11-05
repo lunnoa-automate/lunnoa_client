@@ -175,6 +175,44 @@ export async function runAppsGet(
   ]);
 }
 
+export async function runAiConnectionsList(
+  client: LunnoaClient,
+  args: CliArgs,
+): Promise<void> {
+  const connections = await client.aiConnections.list();
+  if (args.json) {
+    printJson(connections);
+    return;
+  }
+  const rows = connections.flatMap((connection) => {
+    if (connection.models.length === 0) {
+      return [
+        {
+          name: connection.name,
+          provider: connection.provider,
+          model: '',
+          isDefault: connection.isDefault,
+          id: connection.id,
+        },
+      ];
+    }
+    return connection.models.map((model) => ({
+      name: connection.name,
+      provider: connection.provider,
+      model: model.id,
+      isDefault: connection.isDefault && model.isDefault,
+      id: connection.id,
+    }));
+  });
+  printTable(rows, [
+    { key: 'name', header: 'CONNECTION' },
+    { key: 'provider', header: 'PROVIDER' },
+    { key: 'model', header: 'MODEL' },
+    { key: 'isDefault', header: 'DEFAULT' },
+    { key: 'id', header: 'ID' },
+  ]);
+}
+
 export async function runConnectionsList(
   client: LunnoaClient,
   args: CliArgs,

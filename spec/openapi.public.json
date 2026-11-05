@@ -3932,6 +3932,38 @@
         "x-public": true
       }
     },
+    "/api/ai-connections": {
+      "get": {
+        "description": "Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model`. `isDefault` marks the connection and model applied when a deploy omits them. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.",
+        "operationId": "AiConnectionsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "AI connections and the models each one accepts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicAiConnectionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List AI connections available to the caller",
+        "tags": [
+          "AI Connections"
+        ],
+        "x-public": true
+      }
+    },
     "/api/connections": {
       "get": {
         "description": "Returns all connections available to the current user: OAuth connections belonging to the workspace and managed connections assigned to the user. Credential values are never returned.",
@@ -6509,7 +6541,7 @@
           },
           "model": {
             "type": "string",
-            "description": "Selected model id on the AI provider connection (e.g. `gpt-4o`)."
+            "description": "Catalogue model id enabled on the AI connection. Example: `deepseek-ai/DeepSeek-V4-Pro`. Discover ids with GET /api/ai-connections."
           },
           "aiConnectionId": {
             "type": "string",
@@ -9203,6 +9235,78 @@
           "managedByCode",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "PublicAiModelResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Catalogue model id passed to agent deploy as `model`. Example: `deepseek-ai/DeepSeek-V4-Pro`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name."
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "True when this is the model used if an agent deploy omits `model` on this connection."
+          },
+          "supportsTools": {
+            "type": "boolean",
+            "description": "Whether the model can call tools."
+          },
+          "supportsVision": {
+            "type": "boolean",
+            "description": "Whether the model accepts image input."
+          },
+          "supportsReasoning": {
+            "type": "boolean",
+            "description": "Whether the model exposes a reasoning mode."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isDefault",
+          "supportsTools",
+          "supportsVision",
+          "supportsReasoning"
+        ]
+      },
+      "PublicAiConnectionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })` when this connection is not the default."
+          },
+          "name": {
+            "type": "string",
+            "description": "Connection display name. Example: `Lunnoa LLMs`."
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider slug. Example: `featherless` or `openai`."
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "True for the connection used when an agent deploy omits `aiConnectionId`."
+          },
+          "models": {
+            "description": "Models this connection accepts. Inactive models are omitted.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicAiModelResponseDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "provider",
+          "isDefault",
+          "models"
         ]
       },
       "ConnectionWorkspaceDto": {

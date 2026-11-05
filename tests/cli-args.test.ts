@@ -25,6 +25,13 @@ describe('parseArgs', () => {
     expect(args.apiKey).toBe('lna_test');
   });
 
+  it('parses ai-connections list', () => {
+    const args = parseArgs(['ai-connections', 'list', '--json']);
+    expect(args.command).toBe('ai-connections');
+    expect(args.subcommand).toBe('list');
+    expect(args.json).toBe(true);
+  });
+
   it('parses tools get / search positionals', () => {
     expect(parseArgs(['tools', 'get', 'http_action_send-request']).path).toBe(
       'http_action_send-request',

@@ -1,3 +1,9 @@
+## [2.2.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.1.0...v2.2.0) (2026-11-05)
+
+### Features
+
+* run app agent chats in preview mode and list AI connections ([2314d70](https://github.com/lunnoa-automate/lunnoa_client/commit/2314d708089800c527f5d357fef2712da60eaa12))
+
 ## [2.1.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.0.0...v2.1.0) (2026-11-04)
 
 ### Features

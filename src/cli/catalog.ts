@@ -56,6 +56,47 @@ export function asRecord(value: unknown): Record<string, unknown> | undefined {
   return undefined;
 }
 
+export interface CatalogTrigger {
+  appId: string;
+  appName: string;
+  triggerId: string;
+  name: string;
+  description: string;
+  needsConnection: boolean;
+  inputConfig?: unknown;
+}
+
+export function flattenTriggers(apps: CatalogApp[]): CatalogTrigger[] {
+  const out: CatalogTrigger[] = [];
+  for (const app of apps) {
+    const appId = typeof app.id === 'string' ? app.id : '';
+    if (!appId) {
+      continue;
+    }
+    const triggers = Array.isArray(app.triggers) ? app.triggers : [];
+    for (const raw of triggers) {
+      const trigger = asRecord(raw);
+      if (!trigger || typeof trigger.id !== 'string' || !trigger.id) {
+        continue;
+      }
+      out.push({
+        appId,
+        appName: typeof app.name === 'string' ? app.name : appId,
+        triggerId: trigger.id,
+        name: typeof trigger.name === 'string' ? trigger.name : trigger.id,
+        description:
+          typeof trigger.description === 'string' ? trigger.description : '',
+        needsConnection:
+          typeof trigger.needsConnection === 'boolean'
+            ? trigger.needsConnection
+            : Boolean(app.needsConnection),
+        inputConfig: trigger.inputConfig,
+      });
+    }
+  }
+  return out;
+}
+
 export function flattenActions(apps: CatalogApp[]): CatalogAction[] {
   const out: CatalogAction[] = [];
   for (const app of apps) {
@@ -277,6 +318,69 @@ export function formatDefineActionSnippet(action: CatalogAction): string {
     '  },',
     '})',
   ].join('\n');
+}
+
+export function formatDefineTriggerSnippet(trigger: CatalogTrigger): string {
+  if (trigger.triggerId === 'flow-control_trigger_manual') {
+    return [
+      'defineTrigger({',
+      `  id: '${trigger.triggerId}',`,
+      '  // inputs become the Manually Run form (customInputConfig)',
+      '  inputs: [',
+      '    // { id, label, inputType, required }',
+      '  ],',
+      '})',
+    ].join('\n');
+  }
+
+  const fields = extractInputFields(trigger.inputConfig);
+  const inputBlock =
+    fields.length === 0
+      ? '    // no inputConfig fields advertised'
+      : fields
+          .map((field) => {
+            const notes = [
+              field.label && field.label !== field.id ? field.label : undefined,
+              field.type,
+              field.required ? 'required' : undefined,
+            ]
+              .filter(Boolean)
+              .join(', ');
+            return notes ? `    // ${field.id} — ${notes}` : `    // ${field.id}`;
+          })
+          .join('\n');
+
+  return [
+    'defineTrigger({',
+    `  id: '${trigger.triggerId}',`,
+    `  appId: '${trigger.appId}',`,
+    '  input: {',
+    inputBlock,
+    '  },',
+    '})',
+  ].join('\n');
+}
+
+export function triggerDetail(trigger: CatalogTrigger): {
+  appId: string;
+  triggerId: string;
+  name: string;
+  description: string;
+  needsConnection: boolean;
+  inputFields: InputFieldSummary[];
+  inputConfig: unknown;
+  defineTrigger: string;
+} {
+  return {
+    appId: trigger.appId,
+    triggerId: trigger.triggerId,
+    name: trigger.name,
+    description: trigger.description,
+    needsConnection: trigger.needsConnection,
+    inputFields: extractInputFields(trigger.inputConfig),
+    inputConfig: trigger.inputConfig ?? null,
+    defineTrigger: formatDefineTriggerSnippet(trigger),
+  };
 }
 
 export function actionDetail(action: CatalogAction): {

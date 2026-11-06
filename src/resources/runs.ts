@@ -82,6 +82,7 @@ function stepFromDefinition(
 
 function normalizeStartRunInput(input: StartRunInput): StartRunOptions {
   if (isWorkflowDefinition(input)) {
+    // Ad-hoc runs have no trigger node. `trigger` is for deploy only.
     return {
       steps: input.steps.map(stepFromDefinition),
       name: input.name ?? input.slug,

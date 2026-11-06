@@ -1663,7 +1663,7 @@
     },
     "/api/workflows/upsert": {
       "post": {
-        "description": "Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (manual trigger → linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.",
+        "description": "Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (one catalogue trigger, Manually Run when omitted, then linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.",
         "operationId": "WorkflowsController_upsertBySlug",
         "parameters": [],
         "requestBody": {
@@ -6300,6 +6300,91 @@
           "actionId"
         ]
       },
+      "UpsertWorkflowTriggerInputFieldDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Field id. Callers pass this key to workflows.execute."
+          },
+          "label": {
+            "type": "string",
+            "description": "Label shown on the Manually Run form."
+          },
+          "description": {
+            "type": "string"
+          },
+          "inputType": {
+            "type": "string",
+            "description": "text, number, date, or select. Defaults to text."
+          },
+          "required": {
+            "description": "true, or { missingMessage, missingStatus }.",
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object",
+                "additionalProperties": true
+              }
+            ]
+          },
+          "defaultValue": {
+            "description": "Used when the caller omits the field.",
+            "nullable": true
+          },
+          "selectOptions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "UpsertWorkflowTriggerDto": {
+        "type": "object",
+        "properties": {
+          "triggerId": {
+            "type": "string",
+            "description": "Catalogue trigger id, for example flow-control_trigger_manual."
+          },
+          "appId": {
+            "type": "string",
+            "description": "Workflow app id. Inferred from triggerId when it contains _trigger_."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Connection instance UUID for this trigger."
+          },
+          "input": {
+            "type": "object",
+            "description": "Trigger config fields from the catalogue inputConfig.",
+            "additionalProperties": true
+          },
+          "inputs": {
+            "description": "Manual-trigger fields. Stored on the trigger as customInputConfig.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertWorkflowTriggerInputFieldDto"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the trigger node."
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "triggerId"
+        ]
+      },
       "UpsertWorkflowBySlugDto": {
         "type": "object",
         "properties": {
@@ -6320,6 +6405,14 @@
           "isActive": {
             "type": "boolean",
             "description": "Whether the workflow is active."
+          },
+          "trigger": {
+            "description": "Catalogue trigger. Omit for a Manually Run trigger with no input fields.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertWorkflowTriggerDto"
+              }
+            ]
           },
           "steps": {
             "description": "Linear catalogue-action steps (v1; no branches).",

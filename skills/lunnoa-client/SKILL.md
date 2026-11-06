@@ -222,7 +222,8 @@ await lunnoa.tables.upsertBySlug({
 - A workflow's manual-trigger input fields live on
   `workflows.get(id, { expansion: ['triggerNode'] })` →
   `triggerNode.value.customInputConfig` (each field: `id`, `label`,
-  `inputType`, `required`, `selectOptions`).
+  `inputType`, `required`, `selectOptions`). Declare them at deploy time
+  with `defineTrigger({ id: 'flow-control_trigger_manual', inputs })`.
 - `workflowApps.list()` resolves `executionPath` step `appId`/`actionId`
   pairs to human-readable names and icons.
 
@@ -351,16 +352,36 @@ Pure typed config (no network):
 import {
   defineAction,
   defineAgent,
+  defineTrigger,
   defineWorkflow,
 } from '@lunnoa/client';
 
 export const ping = defineWorkflow({
   slug: 'ping',
+  // Omit trigger for Manually Run with no input fields.
   steps: [
     {
       use: defineAction({
         id: 'http_action_send-request',
         input: { method: 'GET', url: 'https://example.com' },
+      }),
+    },
+  ],
+});
+
+export const syncOrders = defineWorkflow({
+  slug: 'sync-orders',
+  trigger: defineTrigger({
+    id: 'flow-control_trigger_manual',
+    inputs: [
+      { id: 'invoiceId', label: 'Invoice', inputType: 'text', required: true },
+    ],
+  }),
+  steps: [
+    {
+      use: defineAction({
+        id: 'http_action_send-request',
+        input: { method: 'GET', url: 'https://example.com/orders' },
       }),
     },
   ],
@@ -375,12 +396,26 @@ export const triage = defineAgent({
 });
 ```
 
-Ad-hoc multi-step run (one Execution, `source: SDK`):
+Ad-hoc multi-step run (one Execution, `source: SDK`). `runs.start` sends
+steps only. A `trigger` on the definition is ignored. Deploy to persist it.
 
 ```typescript
 const result = await lunnoa.runs.start(ping);
 // or lunnoa.runs.startAndWait(ping)
 ```
+
+One catalogue trigger per deployed workflow:
+
+- **Manually Run** (`flow-control_trigger_manual`): `inputs` is the caller
+  form. It is stored as `customInputConfig`. `workflows.execute(id, { invoiceId })`
+  passes those keys.
+- **Listen for Webhook** (`flow-control_trigger_listen-for-webhook`):
+  `input: { method: 'POST' }` (`PUT` or `GET` too).
+- **Recurring Schedule** (`flow-control_trigger_recurring-schedule`): `input`
+  from the catalogue (`start`, `rrule`). A schedule that cannot compute its
+  next run fails the deploy.
+- **Any other trigger:** `id` from `apps get`, optional `connection`, and
+  `input` copied from that trigger's `inputConfig`. Do not invent ids.
 
 Discover the catalogue **before** writing `defineAction` (do not guess ids):
 
@@ -388,12 +423,15 @@ Discover the catalogue **before** writing `defineAction` (do not guess ids):
 npx @lunnoa/client tools list --json --for-agent
 npx @lunnoa/client tools search email --json --for-agent
 npx @lunnoa/client tools get http_action_send-request --json
+npx @lunnoa/client apps get flow-control --json
 npx @lunnoa/client connections list --app gmail --json
 npx @lunnoa/client ai-connections list --json
 ```
 
 `tools get` returns `inputConfig` / `inputFields` and a `defineAction` sketch.
-`tools list` is compact; use `get` for the schema. `--json` is for coding agents.
+`tools list` is compact; use `get` for the schema. `apps get --json` returns
+`triggers[]` with `triggerId`, `inputFields`, and a `defineTrigger` sketch.
+`--json` is for coding agents. Do not invent trigger ids.
 
 `ai-connections list` returns the AI connections this key can assign to an
 agent. Set `defineAgent({ model })` to a `models[].id` from that JSON
@@ -554,7 +592,7 @@ with emails (capped; not Azure object IDs).
 3. Call `discovery.enabledFeatures()` and hide unsupported areas.
 4. Build forms/tables from `attributeSchema` / `customInputConfig` (or the generated types).
 5. Render workflow progress from `executionPath`; handle `NEEDS_INPUT` with `submitInput`.
-6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover catalogue via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
+6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover actions via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover triggers via `apps get <appId> --json` and pass `defineTrigger` on `defineWorkflow` (omit it for Manually Run with no fields). `runs.start` does not save the trigger. Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
 7. For Request Approval nodes, use `approvals.inbox` / `approvals.decide` (or `executions.submitApproval`).
 8. Chat: stream via SSE, handle resume (reconnects) and stop, load history from the task.
 9. Handle `LunnoaApiError`: 401 → re-auth; 403 → hide the capability; 429 → back off.

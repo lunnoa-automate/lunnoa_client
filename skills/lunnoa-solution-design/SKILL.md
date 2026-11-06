@@ -85,7 +85,7 @@ interrogation.
 |---|---|---|
 | One catalogue call | `actions.run` | One-step Execution (`source: SDK`) |
 | Linear multi-step, experiment | `runs.start` / `defineWorkflow` then run | One Execution; optional later deploy |
-| Reusable automation + triggers | Saved **Workflow** (UI or CLI deploy) | Schedules/webhooks live on workflows |
+| Reusable automation + triggers | Saved **Workflow** (`defineWorkflow` + `defineTrigger`, or the UI) | Discover trigger ids with `apps get <appId> --json`. Omit `trigger` for Manually Run with no fields. `runs.start` ignores the trigger. |
 | Reasoning + tools + conversation | **Agent** | Tools = workflows, actions, knowledge |
 | Structured CRUD / portals | **Entities** + schemas | Codegen for typed accessors |
 | Reference / lookup data | **Tables** | `tables.upsertBySlug`; workflows use the Tables Lookup action |
@@ -115,9 +115,12 @@ interrogation.
 3. **Connections stay on Lunnoa.** Definitions only reference connection ids
    (or omit for sole/default resolution). Never ask the partner to put OAuth
    secrets in their app.
-4. **Do not invent catalogue actions or model ids.** Discover actions with
+4. **Do not invent catalogue action, trigger, or model ids.** Discover actions with
    `npx @lunnoa/client tools list|get|search --json` (or `workflowApps.list()`
-   / codegen). Discover models with
+   / codegen). Discover triggers with `npx @lunnoa/client apps get <appId> --json`
+   and use `triggers[].triggerId` in `defineTrigger`. `input` is that trigger's
+   catalogue config. On Manually Run, `inputs` is the caller form
+   (`customInputConfig`). Discover models with
    `npx @lunnoa/client ai-connections list --json` and use a returned
    `models[].id` (Lunnoa LLMs uses catalogue ids such as
    `deepseek-ai/DeepSeek-V4-Pro`). Client `defineAction` binds existing
@@ -142,6 +145,7 @@ interrogation.
 - Using `@lunnoa/toolkit` to build a customer portal
 - Designing a local LangChain loop instead of Lunnoa-hosted agents
 - Hardcoding `model: 'gpt-4o'` without reading `ai-connections list`
+- Inventing a trigger id, or expecting `runs.start` to save a webhook or schedule
 
 ---
 
@@ -162,6 +166,7 @@ can execute. Use this shape:
 
 ### Discovery (run first)
 - [ ] `npx @lunnoa/client tools list --json --for-agent` then `tools get <id>`
+- [ ] `npx @lunnoa/client apps get <appId> --json` before `defineTrigger`
 - [ ] `npx @lunnoa/client ai-connections list --json` before choosing an agent model
 - [ ] agents / workflows / entity-types / tables list — reuse before create
 - [ ] codegen — if building typed entity/workflow accessors

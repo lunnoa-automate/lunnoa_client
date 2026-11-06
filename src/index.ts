@@ -62,6 +62,7 @@ export { WorkflowsResource } from './resources/workflows';
 export type {
   UpsertWorkflowBySlugInput,
   UpsertWorkflowStepInput,
+  UpsertWorkflowTriggerInput,
 } from './resources/workflows';
 export {
   ActionsResource,
@@ -79,10 +80,13 @@ export {
   defineAiConnection,
   defineConnection,
   defineEntityType,
+  defineTrigger,
   defineWorkflow,
   DEFINE_KINDS,
   resolveActionAppId,
   resolveActionId,
+  resolveTriggerAppId,
+  resolveTriggerId,
   type ActionDefinition,
   type AgentDefinition,
   type AgentToolDefinition,
@@ -90,6 +94,8 @@ export {
   type ConnectionDefinition,
   type DefineKind,
   type EntityTypeDefinition,
+  type TriggerDefinition,
+  type TriggerInputFieldDefinition,
   type WorkflowDefinition,
   type WorkflowStepDefinition,
 } from './define';

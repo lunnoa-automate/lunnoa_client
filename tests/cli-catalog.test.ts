@@ -5,7 +5,9 @@ import {
   extractInputFields,
   filterActions,
   flattenActions,
+  flattenTriggers,
   formatDefineActionSnippet,
+  formatDefineTriggerSnippet,
   parseActionRef,
   resolveAction,
   type CatalogApp,
@@ -29,6 +31,24 @@ const APPS: CatalogApp[] = [
           method: { label: 'Method', type: 'select', required: true },
           url: { label: 'URL', type: 'text', required: true },
         },
+      },
+    ],
+  },
+  {
+    id: 'flow-control',
+    name: 'Flow control',
+    triggers: [
+      {
+        id: 'flow-control_trigger_manual',
+        name: 'Manually Run',
+        needsConnection: false,
+      },
+      {
+        id: 'flow-control_trigger_listen-for-webhook',
+        name: 'Listen for Webhook',
+        inputConfig: [
+          { id: 'method', label: 'HTTP Method', inputType: 'select' },
+        ],
       },
     ],
   },
@@ -143,6 +163,24 @@ describe('inputConfig and defineAction sketch', () => {
     expect(snippet).toContain("appId: 'http'");
     expect(snippet).toContain('// method — Method, select, required');
     expect(actionDetail(action).inputFields).toHaveLength(2);
+  });
+});
+
+describe('flatten catalogue triggers', () => {
+  it('lists trigger ids and sketches defineTrigger', () => {
+    const triggers = flattenTriggers(APPS);
+    expect(triggers.map((trigger) => trigger.triggerId)).toEqual([
+      'flow-control_trigger_manual',
+      'flow-control_trigger_listen-for-webhook',
+    ]);
+    expect(formatDefineTriggerSnippet(triggers[0]!)).toContain('inputs:');
+    expect(formatDefineTriggerSnippet(triggers[1]!)).toContain(
+      "id: 'flow-control_trigger_listen-for-webhook'",
+    );
+    expect(formatDefineTriggerSnippet(triggers[1]!)).toContain(
+      "appId: 'flow-control'",
+    );
+    expect(formatDefineTriggerSnippet(triggers[1]!)).toContain('// method');
   });
 });
 

@@ -487,7 +487,7 @@ export interface paths {
         put?: never;
         /**
          * Upsert a workflow by slug from a linear step list
-         * @description Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (manual trigger → linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.
+         * @description Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (one catalogue trigger, Manually Run when omitted, then linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.
          */
         post: operations["WorkflowsController_upsertBySlug"];
         delete?: never;
@@ -2087,6 +2087,41 @@ export interface components {
             /** @description Step description. */
             description?: string;
         };
+        UpsertWorkflowTriggerInputFieldDto: {
+            /** @description Field id. Callers pass this key to workflows.execute. */
+            id: string;
+            /** @description Label shown on the Manually Run form. */
+            label?: string;
+            description?: string;
+            /** @description text, number, date, or select. Defaults to text. */
+            inputType?: string;
+            /** @description true, or { missingMessage, missingStatus }. */
+            required?: boolean | {
+                [key: string]: unknown;
+            };
+            /** @description Used when the caller omits the field. */
+            defaultValue?: unknown;
+            selectOptions?: {
+                [key: string]: unknown;
+            }[];
+        };
+        UpsertWorkflowTriggerDto: {
+            /** @description Catalogue trigger id, for example flow-control_trigger_manual. */
+            triggerId: string;
+            /** @description Workflow app id. Inferred from triggerId when it contains _trigger_. */
+            appId?: string;
+            /** @description Connection instance UUID for this trigger. */
+            connectionId?: string;
+            /** @description Trigger config fields from the catalogue inputConfig. */
+            input?: {
+                [key: string]: unknown;
+            };
+            /** @description Manual-trigger fields. Stored on the trigger as customInputConfig. */
+            inputs?: components["schemas"]["UpsertWorkflowTriggerInputFieldDto"][];
+            /** @description Display name for the trigger node. */
+            name?: string;
+            description?: string;
+        };
         UpsertWorkflowBySlugDto: {
             /**
              * @description Stable workspace-scoped slug (lowercase, digits, hyphens). Used as the upsert key.
@@ -2098,6 +2133,8 @@ export interface components {
             description?: string;
             /** @description Whether the workflow is active. */
             isActive?: boolean;
+            /** @description Catalogue trigger. Omit for a Manually Run trigger with no input fields. */
+            trigger?: components["schemas"]["UpsertWorkflowTriggerDto"];
             /** @description Linear catalogue-action steps (v1; no branches). */
             steps: components["schemas"]["UpsertWorkflowStepDto"][];
             /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */

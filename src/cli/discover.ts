@@ -4,8 +4,10 @@ import {
   actionDetail,
   filterActions,
   flattenActions,
+  flattenTriggers,
   resolveAction,
   summarizeAction,
+  triggerDetail,
   type CatalogApp,
 } from './catalog';
 import { printJson, printTable } from './print';
@@ -145,6 +147,7 @@ export async function runAppsGet(
     throw new Error(`Unknown app "${appId}". Try: apps list`);
   }
   const actions = flattenActions([app]).map(summarizeAction);
+  const triggers = flattenTriggers([app]).map(triggerDetail);
   const payload = {
     id: app.id,
     name: app.name,
@@ -153,6 +156,7 @@ export async function runAppsGet(
     needsConnection: Boolean(app.needsConnection),
     isPublished: Boolean(app.isPublished),
     actions,
+    triggers,
     connectionTypes: Array.isArray(app.connections) ? app.connections : [],
   };
   if (args.json) {
@@ -173,6 +177,22 @@ export async function runAppsGet(
     { key: 'availableForAgent', header: 'FOR_AGENT' },
     { key: 'needsConnection', header: 'NEEDS_CONN' },
   ]);
+  if (triggers.length) {
+    console.log('');
+    console.log('triggers:');
+    printTable(
+      triggers.map((trigger) => ({
+        triggerId: trigger.triggerId,
+        name: trigger.name,
+        needsConnection: trigger.needsConnection,
+      })),
+      [
+        { key: 'triggerId', header: 'TRIGGER' },
+        { key: 'name', header: 'NAME' },
+        { key: 'needsConnection', header: 'NEEDS_CONN' },
+      ],
+    );
+  }
 }
 
 export async function runAiConnectionsList(

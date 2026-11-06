@@ -1,3 +1,9 @@
+## [2.4.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.3.0...v2.4.0) (2026-11-06)
+
+### Features
+
+* pass trigger inputs and step outputs into steps with ref ([958ce65](https://github.com/lunnoa-automate/lunnoa_client/commit/958ce65da8a06780ae13e50ce3cb24a7fd0c4294))
+
 ## [2.3.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.2.0...v2.3.0) (2026-11-06)
 
 ### Features

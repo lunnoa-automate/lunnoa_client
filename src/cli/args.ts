@@ -169,7 +169,8 @@ ai-connections list prints the model ids each AI connection accepts. Use
 models[].id as defineAgent({ model }). connections list is app connections
 (Gmail, HTTP), not model providers.
 tools get prints inputConfig and a defineAction() sketch. tools list is compact;
-run tools get for the schema. An entity-type slug is unique on the deployment
+run tools get for the schema. apps get --json includes triggers and a
+defineTrigger() sketch. Do not invent trigger ids. An entity-type slug is unique on the deployment
 and grants the API key's workspace when the slug is new.
 A slug already granted to other workspaces is not rewritten. Unknown instance attributes are rejected unless
 allowUnknownAttributes is true; use extensions.

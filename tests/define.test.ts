@@ -6,9 +6,11 @@ import {
   defineAiConnection,
   defineConnection,
   defineEntityType,
+  defineTrigger,
   defineWorkflow,
   resolveActionAppId,
   resolveActionId,
+  resolveTriggerAppId,
 } from '../src/define';
 
 describe('define* factories', () => {
@@ -30,6 +32,28 @@ describe('define* factories', () => {
     expect(action.kind).toBe('action');
     expect(resolveActionAppId(action)).toBe('http');
     expect(resolveActionId(action)).toBe('http_action_send-request');
+  });
+
+  it('defineTrigger requires an id and infers the app', () => {
+    const trigger = defineTrigger({
+      id: 'flow-control_trigger_listen-for-webhook',
+      input: { method: 'POST' },
+    });
+    expect(trigger.kind).toBe('trigger');
+    expect(resolveTriggerAppId(trigger)).toBe('flow-control');
+    expect(() => defineTrigger({ id: '' })).toThrow(/requires id/);
+    expect(() =>
+      defineTrigger({
+        id: 'flow-control_trigger_manual',
+        inputs: [{ id: '' }],
+      }),
+    ).toThrow(/inputs require id/);
+    expect(() =>
+      defineTrigger({
+        id: 'flow-control_trigger_listen-for-webhook',
+        inputs: [{ id: 'invoiceId' }],
+      }),
+    ).toThrow(/only valid on flow-control_trigger_manual/);
   });
 
   it('defineWorkflow builds a linear definition', () => {

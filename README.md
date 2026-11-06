@@ -264,7 +264,7 @@ npx @lunnoa/client agents deploy ./agents/triage.ts \
   --url https://lunnoa.example --api-key lna_...
 ```
 
-`defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
+`defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. `defineWorkflow` takes an optional `defineTrigger`. Omit it for Manually Run with no input fields. `runs.start` ignores the trigger and runs the steps only. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
 
 ### CLI discovery
 
@@ -284,7 +284,7 @@ npx @lunnoa/client entity-types list --json
 npx @lunnoa/client features --json
 ```
 
-`tools list` is compact (`appId`, `actionId`, name, flags). `tools get` prints `inputConfig` and a `defineAction({ id, appId, input })` sketch. `ai-connections list --json` prints the model ids each AI connection accepts; use `models[].id` as `defineAgent({ model })`. Auth flags and `LUNNOA_URL` / `LUNNOA_API_KEY` / `lunnoa.config` work the same as deploy. The CLI also reads `./.env` (real environment variables win).
+`tools list` is compact (`appId`, `actionId`, name, flags). `tools get` prints `inputConfig` and a `defineAction({ id, appId, input })` sketch. `apps get --json` includes each trigger and a `defineTrigger` sketch. Use `triggers[].triggerId`. Do not invent trigger ids. `ai-connections list --json` prints the model ids each AI connection accepts; use `models[].id` as `defineAgent({ model })`. Auth flags and `LUNNOA_URL` / `LUNNOA_API_KEY` / `lunnoa.config` work the same as deploy. The CLI also reads `./.env` (real environment variables win).
 
 ## Regenerating the API types
 

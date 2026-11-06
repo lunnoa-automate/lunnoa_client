@@ -1,7 +1,16 @@
 import type { HttpClient } from '../core/http';
 import type { ExecuteWorkflowResult, Execution, Workflow } from '../types';
-import type { WorkflowDefinition, WorkflowStepDefinition } from '../define';
-import { resolveActionAppId, resolveActionId } from '../define';
+import type {
+  TriggerDefinition,
+  WorkflowDefinition,
+  WorkflowStepDefinition,
+} from '../define';
+import {
+  resolveActionAppId,
+  resolveActionId,
+  resolveTriggerAppId,
+  resolveTriggerId,
+} from '../define';
 import { serializeListQuery, type ListQueryOptions } from './common';
 import type {
   ExecutionsResource,
@@ -17,13 +26,41 @@ export interface UpsertWorkflowStepInput {
   description?: string;
 }
 
+export interface UpsertWorkflowTriggerInput {
+  triggerId: string;
+  appId?: string;
+  connectionId?: string;
+  /** Catalogue trigger config. */
+  input?: Record<string, unknown>;
+  /** Manual-trigger fields. Stored as `customInputConfig`. */
+  inputs?: TriggerDefinition['inputs'];
+  name?: string;
+  description?: string;
+}
+
 export interface UpsertWorkflowBySlugInput {
   slug: string;
   name?: string;
   description?: string;
   isActive?: boolean;
+  /** Omit for Manually Run with no input fields. */
+  trigger?: UpsertWorkflowTriggerInput;
   steps: UpsertWorkflowStepInput[];
   managedByCode?: boolean;
+}
+
+function triggerToUpsertInput(
+  trigger: TriggerDefinition,
+): UpsertWorkflowTriggerInput {
+  return {
+    triggerId: resolveTriggerId(trigger),
+    appId: resolveTriggerAppId(trigger),
+    ...(trigger.connection?.id ? { connectionId: trigger.connection.id } : {}),
+    ...(trigger.input ? { input: trigger.input } : {}),
+    ...(trigger.inputs?.length ? { inputs: trigger.inputs } : {}),
+    ...(trigger.name ? { name: trigger.name } : {}),
+    ...(trigger.description ? { description: trigger.description } : {}),
+  };
 }
 
 function stepToUpsertInput(
@@ -51,6 +88,7 @@ export function workflowDefinitionToUpsert(
     name: def.name,
     description: def.description,
     isActive: def.isActive,
+    ...(def.trigger ? { trigger: triggerToUpsertInput(def.trigger) } : {}),
     managedByCode: true,
     steps: def.steps.map(stepToUpsertInput),
   };

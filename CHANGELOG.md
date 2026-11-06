@@ -1,3 +1,9 @@
+## [2.3.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.2.0...v2.3.0) (2026-11-06)
+
+### Features
+
+* declare a workflow trigger from defineWorkflow ([566e7c0](https://github.com/lunnoa-automate/lunnoa_client/commit/566e7c0354ff12dd8c82a9b7ce74feaa8ee24096))
+
 ## [2.2.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.1.0...v2.2.0) (2026-11-05)
 
 ### Features

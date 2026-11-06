@@ -6269,6 +6269,12 @@
       "UpsertWorkflowStepDto": {
         "type": "object",
         "properties": {
+          "key": {
+            "type": "string",
+            "description": "Name later steps use in ={{step:<key>,path}}. Keyed steps keep their node id across deploys. \"trigger\" is reserved.",
+            "example": "loadCase",
+            "maxLength": 100
+          },
           "appId": {
             "type": "string",
             "description": "Workflow app id (catalogue slug)."
@@ -6283,7 +6289,7 @@
           },
           "input": {
             "type": "object",
-            "description": "Action input / config fields.",
+            "description": "Action input / config fields. String values may use ={{step:trigger,field}} or ={{step:<key>,path,to,value}}.",
             "additionalProperties": true
           },
           "name": {
@@ -9002,6 +9008,11 @@
       "RunStepDto": {
         "type": "object",
         "properties": {
+          "key": {
+            "type": "string",
+            "description": "Name later steps use in ={{step:<key>,path}}. Ad-hoc runs have no trigger.",
+            "maxLength": 100
+          },
           "appId": {
             "type": "string",
             "description": "Workflow app id (catalogue slug), e.g. `http`, `gmail`."

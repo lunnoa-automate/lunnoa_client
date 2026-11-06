@@ -8,10 +8,13 @@ import {
   defineEntityType,
   defineTrigger,
   defineWorkflow,
+  ref,
   resolveActionAppId,
   resolveActionId,
   resolveTriggerAppId,
+  type WorkflowStepDefinition,
 } from '../src/define';
+import { workflowDefinitionToUpsert } from '../src/resources/workflows';
 
 describe('define* factories', () => {
   it('defineConnection / defineAiConnection return branded refs', () => {
@@ -67,6 +70,50 @@ describe('define* factories', () => {
     });
     expect(wf.kind).toBe('workflow');
     expect(wf.steps).toHaveLength(1);
+  });
+
+  it('ref builds step references and defineWorkflow checks them', () => {
+    expect(ref.trigger('caseId')).toBe('={{step:trigger,caseId}}');
+    expect(ref.step('load', 'rows', 0, 'status')).toBe('={{step:load,rows,0,status}}');
+    expect(() => ref.step('load', 'a,b')).toThrow(/contain no/);
+
+    const rpc = defineAction({ id: 'supabase_action_execute-rpc' });
+    const llm = defineAction({ id: 'ai_action_message-llm' });
+    const trigger = defineTrigger({
+      id: 'flow-control_trigger_manual',
+      inputs: [{ id: 'caseId' }],
+    });
+    const wf = defineWorkflow({
+      slug: 'summarise-case',
+      trigger,
+      steps: [
+        { key: 'load', use: rpc, input: { args: { case_id: ref.trigger('caseId') } } },
+        { use: llm, input: { prompt: `Summarise ${ref.step('load', 'rows', 0)}` } },
+      ],
+    });
+    expect(workflowDefinitionToUpsert(wf).steps[0]).toMatchObject({
+      key: 'load',
+      input: { args: { case_id: '={{step:trigger,caseId}}' } },
+    });
+
+    const build = (steps: WorkflowStepDefinition[]) =>
+      defineWorkflow({ slug: 'x', trigger, steps });
+    expect(() => build([{ use: rpc, input: { a: ref.trigger('missing') } }])).toThrow(
+      /not declared in trigger inputs/,
+    );
+    expect(() =>
+      build([{ use: rpc, input: { a: ref.step('later') } }, { key: 'later', use: rpc }]),
+    ).toThrow(/later step/);
+    expect(() => build([{ use: rpc, input: { a: ref.step('nope') } }])).toThrow(/unknown key/);
+    expect(() => build([{ key: 'a', use: rpc }, { key: 'a', use: rpc }])).toThrow(/used twice/);
+    expect(() => build([{ key: 'trigger', use: rpc }])).toThrow(/must start with a letter/);
+    expect(() =>
+      defineWorkflow({
+        slug: 'hook',
+        trigger: defineTrigger({ id: 'flow-control_trigger_listen-for-webhook' }),
+        steps: [{ use: rpc, input: { a: ref.trigger('body', 'id') } }],
+      }),
+    ).not.toThrow();
   });
 
   it('defineAgent requires slug, model, instructions', () => {

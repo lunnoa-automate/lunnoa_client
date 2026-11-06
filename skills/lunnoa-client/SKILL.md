@@ -354,6 +354,7 @@ import {
   defineAgent,
   defineTrigger,
   defineWorkflow,
+  ref,
 } from '@lunnoa/client';
 
 export const ping = defineWorkflow({
@@ -379,9 +380,22 @@ export const syncOrders = defineWorkflow({
   }),
   steps: [
     {
+      key: 'order',
       use: defineAction({
         id: 'http_action_send-request',
-        input: { method: 'GET', url: 'https://example.com/orders' },
+        input: {
+          method: 'GET',
+          url: `https://example.com/orders/${ref.trigger('invoiceId')}`,
+        },
+      }),
+    },
+    {
+      use: defineAction({
+        id: 'http_action_send-request',
+        input: {
+          method: 'GET',
+          url: `https://example.com/status/${ref.step('order', 'response', 'status')}`,
+        },
       }),
     },
   ],
@@ -416,6 +430,30 @@ One catalogue trigger per deployed workflow:
   next run fails the deploy.
 - **Any other trigger:** `id` from `apps get`, optional `connection`, and
   `input` copied from that trigger's `inputConfig`. Do not invent ids.
+
+### Passing data between steps
+
+Wire step settings in code with `ref`. Do not leave them for the builder.
+
+- `ref.trigger('caseId')`: a trigger output field. On Manually Run that is
+  one of the `inputs` ids. On a webhook it is the request shape
+  (`ref.trigger('body', 'caseId')`).
+- `ref.step('load', 'rows', 0, 'status')`: an earlier step's output. Give
+  that step a `key: 'load'`. Array indexes are numbers.
+- A `ref` is a plain string. Use it as a whole value, inside a template
+  string, or inside nested settings (`args: { case_id: ref.trigger('caseId') }`).
+- On deploy the server swaps each `ref` for the real node id. The builder
+  shows it as a mapped field from that earlier node (top-level text fields
+  and lists; nested settings show the reference text). `runs.start` resolves
+  `ref.step` too, but it has no trigger, so `ref.trigger` fails there.
+- `defineWorkflow` throws, and deploy returns 400, for an unknown key, a
+  reference to the same or a later step, a duplicate key, or a Manually Run
+  field missing from `inputs`.
+- To find a step's output path, run it once (`actions.run` or
+  `runs.startAndWait`) and read that step's output in the execution.
+- Give every step another step reads from a `key`. Keyed steps keep their
+  node id across deploys, so run history and builder mappings stay attached.
+  The trigger keeps its id while its type and settings stay the same.
 
 Discover the catalogue **before** writing `defineAction` (do not guess ids):
 
@@ -592,7 +630,7 @@ with emails (capped; not Azure object IDs).
 3. Call `discovery.enabledFeatures()` and hide unsupported areas.
 4. Build forms/tables from `attributeSchema` / `customInputConfig` (or the generated types).
 5. Render workflow progress from `executionPath`; handle `NEEDS_INPUT` with `submitInput`.
-6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover actions via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover triggers via `apps get <appId> --json` and pass `defineTrigger` on `defineWorkflow` (omit it for Manually Run with no fields). `runs.start` does not save the trigger. Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
+6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover actions via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover triggers via `apps get <appId> --json` and pass `defineTrigger` on `defineWorkflow` (omit it for Manually Run with no fields). `runs.start` does not save the trigger. Pass trigger inputs and earlier step outputs into step settings with `ref.trigger` / `ref.step` (key the source step). Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
 7. For Request Approval nodes, use `approvals.inbox` / `approvals.decide` (or `executions.submitApproval`).
 8. Chat: stream via SSE, handle resume (reconnects) and stop, load history from the task.
 9. Handle `LunnoaApiError`: 401 → re-auth; 403 → hide the capability; 429 → back off.

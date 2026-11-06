@@ -264,7 +264,7 @@ npx @lunnoa/client agents deploy ./agents/triage.ts \
   --url https://lunnoa.example --api-key lna_...
 ```
 
-`defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. `defineWorkflow` takes an optional `defineTrigger`. Omit it for Manually Run with no input fields. `runs.start` ignores the trigger and runs the steps only. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
+`defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. `defineWorkflow` takes an optional `defineTrigger`. Omit it for Manually Run with no input fields. `runs.start` ignores the trigger and runs the steps only. Pass data into step settings with `ref.trigger('caseId')` or `ref.step('load', 'rows', 0)` (give the source step a `key`); the server resolves them on deploy and the builder shows them as mapped fields. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
 
 ### CLI discovery
 

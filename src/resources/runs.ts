@@ -15,6 +15,8 @@ import type {
 } from './executions';
 
 export interface StartRunStep {
+  /** Name later steps use with `ref.step(key, ...)`. */
+  key?: string;
   appId: string;
   actionId: string;
   connectionId?: string;
@@ -69,7 +71,9 @@ function stepFromDefinition(
     ...(use.input ?? {}),
     ...((step as WorkflowStepDefinition).input ?? {}),
   };
+  const key = (step as WorkflowStepDefinition).key;
   return {
+    ...(key ? { key } : {}),
     appId: resolveActionAppId(use),
     actionId: resolveActionId(use),
     ...(use.connection?.id ? { connectionId: use.connection.id } : {}),

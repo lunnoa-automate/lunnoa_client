@@ -83,6 +83,7 @@ export {
   defineTrigger,
   defineWorkflow,
   DEFINE_KINDS,
+  ref,
   resolveActionAppId,
   resolveActionId,
   resolveTriggerAppId,

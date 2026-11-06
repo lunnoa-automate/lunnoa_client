@@ -85,7 +85,8 @@ interrogation.
 |---|---|---|
 | One catalogue call | `actions.run` | One-step Execution (`source: SDK`) |
 | Linear multi-step, experiment | `runs.start` / `defineWorkflow` then run | One Execution; optional later deploy |
-| Reusable automation + triggers | Saved **Workflow** (`defineWorkflow` + `defineTrigger`, or the UI) | Discover trigger ids with `apps get <appId> --json`. Omit `trigger` for Manually Run with no fields. `runs.start` ignores the trigger. |
+| Reusable automation + triggers | Saved **Workflow** (`defineWorkflow` + `defineTrigger`, or the UI) | Discover trigger ids with `apps get <appId> --json`. Omit `trigger` for Manually Run with no fields. `runs.start` ignores the trigger. Wire step settings to trigger fields and earlier steps with `ref.trigger` / `ref.step`. |
+| Branches (approve / reject, if/else) | Builder in Lunnoa | Code deploys build straight lines only. A later code deploy replaces builder edits. |
 | Reasoning + tools + conversation | **Agent** | Tools = workflows, actions, knowledge |
 | Structured CRUD / portals | **Entities** + schemas | Codegen for typed accessors |
 | Reference / lookup data | **Tables** | `tables.upsertBySlug`; workflows use the Tables Lookup action |
@@ -126,6 +127,10 @@ interrogation.
    `deepseek-ai/DeepSeek-V4-Pro`). Client `defineAction` binds existing
    catalogue actions; toolkit `createAction` is a different product
    (in-platform apps).
+4b. **Every step input has a source.** In the brief, list each step's settings
+   as a fixed value, "from trigger `caseId`", or "from step `load` →
+   `rows.0.status`". The build uses `ref.trigger` / `ref.step` for these, so
+   "connect it in the builder" is not a fallback for data wiring.
 5. **Durable vs ephemeral:** experiments → `runs.start`; shared production
    automation → CLI `workflows deploy` / `agents deploy` by slug.
 6. **UI is headless.** `@lunnoa/client` has no design system. Optional React
@@ -146,6 +151,7 @@ interrogation.
 - Designing a local LangChain loop instead of Lunnoa-hosted agents
 - Hardcoding `model: 'gpt-4o'` without reading `ai-connections list`
 - Inventing a trigger id, or expecting `runs.start` to save a webhook or schedule
+- Leaving step inputs as "map it in the builder" when `ref.trigger` / `ref.step` covers it
 
 ---
 
@@ -174,7 +180,7 @@ can execute. Use this shape:
 ### Resources (every row says REUSED or CREATED)
 | Kind | Slug / id | Reused / created | Notes |
 |---|---|---|---|
-| Workflow | … | … | steps / trigger |
+| Workflow | … | … | steps (with keys) / trigger / each input's source |
 | Agent | … | … | model, tools |
 | Entity type | … | … | if portal CRUD |
 | Table | … | … | reference / lookup data |

@@ -84,9 +84,14 @@ export interface TriggerDefinition {
 }
 
 export interface WorkflowStepDefinition {
+  /**
+   * Name later steps use with `ref.step(key, ...)`. Keyed steps keep their
+   * node id across deploys. `trigger` is reserved.
+   */
+  key?: string;
   /** Action definition (or inline action-shaped object). */
   use: ActionDefinition;
-  /** Per-step input overrides. */
+  /** Per-step input overrides. Values may contain `ref.trigger` / `ref.step`. */
   input?: Record<string, unknown>;
   name?: string;
 }
@@ -161,10 +166,7 @@ function assertTriggerConfig(config: Omit<TriggerDefinition, 'kind'>): void {
       throw new Error('defineTrigger inputs require id');
     }
   }
-  if (
-    config.inputs?.length &&
-    config.id.trim() !== 'flow-control_trigger_manual'
-  ) {
+  if (config.inputs?.length && config.id.trim() !== MANUAL_TRIGGER_ID) {
     throw new Error(
       'defineTrigger inputs are only valid on flow-control_trigger_manual',
     );
@@ -176,6 +178,92 @@ export function defineTrigger(
 ): TriggerDefinition {
   assertTriggerConfig(config);
   return { kind: DEFINE_KINDS.trigger, ...config };
+}
+
+const MANUAL_TRIGGER_ID = 'flow-control_trigger_manual';
+const TRIGGER_KEY = 'trigger';
+const STEP_KEY_PATTERN = /^[A-Za-z][A-Za-z0-9_-]*$/;
+const STEP_REF_PATTERN = /={{step:([^}]*)}}/g;
+
+function refString(key: string, path: Array<string | number>): string {
+  const parts = [key, ...path.map(String)];
+  for (const part of parts) {
+    if (!part || /[,{}]/.test(part)) {
+      throw new Error(`ref path parts must be non-empty and contain no , { or }: "${part}"`);
+    }
+  }
+  return `={{step:${parts.join(',')}}}`;
+}
+
+/**
+ * References for step inputs. The server swaps them for the real node ids on
+ * deploy, and the builder shows them as mapped fields from earlier nodes.
+ * They are plain strings, so they also work inside text and nested objects.
+ */
+export const ref = {
+  /** A trigger output field, e.g. a Manually Run input id. */
+  trigger: (field: string, ...path: Array<string | number>): string =>
+    refString(TRIGGER_KEY, [field, ...path]),
+  /** An earlier step's output, by its `key`. Array indexes are numbers. */
+  step: (key: string, ...path: Array<string | number>): string =>
+    refString(key, path),
+};
+
+function collectRefs(value: unknown, out: string[][]): void {
+  if (typeof value === 'string') {
+    for (const match of value.matchAll(STEP_REF_PATTERN)) {
+      out.push(match[1].split(',').map((part) => part.trim()));
+    }
+  } else if (Array.isArray(value)) {
+    value.forEach((item) => collectRefs(item, out));
+  } else if (value && typeof value === 'object') {
+    Object.values(value).forEach((item) => collectRefs(item, out));
+  }
+}
+
+/** Same checks the server runs on deploy, so mistakes show up locally. */
+function assertStepRefs(config: Omit<WorkflowDefinition, 'kind'>): void {
+  const triggerId = config.trigger?.id.trim() ?? MANUAL_TRIGGER_ID;
+  const triggerFields =
+    triggerId === MANUAL_TRIGGER_ID
+      ? new Set((config.trigger?.inputs ?? []).map((f) => f.id.trim()))
+      : undefined;
+  const allKeys = new Set<string>();
+  for (const step of config.steps) {
+    if (step.key === undefined) continue;
+    if (!STEP_KEY_PATTERN.test(step.key) || step.key === TRIGGER_KEY) {
+      throw new Error(
+        `Step key "${step.key}" must start with a letter, use letters, digits, - or _, and not be "${TRIGGER_KEY}".`,
+      );
+    }
+    if (allKeys.has(step.key)) {
+      throw new Error(`Step key "${step.key}" is used twice.`);
+    }
+    allKeys.add(step.key);
+  }
+
+  const earlier = new Set<string>([TRIGGER_KEY]);
+  config.steps.forEach((step, index) => {
+    const refs: string[][] = [];
+    collectRefs([step.use?.input, step.input], refs);
+    const where = `Step "${step.key ?? step.name ?? index + 1}"`;
+    for (const [key = '', ...path] of refs) {
+      const shown = `={{step:${[key, ...path].join(',')}}}`;
+      if (!earlier.has(key)) {
+        throw new Error(
+          allKeys.has(key)
+            ? `${where}: ${shown} refers to itself or a later step. Use the trigger or an earlier step.`
+            : `${where}: ${shown} names unknown key "${key}". Use "trigger" or an earlier step's key.`,
+        );
+      }
+      if (key === TRIGGER_KEY && triggerFields && !triggerFields.has(path[0] ?? '')) {
+        throw new Error(
+          `${where}: ${shown} uses trigger field "${path[0] ?? ''}", which is not declared in trigger inputs.`,
+        );
+      }
+    }
+    if (step.key) earlier.add(step.key);
+  });
 }
 
 export function defineWorkflow(
@@ -190,6 +278,7 @@ export function defineWorkflow(
   if (config.trigger) {
     assertTriggerConfig(config.trigger);
   }
+  assertStepRefs(config);
   return { kind: DEFINE_KINDS.workflow, ...config };
 }
 

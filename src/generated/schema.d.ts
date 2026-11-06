@@ -2072,13 +2072,18 @@ export interface components {
             requestedCount: number;
         };
         UpsertWorkflowStepDto: {
+            /**
+             * @description Name later steps use in ={{step:<key>,path}}. Keyed steps keep their node id across deploys. "trigger" is reserved.
+             * @example loadCase
+             */
+            key?: string;
             /** @description Workflow app id (catalogue slug). */
             appId: string;
             /** @description Catalogue action id. */
             actionId: string;
             /** @description Connection instance UUID for this step. */
             connectionId?: string;
-            /** @description Action input / config fields. */
+            /** @description Action input / config fields. String values may use ={{step:trigger,field}} or ={{step:<key>,path,to,value}}. */
             input?: {
                 [key: string]: unknown;
             };
@@ -3237,6 +3242,8 @@ export interface components {
             executionPath?: components["schemas"]["ExecutionPathStepDto"][];
         };
         RunStepDto: {
+            /** @description Name later steps use in ={{step:<key>,path}}. Ad-hoc runs have no trigger. */
+            key?: string;
             /** @description Workflow app id (catalogue slug), e.g. `http`, `gmail`. */
             appId: string;
             /** @description Action id within the app, e.g. `http_action_send-request`. Discover via GET /workflow-apps. */

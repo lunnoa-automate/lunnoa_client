@@ -18,6 +18,8 @@ import type {
 } from './executions';
 
 export interface UpsertWorkflowStepInput {
+  /** Name later steps use in `={{step:<key>,path}}`. Keeps the node id stable. */
+  key?: string;
   appId: string;
   actionId: string;
   connectionId?: string;
@@ -68,6 +70,7 @@ function stepToUpsertInput(
 ): UpsertWorkflowStepInput {
   const use = step.use;
   return {
+    ...(step.key ? { key: step.key } : {}),
     appId: resolveActionAppId(use),
     actionId: resolveActionId(use),
     connectionId: use.connection?.id,

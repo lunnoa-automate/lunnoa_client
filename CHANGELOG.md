@@ -1,3 +1,9 @@
+## [2.5.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.4.0...v2.5.0) (2026-11-11)
+
+### Features
+
+* **define:** paths on workflow steps for approve/reject and conditional branches ([a22b4b9](https://github.com/lunnoa-automate/lunnoa_client/commit/a22b4b990bfbc3626f280c09912593d747457b4e))
+
 ## [2.4.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.3.0...v2.4.0) (2026-11-06)
 
 ### Features

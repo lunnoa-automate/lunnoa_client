@@ -1663,7 +1663,7 @@
     },
     "/api/workflows/upsert": {
       "post": {
-        "description": "Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (one catalogue trigger, Manually Run when omitted, then linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.",
+        "description": "Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (one catalogue trigger, Manually Run when omitted, then catalogue-action steps; the last step may branch with `paths`). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.",
         "operationId": "WorkflowsController_upsertBySlug",
         "parameters": [],
         "requestBody": {
@@ -6299,11 +6299,70 @@
           "description": {
             "type": "string",
             "description": "Step description."
+          },
+          "paths": {
+            "description": "Branches after this step. Only on flow-control_action_conditional-paths, flow-control_action_manually-decide-paths, or flow-control_action_request-approval (approved path first, then rejected), and only on the last step of a list.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertWorkflowPathDto"
+            }
           }
         },
         "required": [
           "appId",
           "actionId"
+        ]
+      },
+      "UpsertWorkflowPathConditionDto": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "One step reference, e.g. ={{step:load,amount}}."
+          },
+          "condition": {
+            "type": "string",
+            "description": "contains, does_not_contain, equals, does_not_equal, exists, does_not_exist, starts_with, ends_with, is_empty, is_not_empty, comes_before, comes_after, is_in_the_past, is_in_the_future, is_true, is_false, is_truthy, is_falsey, is_greater_than, is_less_than, is_greater_than_or_equal_to, is_less_than_or_equal_to, matches_regex, does_not_match_regex."
+          },
+          "value": {
+            "type": "string",
+            "description": "Value to compare with."
+          }
+        },
+        "required": [
+          "field",
+          "condition"
+        ]
+      },
+      "UpsertWorkflowPathDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Path label, unique on its step.",
+            "maxLength": 100
+          },
+          "when": {
+            "description": "Conditional Paths only. Groups are OR-ed, conditions inside a group AND-ed. Omit to always take this path.",
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/UpsertWorkflowPathConditionDto"
+              }
+            }
+          },
+          "steps": {
+            "description": "Steps on this path.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertWorkflowStepDto"
+            }
+          }
+        },
+        "required": [
+          "label",
+          "steps"
         ]
       },
       "UpsertWorkflowTriggerInputFieldDto": {
@@ -6421,7 +6480,7 @@
             ]
           },
           "steps": {
-            "description": "Linear catalogue-action steps (v1; no branches).",
+            "description": "Catalogue-action steps in order. The last step may branch with `paths`.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/UpsertWorkflowStepDto"

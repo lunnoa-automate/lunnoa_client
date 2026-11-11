@@ -94,6 +94,61 @@ export interface WorkflowStepDefinition {
   /** Per-step input overrides. Values may contain `ref.trigger` / `ref.step`. */
   input?: Record<string, unknown>;
   name?: string;
+  /**
+   * Branches after this step. Only on Conditional Paths, Manually Decide Path,
+   * or Request Approval (approved path first, then rejected), and only on the
+   * last step of a list. Put later steps inside each path.
+   */
+  paths?: WorkflowPathDefinition[];
+}
+
+/** Conditions Conditional Paths evaluates (same list as the builder). */
+export const PATH_CONDITIONS = [
+  'contains',
+  'does_not_contain',
+  'equals',
+  'does_not_equal',
+  'exists',
+  'does_not_exist',
+  'starts_with',
+  'ends_with',
+  'is_empty',
+  'is_not_empty',
+  'comes_before',
+  'comes_after',
+  'is_in_the_past',
+  'is_in_the_future',
+  'is_true',
+  'is_false',
+  'is_truthy',
+  'is_falsey',
+  'is_greater_than',
+  'is_less_than',
+  'is_greater_than_or_equal_to',
+  'is_less_than_or_equal_to',
+  'matches_regex',
+  'does_not_match_regex',
+] as const;
+
+export type PathConditionType = (typeof PATH_CONDITIONS)[number];
+
+export interface PathCondition {
+  /** One reference: `ref.trigger(...)` or `ref.step(...)`. */
+  field: string;
+  condition: PathConditionType;
+  /** Compared as text. Omit for exists / is_empty / is_true and similar. */
+  value?: string;
+}
+
+export interface WorkflowPathDefinition {
+  /** Unique on its step. On Request Approval use `Approved` / `Rejected`. */
+  label: string;
+  /**
+   * Conditional Paths only. Groups are OR-ed, conditions in a group AND-ed.
+   * Omit to always take this path.
+   */
+  when?: PathCondition[][];
+  steps: WorkflowStepDefinition[];
 }
 
 export interface WorkflowDefinition {
@@ -108,7 +163,7 @@ export interface WorkflowDefinition {
    * `runs.start` ignores this and runs the steps only.
    */
   trigger?: TriggerDefinition;
-  /** Linear steps (v1; no branches). */
+  /** Steps in order. The last step may branch with `paths`. */
   steps: WorkflowStepDefinition[];
 }
 
@@ -221,6 +276,33 @@ function collectRefs(value: unknown, out: string[][]): void {
   }
 }
 
+const CONDITIONAL_PATHS_ID = 'flow-control_action_conditional-paths';
+const APPROVAL_ID = 'flow-control_action_request-approval';
+const BRANCHING_ACTION_IDS = new Set([
+  CONDITIONAL_PATHS_ID,
+  'flow-control_action_manually-decide-paths',
+  APPROVAL_ID,
+]);
+const PATH_CONDITION_SET = new Set<string>(PATH_CONDITIONS);
+const SINGLE_REF_PATTERN = /^={{step:[^}]*}}$/;
+
+function collectKeys(steps: WorkflowStepDefinition[], seen: Set<string>): void {
+  for (const step of steps) {
+    if (step.key !== undefined) {
+      if (!STEP_KEY_PATTERN.test(step.key) || step.key === TRIGGER_KEY) {
+        throw new Error(
+          `Step key "${step.key}" must start with a letter, use letters, digits, - or _, and not be "${TRIGGER_KEY}".`,
+        );
+      }
+      if (seen.has(step.key)) {
+        throw new Error(`Step key "${step.key}" is used twice.`);
+      }
+      seen.add(step.key);
+    }
+    for (const path of step.paths ?? []) collectKeys(path.steps ?? [], seen);
+  }
+}
+
 /** Same checks the server runs on deploy, so mistakes show up locally. */
 function assertStepRefs(config: Omit<WorkflowDefinition, 'kind'>): void {
   const triggerId = config.trigger?.id.trim() ?? MANUAL_TRIGGER_ID;
@@ -229,30 +311,17 @@ function assertStepRefs(config: Omit<WorkflowDefinition, 'kind'>): void {
       ? new Set((config.trigger?.inputs ?? []).map((f) => f.id.trim()))
       : undefined;
   const allKeys = new Set<string>();
-  for (const step of config.steps) {
-    if (step.key === undefined) continue;
-    if (!STEP_KEY_PATTERN.test(step.key) || step.key === TRIGGER_KEY) {
-      throw new Error(
-        `Step key "${step.key}" must start with a letter, use letters, digits, - or _, and not be "${TRIGGER_KEY}".`,
-      );
-    }
-    if (allKeys.has(step.key)) {
-      throw new Error(`Step key "${step.key}" is used twice.`);
-    }
-    allKeys.add(step.key);
-  }
+  collectKeys(config.steps, allKeys);
 
-  const earlier = new Set<string>([TRIGGER_KEY]);
-  config.steps.forEach((step, index) => {
+  const checkRefs = (value: unknown, earlier: Set<string>, where: string) => {
     const refs: string[][] = [];
-    collectRefs([step.use?.input, step.input], refs);
-    const where = `Step "${step.key ?? step.name ?? index + 1}"`;
+    collectRefs(value, refs);
     for (const [key = '', ...path] of refs) {
       const shown = `={{step:${[key, ...path].join(',')}}}`;
       if (!earlier.has(key)) {
         throw new Error(
           allKeys.has(key)
-            ? `${where}: ${shown} refers to itself or a later step. Use the trigger or an earlier step.`
+            ? `${where}: ${shown} refers to itself, a later step, or a step on another path. Use the trigger or an earlier step on the same path.`
             : `${where}: ${shown} names unknown key "${key}". Use "trigger" or an earlier step's key.`,
         );
       }
@@ -262,8 +331,57 @@ function assertStepRefs(config: Omit<WorkflowDefinition, 'kind'>): void {
         );
       }
     }
-    if (step.key) earlier.add(step.key);
-  });
+  };
+
+  const checkChain = (steps: WorkflowStepDefinition[], visible: Set<string>) => {
+    const earlier = new Set(visible);
+    steps.forEach((step, index) => {
+      const where = `Step "${step.key ?? step.name ?? index + 1}"`;
+      checkRefs([step.use?.input, step.input], earlier, where);
+      if (step.key) earlier.add(step.key);
+      if (!step.paths?.length) return;
+
+      const actionId = step.use ? resolveActionId(step.use) : '';
+      if (!BRANCHING_ACTION_IDS.has(actionId)) {
+        throw new Error(`${where}: paths only work on ${[...BRANCHING_ACTION_IDS].join(', ')}.`);
+      }
+      if (index !== steps.length - 1) {
+        throw new Error(
+          `${where}: a step with paths must be the last step in its list. Put later steps inside each path.`,
+        );
+      }
+      if (actionId === APPROVAL_ID && step.paths.length > 2) {
+        throw new Error(`${where}: Request Approval takes at most two paths (approved, then rejected).`);
+      }
+      const labels = new Set<string>();
+      for (const path of step.paths) {
+        const label = path?.label?.trim();
+        if (!label) throw new Error(`${where}: every path needs a label.`);
+        if (labels.has(label)) throw new Error(`${where}: path label "${label}" is used twice.`);
+        labels.add(label);
+        if (path.when !== undefined && actionId !== CONDITIONAL_PATHS_ID) {
+          throw new Error(`${where}: "when" only works on Conditional Paths.`);
+        }
+        for (const condition of (path.when ?? []).flat()) {
+          if (!SINGLE_REF_PATTERN.test(condition?.field?.trim() ?? '')) {
+            throw new Error(
+              `${where}, path "${label}": a condition's field must be one ref.trigger(...) or ref.step(...).`,
+            );
+          }
+          if (!PATH_CONDITION_SET.has(condition.condition)) {
+            throw new Error(
+              `${where}, path "${label}": condition "${condition.condition}" is not supported. Use one of: ${PATH_CONDITIONS.join(', ')}.`,
+            );
+          }
+        }
+        checkRefs(path.when, earlier, `${where}, path "${label}"`);
+        if (!path.steps?.length) throw new Error(`${where}: path "${label}" needs at least one step.`);
+        checkChain(path.steps, earlier);
+      }
+    });
+  };
+
+  checkChain(config.steps, new Set([TRIGGER_KEY]));
 }
 
 export function defineWorkflow(

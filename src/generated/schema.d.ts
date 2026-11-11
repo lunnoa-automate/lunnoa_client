@@ -487,7 +487,7 @@ export interface paths {
         put?: never;
         /**
          * Upsert a workflow by slug from a linear step list
-         * @description Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (one catalogue trigger, Manually Run when omitted, then linear catalogue-action steps). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.
+         * @description Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (one catalogue trigger, Manually Run when omitted, then catalogue-action steps; the last step may branch with `paths`). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.
          */
         post: operations["WorkflowsController_upsertBySlug"];
         delete?: never;
@@ -2091,6 +2091,24 @@ export interface components {
             name?: string;
             /** @description Step description. */
             description?: string;
+            /** @description Branches after this step. Only on flow-control_action_conditional-paths, flow-control_action_manually-decide-paths, or flow-control_action_request-approval (approved path first, then rejected), and only on the last step of a list. */
+            paths?: components["schemas"]["UpsertWorkflowPathDto"][];
+        };
+        UpsertWorkflowPathConditionDto: {
+            /** @description One step reference, e.g. ={{step:load,amount}}. */
+            field: string;
+            /** @description contains, does_not_contain, equals, does_not_equal, exists, does_not_exist, starts_with, ends_with, is_empty, is_not_empty, comes_before, comes_after, is_in_the_past, is_in_the_future, is_true, is_false, is_truthy, is_falsey, is_greater_than, is_less_than, is_greater_than_or_equal_to, is_less_than_or_equal_to, matches_regex, does_not_match_regex. */
+            condition: string;
+            /** @description Value to compare with. */
+            value?: string;
+        };
+        UpsertWorkflowPathDto: {
+            /** @description Path label, unique on its step. */
+            label: string;
+            /** @description Conditional Paths only. Groups are OR-ed, conditions inside a group AND-ed. Omit to always take this path. */
+            when?: components["schemas"]["UpsertWorkflowPathConditionDto"][][];
+            /** @description Steps on this path. */
+            steps: components["schemas"]["UpsertWorkflowStepDto"][];
         };
         UpsertWorkflowTriggerInputFieldDto: {
             /** @description Field id. Callers pass this key to workflows.execute. */
@@ -2140,7 +2158,7 @@ export interface components {
             isActive?: boolean;
             /** @description Catalogue trigger. Omit for a Manually Run trigger with no input fields. */
             trigger?: components["schemas"]["UpsertWorkflowTriggerDto"];
-            /** @description Linear catalogue-action steps (v1; no branches). */
+            /** @description Catalogue-action steps in order. The last step may branch with `paths`. */
             steps: components["schemas"]["UpsertWorkflowStepDto"][];
             /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
             managedByCode?: boolean;

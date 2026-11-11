@@ -66,6 +66,11 @@ function stepFromDefinition(
       ...(step.name ? { name: step.name } : {}),
     };
   }
+  if ((step as WorkflowStepDefinition).paths?.length) {
+    throw new Error(
+      'runs.start runs straight lines only. Deploy workflows with paths, then execute them.',
+    );
+  }
   const use = (step as WorkflowStepDefinition).use;
   const input = {
     ...(use.input ?? {}),

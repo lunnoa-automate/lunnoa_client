@@ -86,7 +86,7 @@ interrogation.
 | One catalogue call | `actions.run` | One-step Execution (`source: SDK`) |
 | Linear multi-step, experiment | `runs.start` / `defineWorkflow` then run | One Execution; optional later deploy |
 | Reusable automation + triggers | Saved **Workflow** (`defineWorkflow` + `defineTrigger`, or the UI) | Discover trigger ids with `apps get <appId> --json`. Omit `trigger` for Manually Run with no fields. `runs.start` ignores the trigger. Wire step settings to trigger fields and earlier steps with `ref.trigger` / `ref.step`. |
-| Branches (approve / reject, if/else) | Builder in Lunnoa | Code deploys build straight lines only. A later code deploy replaces builder edits. |
+| Branches (approve / reject, if/else) | `defineWorkflow` with `paths` on Request Approval or Conditional Paths | Paths do not merge back. For steps shared after a branch, repeat them in each path or use the builder. A later code deploy replaces builder edits. |
 | Reasoning + tools + conversation | **Agent** | Tools = workflows, actions, knowledge |
 | Structured CRUD / portals | **Entities** + schemas | Codegen for typed accessors |
 | Reference / lookup data | **Tables** | `tables.upsertBySlug`; workflows use the Tables Lookup action |

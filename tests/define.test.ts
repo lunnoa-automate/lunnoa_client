@@ -116,6 +116,57 @@ describe('define* factories', () => {
     ).not.toThrow();
   });
 
+  it('defineWorkflow accepts paths and checks their shape', () => {
+    const http = defineAction({ id: 'http_action_send-request' });
+    const approval = defineAction({ id: 'flow-control_action_request-approval' });
+    const split = defineAction({ id: 'flow-control_action_conditional-paths' });
+
+    const wf = defineWorkflow({
+      slug: 'review',
+      steps: [
+        {
+          key: 'review',
+          use: approval,
+          paths: [
+            { label: 'Approved', steps: [{ key: 'apply', use: http }] },
+            {
+              label: 'Rejected',
+              steps: [{ use: http, input: { url: ref.step('review', 'decision') } }],
+            },
+          ],
+        },
+      ],
+    });
+    expect(workflowDefinitionToUpsert(wf).steps[0].paths?.[0]).toEqual({
+      label: 'Approved',
+      steps: [expect.objectContaining({ key: 'apply', actionId: 'http_action_send-request' })],
+    });
+
+    const build = (steps: WorkflowStepDefinition[]) => defineWorkflow({ slug: 'x', steps });
+    expect(() =>
+      build([{ key: 'load', use: http }, {
+        use: split,
+        paths: [{ label: 'Big', when: [[{ field: ref.step('load', 'n'), condition: 'is_greater_than', value: '5' }]], steps: [{ use: http }] }],
+      }]),
+    ).not.toThrow();
+    expect(() => build([{ use: http, paths: [{ label: 'A', steps: [{ use: http }] }] }])).toThrow(/paths only work on/);
+    expect(() =>
+      build([{ use: approval, paths: [{ label: 'A', steps: [{ use: http }] }] }, { use: http }]),
+    ).toThrow(/last step/);
+    expect(() =>
+      build([{ use: approval, paths: [
+        { label: 'Approved', steps: [{ key: 'apply', use: http }] },
+        { label: 'Rejected', steps: [{ use: http, input: { u: ref.step('apply') } }] },
+      ] }]),
+    ).toThrow(/another path/);
+    expect(() =>
+      build([{ key: 'load', use: http }, {
+        use: split,
+        paths: [{ label: 'A', when: [[{ field: ref.step('load'), condition: 'bigger' as never }]], steps: [{ use: http }] }],
+      }]),
+    ).toThrow(/not supported/);
+  });
+
   it('defineAgent requires slug, model, instructions', () => {
     const agent = defineAgent({
       slug: 'triage',

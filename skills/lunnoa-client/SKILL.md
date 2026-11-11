@@ -455,6 +455,42 @@ Wire step settings in code with `ref`. Do not leave them for the builder.
   node id across deploys, so run history and builder mappings stay attached.
   The trigger keeps its id while its type and settings stay the same.
 
+### Branches (paths)
+
+Put `paths` on the **last** step of a list. Steps after the branch go inside
+each path. Paths do not merge back together.
+
+```ts
+const approval = defineAction({ id: 'flow-control_action_request-approval', input: { /* from tools get */ } });
+const split = defineAction({ id: 'flow-control_action_conditional-paths' });
+
+steps: [
+  { key: 'review', use: approval, paths: [
+    { label: 'Approved', steps: [{ key: 'apply', use: applyChange }] },
+    { label: 'Rejected', steps: [{ use: notify, input: { text: ref.step('review', 'comment') } }] },
+  ] },
+]
+
+// Conditional Paths: groups in `when` are OR-ed, conditions in a group AND-ed.
+{ key: 'route', use: split, paths: [
+  { label: 'Large', when: [[{ field: ref.step('load', 'amount'), condition: 'is_greater_than', value: '1000' }]], steps: [...] },
+  { label: 'Other', steps: [...] }, // no `when`: always taken
+] }
+```
+
+- `paths` works on Request Approval (at most two: approved first, then
+  rejected; labels `Approved` / `Rejected`), Conditional Paths (with `when`),
+  and Manually Decide Path (no `when`).
+- `when` conditions: `field` is exactly one `ref.trigger` / `ref.step`.
+  `condition` is one of `PATH_CONDITIONS` (equals, contains, is_empty,
+  is_true, is_greater_than, is_less_than, matches_regex, is_in_the_past, ...).
+  `value` is text; omit it for exists / is_empty / is_true style conditions.
+- Conditional Paths takes every path whose `when` matches. A path without
+  `when` always runs. For if/else, give the else path the opposite condition.
+- Steps on a path can `ref.step` the branching step and earlier steps on
+  the same path, not steps on another path.
+- `runs.start` rejects `paths`. Deploy, then execute the workflow.
+
 Discover the catalogue **before** writing `defineAction` (do not guess ids):
 
 ```bash
@@ -630,7 +666,7 @@ with emails (capped; not Azure object IDs).
 3. Call `discovery.enabledFeatures()` and hide unsupported areas.
 4. Build forms/tables from `attributeSchema` / `customInputConfig` (or the generated types).
 5. Render workflow progress from `executionPath`; handle `NEEDS_INPUT` with `submitInput`.
-6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover actions via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover triggers via `apps get <appId> --json` and pass `defineTrigger` on `defineWorkflow` (omit it for Manually Run with no fields). `runs.start` does not save the trigger. Pass trigger inputs and earlier step outputs into step settings with `ref.trigger` / `ref.step` (key the source step). Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
+6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover actions via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover triggers via `apps get <appId> --json` and pass `defineTrigger` on `defineWorkflow` (omit it for Manually Run with no fields). `runs.start` does not save the trigger. Pass trigger inputs and earlier step outputs into step settings with `ref.trigger` / `ref.step` (key the source step). Branch with `paths` on Request Approval or Conditional Paths (last step only). Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
 7. For Request Approval nodes, use `approvals.inbox` / `approvals.decide` (or `executions.submitApproval`).
 8. Chat: stream via SSE, handle resume (reconnects) and stop, load history from the task.
 9. Handle `LunnoaApiError`: 401 → re-auth; 403 → hide the capability; 429 → back off.

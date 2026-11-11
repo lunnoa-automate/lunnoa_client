@@ -3,6 +3,7 @@ import type { ExecuteWorkflowResult, Execution, Workflow } from '../types';
 import type {
   TriggerDefinition,
   WorkflowDefinition,
+  WorkflowPathDefinition,
   WorkflowStepDefinition,
 } from '../define';
 import {
@@ -26,6 +27,14 @@ export interface UpsertWorkflowStepInput {
   input?: Record<string, unknown>;
   name?: string;
   description?: string;
+  /** Branches after this step (last step of a list only). */
+  paths?: UpsertWorkflowPathInput[];
+}
+
+export interface UpsertWorkflowPathInput {
+  label: string;
+  when?: WorkflowPathDefinition['when'];
+  steps: UpsertWorkflowStepInput[];
 }
 
 export interface UpsertWorkflowTriggerInput {
@@ -80,6 +89,15 @@ function stepToUpsertInput(
     },
     name: step.name ?? use.name,
     description: use.description,
+    ...(step.paths?.length
+      ? {
+          paths: step.paths.map((path) => ({
+            label: path.label,
+            ...(path.when ? { when: path.when } : {}),
+            steps: path.steps.map(stepToUpsertInput),
+          })),
+        }
+      : {}),
   };
 }
 

@@ -63,6 +63,7 @@ export type {
   UpsertWorkflowBySlugInput,
   UpsertWorkflowStepInput,
   UpsertWorkflowTriggerInput,
+  UpsertWorkflowPathInput,
 } from './resources/workflows';
 export {
   ActionsResource,
@@ -98,7 +99,11 @@ export {
   type TriggerDefinition,
   type TriggerInputFieldDefinition,
   type WorkflowDefinition,
+  type WorkflowPathDefinition,
   type WorkflowStepDefinition,
+  type PathCondition,
+  type PathConditionType,
+  PATH_CONDITIONS,
 } from './define';
 export {
   EntitiesResource,

@@ -50,6 +50,42 @@ export interface AgentFileSettings {
   phoneAccess?: boolean | null;
 }
 
+export interface AgentFileScopedRef {
+  id: string;
+  /** Stored on the link. The runtime does not enforce it yet. */
+  scope?: Record<string, unknown> | null;
+}
+
+export interface AgentFileSkill {
+  slug: string;
+  enabled?: boolean;
+  configuration?: Record<string, unknown> | null;
+}
+
+export interface AgentFileDrive {
+  provider: 'GOOGLE_DRIVE' | 'MICROSOFT_ONEDRIVE' | 'LUNNOA_STORAGE';
+  folderId: string;
+  folderName: string;
+  connectionId?: string;
+  knowledgeId?: string;
+}
+
+export interface AgentFileShare {
+  scope: 'USER' | 'WORKSPACE' | 'GLOBAL';
+  userId?: string;
+  workspaceId?: string;
+  maxMessagesPerHour?: number;
+}
+
+export interface AgentFilePublicShare {
+  enabled: boolean;
+  maxMessagesPerHour?: number;
+  expiresAt?: string | null;
+  passwordProtected?: boolean;
+}
+
+export type AgentFileCanvas = Record<string, { x: number; y: number }>;
+
 export interface AgentFileTool {
   key: string;
   /** Catalogue action id. */
@@ -78,6 +114,8 @@ export interface AgentFileDefinition {
   description?: string;
   model?: string;
   aiConnection?: { id: string };
+  /** Public image URL. Null clears it. Omit to leave the stored image. */
+  profileImageUrl?: string | null;
   /**
    * API and TypeScript use a string. Files on disk point at
    * `<slug>.instructions.md`; only the CLI reads that file.
@@ -90,10 +128,20 @@ export interface AgentFileDefinition {
   connections: AgentLinkById[];
   knowledge: AgentLinkById[];
   variables: AgentLinkById[];
-  objects: AgentLinkById[];
-  objectTypes: AgentLinkById[];
+  objects: AgentFileScopedRef[];
+  objectTypes: AgentFileScopedRef[];
   mcpServers: Array<{ id: string; connectionId?: string }>;
   a2aAgents: AgentLinkById[];
+  /** Pull writes this list. Omit it on a hand-written file to leave skills unchanged. */
+  skills?: AgentFileSkill[];
+  /** Null removes the mount. Omit to leave it. */
+  drive?: AgentFileDrive | null;
+  /** Null clears positions. Omit to leave them. */
+  canvas?: AgentFileCanvas | null;
+  /** Pull writes this list. Omit it on a hand-written file to leave grants unchanged. */
+  shares?: AgentFileShare[];
+  /** Null removes the public link. The token is never in the file. */
+  publicShare?: AgentFilePublicShare | null;
 }
 
 /** Authoring / `JSON.parse` input. Lists and settings may be omitted; pulled files include them. */
@@ -113,6 +161,8 @@ export type AgentFileInput = Omit<
   | 'objectTypes'
   | 'mcpServers'
   | 'a2aAgents'
+  | 'skills'
+  | 'shares'
 > & {
   $schema?: string;
   kind?: 'agent';
@@ -125,10 +175,16 @@ export type AgentFileInput = Omit<
   connections?: AgentLinkById[];
   knowledge?: AgentLinkById[];
   variables?: AgentLinkById[];
-  objects?: AgentLinkById[];
-  objectTypes?: AgentLinkById[];
+  objects?: AgentFileScopedRef[];
+  objectTypes?: AgentFileScopedRef[];
   mcpServers?: Array<{ id: string; connectionId?: string }>;
   a2aAgents?: AgentLinkById[];
+  profileImageUrl?: string | null;
+  skills?: AgentFileSkill[];
+  drive?: AgentFileDrive | null;
+  canvas?: AgentFileCanvas | null;
+  shares?: AgentFileShare[];
+  publicShare?: AgentFilePublicShare | null;
 };
 
 export interface WorkflowUseFile {
@@ -233,7 +289,13 @@ function hasFileAgentSignals(record: Record<string, unknown>): boolean {
     'objects' in record ||
     'objectTypes' in record ||
     'mcpServers' in record ||
-    'a2aAgents' in record
+    'a2aAgents' in record ||
+    'profileImageUrl' in record ||
+    'skills' in record ||
+    'drive' in record ||
+    'canvas' in record ||
+    'shares' in record ||
+    'publicShare' in record
   ) {
     return true;
   }

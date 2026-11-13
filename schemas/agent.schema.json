@@ -39,8 +39,8 @@
     "connections": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
     "knowledge": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
     "variables": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
-    "objects": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
-    "objectTypes": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
+    "objects": { "type": "array", "items": { "$ref": "#/$defs/scopedRef" } },
+    "objectTypes": { "type": "array", "items": { "$ref": "#/$defs/scopedRef" } },
     "mcpServers": {
       "type": "array",
       "items": {
@@ -53,9 +53,100 @@
         }
       }
     },
-    "a2aAgents": { "type": "array", "items": { "$ref": "#/$defs/idRef" } }
+    "profileImageUrl": { "type": ["string", "null"], "maxLength": 255 },
+    "a2aAgents": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
+    "skills": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/skill" }
+    },
+    "drive": {
+      "anyOf": [{ "$ref": "#/$defs/drive" }, { "type": "null" }]
+    },
+    "canvas": {
+      "anyOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/canvasPoint" }
+        }
+      ]
+    },
+    "shares": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/share" }
+    },
+    "publicShare": {
+      "anyOf": [{ "$ref": "#/$defs/publicShare" }, { "type": "null" }]
+    }
   },
   "$defs": {
+    "canvasPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      }
+    },
+    "scopedRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "scope": { "type": ["object", "null"], "additionalProperties": true }
+      }
+    },
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug"],
+      "properties": {
+        "slug": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "configuration": {
+          "type": ["object", "null"],
+          "additionalProperties": true
+        }
+      }
+    },
+    "drive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "folderId", "folderName"],
+      "properties": {
+        "provider": {
+          "enum": ["GOOGLE_DRIVE", "MICROSOFT_ONEDRIVE", "LUNNOA_STORAGE"]
+        },
+        "folderId": { "type": "string" },
+        "folderName": { "type": "string" },
+        "connectionId": { "type": "string" },
+        "knowledgeId": { "type": "string" }
+      }
+    },
+    "share": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope"],
+      "properties": {
+        "scope": { "enum": ["USER", "WORKSPACE", "GLOBAL"] },
+        "userId": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "maxMessagesPerHour": { "type": "number" }
+      }
+    },
+    "publicShare": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "maxMessagesPerHour": { "type": "number" },
+        "expiresAt": { "type": ["string", "null"] },
+        "passwordProtected": { "type": "boolean" }
+      }
+    },
     "idRef": {
       "type": "object",
       "additionalProperties": false,

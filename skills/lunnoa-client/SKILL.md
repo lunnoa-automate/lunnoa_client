@@ -571,9 +571,21 @@ keys, one trigger on a graph). Commit `lunnoa.lock.json`. It stores id,
 revision, and file hash per deployment key
 `<base url>#<workspace id>`.
 
+An agent file can also set `profileImageUrl`, `canvas`, `skills`,
+`drive`, `shares`, `publicShare`, and `scope` on objects and object
+types. `null` clears profile image, canvas, drive, or the public link.
+An empty `skills` or `shares` list removes them. Omit a key on a
+hand-written file to leave that part unchanged. `pull` writes the keys
+that are set. The public link token and any share password are not in
+the file. `passwordProtected: false` clears a password. Connection
+secrets stay on the connection. `codeSource` and the revision stay in
+`lunnoa.lock.json` (the revision is a hash of the file). Agents have no
+trigger: put the schedule, webhook, or app event on a workflow and call
+the agent with Message Agent. Memory facts stay in Lunnoa. The workflow
+on/off switch (`isActive`) stays in the UI.
+
 Not in the file, and push does not change them: credentials (connection
-ids only), canvas positions, the workflow on/off switch (`isActive`),
-profile image, shares, memories, skills. Pull warns, and still writes
+ids only) and memory facts. Pull warns, and still writes
 the file, when an input field name looks like a secret
 (`authorization`, `token`, `secret`, `password`, `apiKey`, `bearer`,
 `cookie`, `privateKey`, …) and the value is a literal string. Keep that

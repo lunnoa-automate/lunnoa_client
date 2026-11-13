@@ -47,8 +47,36 @@ export interface UpsertAgentBySlugInput {
   variableIds?: string[];
   objectIds?: string[];
   objectTypeIds?: string[];
+  objects?: Array<{ id: string; scope?: Record<string, unknown> | null }>;
+  objectTypes?: Array<{ id: string; scope?: Record<string, unknown> | null }>;
   mcpServers?: Array<{ id: string; connectionId?: string }>;
   a2aAgentIds?: string[];
+  profileImageUrl?: string | null;
+  canvas?: Record<string, { x: number; y: number }> | null;
+  skills?: Array<{
+    slug: string;
+    enabled?: boolean;
+    configuration?: Record<string, unknown> | null;
+  }>;
+  drive?: {
+    provider: 'GOOGLE_DRIVE' | 'MICROSOFT_ONEDRIVE' | 'LUNNOA_STORAGE';
+    folderId: string;
+    folderName: string;
+    connectionId?: string;
+    knowledgeId?: string;
+  } | null;
+  shares?: Array<{
+    scope: 'USER' | 'WORKSPACE' | 'GLOBAL';
+    userId?: string;
+    workspaceId?: string;
+    maxMessagesPerHour?: number;
+  }>;
+  publicShare?: {
+    enabled: boolean;
+    maxMessagesPerHour?: number;
+    expiresAt?: string | null;
+    passwordProtected?: boolean;
+  } | null;
   /** `generated` for TypeScript deploys, `synced` for definition files. */
   codeSource?: Extract<CodeSource, 'synced' | 'generated'>;
   baseRevision?: string;
@@ -178,8 +206,24 @@ function fileAgentToUpsert(
     ...(def.connections ? { connectionIds: idsOf(def.connections) } : {}),
     ...(def.knowledge ? { knowledgeIds: idsOf(def.knowledge) } : {}),
     ...(def.variables ? { variableIds: idsOf(def.variables) } : {}),
-    ...(def.objects ? { objectIds: idsOf(def.objects) } : {}),
-    ...(def.objectTypes ? { objectTypeIds: idsOf(def.objectTypes) } : {}),
+    ...(def.objects ? { objects: def.objects } : {}),
+    ...(def.objectTypes ? { objectTypes: def.objectTypes } : {}),
+    ...(Object.prototype.hasOwnProperty.call(def, 'profileImageUrl')
+      ? { profileImageUrl: def.profileImageUrl }
+      : {}),
+    ...(Object.prototype.hasOwnProperty.call(def, 'canvas')
+      ? { canvas: def.canvas }
+      : {}),
+    ...(Object.prototype.hasOwnProperty.call(def, 'skills')
+      ? { skills: def.skills }
+      : {}),
+    ...(Object.prototype.hasOwnProperty.call(def, 'drive') ? { drive: def.drive } : {}),
+    ...(Object.prototype.hasOwnProperty.call(def, 'shares')
+      ? { shares: def.shares }
+      : {}),
+    ...(Object.prototype.hasOwnProperty.call(def, 'publicShare')
+      ? { publicShare: def.publicShare }
+      : {}),
     ...(def.mcpServers ? { mcpServers: def.mcpServers } : {}),
     ...(def.a2aAgents ? { a2aAgentIds: idsOf(def.a2aAgents) } : {}),
     codeSource: 'synced',

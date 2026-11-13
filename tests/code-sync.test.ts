@@ -382,8 +382,8 @@ describe('definition files', () => {
       connectionIds: ['c1'],
       knowledgeIds: ['k1'],
       variableIds: ['v1'],
-      objectIds: ['o1'],
-      objectTypeIds: ['ot1'],
+      objects: [{ id: 'o1' }],
+      objectTypes: [{ id: 'ot1' }],
       mcpServers: [{ id: 'm1', connectionId: 'c2' }],
       a2aAgentIds: ['a1'],
     });

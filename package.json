@@ -35,6 +35,7 @@
     "typecheck": "tsc --noEmit",
     "check:codegen-sample": "node --experimental-strip-types scripts/check-codegen-sample.ts && tsc --noEmit -p scripts/tsconfig.codegen-sample.json",
     "test:acceptance": "tsx scripts/acceptance-soak.ts",
+    "test:sync-acceptance": "tsx scripts/sync-acceptance.ts",
     "prepare": "node -e \"for (const d of ['.cursor/skills', '.claude/skills']) require('fs').cpSync('skills', d, { recursive: true, force: true })\"",
     "prepublishOnly": "pnpm run build",
     "release": "semantic-release"

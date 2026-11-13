@@ -297,6 +297,7 @@ describe('definition files', () => {
         },
       ],
     });
+    expect(fileWorkflow.description).toBe('Pulls orders');
     expect(fileWorkflow).not.toHaveProperty('managedByCode');
     expect(fileWorkflow).not.toHaveProperty('graph');
 
@@ -326,6 +327,7 @@ describe('definition files', () => {
         edges: [{ source: 'trigger', target: 'send' }],
       }),
     );
+    expect(graph.description).toBeNull();
     expect(graph.codeSource).toBe('synced');
     expect(graph.graph?.nodes).toHaveLength(2);
     expect(graph.graph?.edges[0]).toEqual({ source: 'trigger', target: 'send' });
@@ -385,8 +387,41 @@ describe('definition files', () => {
       mcpServers: [{ id: 'm1', connectionId: 'c2' }],
       a2aAgentIds: ['a1'],
     });
+    expect(fileAgent.description).toBeNull();
     expect(fileAgent).not.toHaveProperty('managedByCode');
     expect(fileAgent).not.toHaveProperty('workflowIds');
+  });
+
+  it('clears description and model omitted from a definition file, and still omits settings', () => {
+    const workflow = workflowDefinitionToUpsert({
+      kind: 'workflow',
+      format: 'steps',
+      slug: 'plain',
+      name: 'Plain',
+      trigger: { id: 'flow-control_trigger_manual', name: 'Run' },
+      steps: [
+        {
+          key: 'draft',
+          name: 'Draft',
+          use: { id: 'text_action_template' },
+          input: { text: 'hi' },
+        },
+      ],
+    });
+    expect(workflow.description).toBeNull();
+    expect(workflow.codeSource).toBe('synced');
+
+    const agent = agentDefinitionToUpsert({
+      kind: 'agent',
+      slug: 'plain',
+      name: 'Plain',
+      instructions: 'Hi',
+      workflows: [],
+    });
+    expect(agent.description).toBeNull();
+    expect(agent.model).toBeNull();
+    expect(agent.settings).toBeUndefined();
+    expect(agent.codeSource).toBe('synced');
   });
 });
 

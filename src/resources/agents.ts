@@ -31,9 +31,11 @@ export interface UpsertAgentToolInput {
 export interface UpsertAgentBySlugInput {
   slug: string;
   name?: string;
-  description?: string;
+  /** Null clears a description that was removed from the definition file. */
+  description?: string | null;
   instructions: string;
-  model?: string;
+  /** Null clears a model that was removed from the definition file. */
+  model?: string | null;
   aiConnectionId?: string;
   connectionIds?: string[];
   workflowIds?: string[];
@@ -164,9 +166,10 @@ function fileAgentToUpsert(
   return {
     slug: def.slug,
     name: def.name,
-    description: def.description,
+    // A file is the whole definition. Omitted description and model are empty.
+    description: def.description ?? null,
     instructions: def.instructions,
-    model: def.model,
+    model: def.model ?? null,
     aiConnectionId: def.aiConnection?.id,
     ...(def.settings ? { settings: def.settings } : {}),
     ...(def.tools ? { tools } : {}),

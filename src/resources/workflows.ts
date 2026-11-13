@@ -76,7 +76,8 @@ export interface UpsertWorkflowGraphInput {
 export interface UpsertWorkflowBySlugInput {
   slug: string;
   name?: string;
-  description?: string;
+  /** Null clears a description that was removed from the definition file. */
+  description?: string | null;
   isActive?: boolean;
   /** Omit for Manually Run with no input fields. */
   trigger?: UpsertWorkflowTriggerInput;
@@ -208,7 +209,8 @@ export function workflowDefinitionToUpsert(
     return {
       slug: def.slug,
       name: def.name,
-      description: def.description,
+      // A file is the whole definition: an omitted description is empty, not "leave it".
+      description: def.description ?? null,
       codeSource: 'synced',
       graph: { nodes: def.nodes, edges: def.edges ?? [] },
       ...syncFields(options),
@@ -219,7 +221,7 @@ export function workflowDefinitionToUpsert(
     return {
       slug: file.slug,
       name: file.name,
-      description: file.description,
+      description: file.description ?? null,
       ...(file.trigger ? { trigger: triggerToUpsertInput(asTrigger(file.trigger)) } : {}),
       codeSource: 'synced',
       steps: file.steps.map((step) => stepToUpsertInput(step)),

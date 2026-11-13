@@ -4,7 +4,7 @@ description: >-
   Builds custom frontends and backends on top of a Lunnoa Automate deployment
   using the @lunnoa/client TypeScript SDK. App login is always a Lunnoa user
   (createBrowserClient + lunnoa.auth.login / refresh / SSO). lna_ API keys are
-  for the CLI only (discovery, codegen, deploy), never for the app session and
+  for the CLI only (discovery, codegen, deploy, pull, push), never for the app session and
   never in a browser. Covers discovery of the deployment's agents, workflows, and entity
   types, running the deployment codegen first for typed accessors, querying
   and creating entities, triggering workflows and polling executions,
@@ -52,7 +52,7 @@ Run these before inventing resources or shipping UI code:
 1. **Auth** — Lunnoa user JWT via `createBrowserClient` + `lunnoa.auth.login`
    (or SSO). **Never** call Lunnoa as the app's users with an `lna_` key, and
    **never** put `lna_` in the browser (SDK throws when `window` exists).
-   `lna_` keys are for CLI discovery, codegen, and deploy only.
+   `lna_` keys are for CLI discovery, codegen, deploy, pull, and push only.
 2. **Codegen** — When building typed UIs, run
    `npx @lunnoa/client codegen` against the deployment first.
 3. **Discover before inventing** — prefer the CLI (JSON for agents), then
@@ -67,10 +67,16 @@ Run these before inventing resources or shipping UI code:
    Do not invent catalogue action ids or model ids. `connections list` is
    app connections (Gmail, HTTP). `ai-connections list` is the model
    provider connection and the `models[].id` values `defineAgent` accepts.
-4. **Run vs deploy** — Ad-hoc: `actions.run` / `runs.start` /
-   `workflows.execute`. Durable shared automation: CLI
-   `npx @lunnoa/client workflows|agents deploy`. Upsert is by slug
-   inside the workspace on the API key. URL and API key are enough.
+4. **Run vs save** — Ad-hoc: `actions.run` / `runs.start` /
+   `workflows.execute`. Durable agents and workflows default to JSON in
+   `lunnoa/` (`npx lunnoa-client status`, then `pull`, then `push`).
+   That sets `codeSource: synced`. TypeScript
+   `npx @lunnoa/client workflows|agents deploy` is only for a definition
+   that needs code. That sets `codeSource: generated` and locks the UI.
+   A `.json` deploy is a push. `codeSource` replaces `managedByCode` on
+   agents and workflows. Tables and entity types still use
+   `managedByCode`. Upsert is by slug inside the workspace on the API
+   key. See section 5d.
 5. **Toolkit boundary** — Client `defineAction` ≠ toolkit `createAction`.
 
 ---
@@ -85,7 +91,7 @@ app does not keep its own user directory and does not call Lunnoa with an
 | Caller | Credential |
 |---|---|
 | **Person using the app** | `createBrowserClient({ baseUrl })` + `lunnoa.auth.login` (password, 2FA, or SSO). Permissions, agent shares, and task history are that user's. |
-| **CLI (codegen, discovery, deploy)** | `lna_` API key in `.env` / `--api-key`. Not the app session. |
+| **CLI (codegen, discovery, deploy, pull, push)** | `lna_` API key in `.env` / `--api-key`. Not the app session. |
 
 Hard rules:
 
@@ -522,8 +528,135 @@ npx @lunnoa/client workflows deploy ./ping.ts --url … --api-key …
 npx @lunnoa/client agents deploy ./triage.ts --url … --api-key …
 ```
 
+Those two commands deploy TypeScript and set `codeSource: generated`
+(locked in the UI). For the JSON round-trip, use section 5d. The binary
+name is `lunnoa-client`, so `npx lunnoa-client` and `npx @lunnoa/client`
+are the same command.
+
 `defineAction` binds catalogue actions only. Toolkit `createAction` is a
 different job (in-platform apps).
+
+---
+
+## 5d. Sync JSON definitions with the UI
+
+Default for a saved agent or workflow: a JSON file in `lunnoa/`, then
+`push`. Use a TypeScript `defineAgent` / `defineWorkflow` file only when
+the definition needs code (you also pass it to `runs.start`, or the
+tools are built in code). TypeScript deploy sets `codeSource: generated`
+and the UI badge **Managed by code**. The UI will not edit it. Deploy
+the TypeScript file again to change it.
+
+`codeSource` (`none` | `synced` | `generated`) replaces `managedByCode`
+on agents and workflows. Tables and entity types still use
+`managedByCode`.
+
+Folder (default `./lunnoa`, or `definitionsDir` in `lunnoa.config.*`, or
+`--dir`):
+
+```text
+lunnoa/agents/<slug>.json
+lunnoa/agents/<slug>.instructions.md
+lunnoa/workflows/<slug>.json
+lunnoa/lunnoa.lock.json
+```
+
+The JSON holds `"instructions": { "file": "<slug>.instructions.md" }`.
+`pull` writes that split. A hand-written file may use a string. Every
+JSON file starts with `$schema`, a relative path to
+`node_modules/@lunnoa/client/schemas/agent.schema.json` or
+`workflow.schema.json` (draft 2020-12). The CLI strips `$schema` before
+sending and checks the file shape (slug, instructions, `use.id`, unique
+keys, one trigger on a graph). Commit `lunnoa.lock.json`. It stores id,
+revision, and file hash per deployment key
+`<base url>#<workspace id>`.
+
+Not in the file, and push does not change them: credentials (connection
+ids only), canvas positions, the workflow on/off switch (`isActive`),
+profile image, shares, memories, skills. Pull warns, and still writes
+the file, when an input field name looks like a secret
+(`authorization`, `token`, `secret`, `password`, `apiKey`, `bearer`,
+`cookie`, `privateKey`, …) and the value is a literal string. Keep that
+value on a Lunnoa connection.
+
+Workflow pull writes `"format": "steps"` when a trigger plus a step list
+round-trips. It writes `"format": "graph"` when steps would drop
+something (paths that join, a for-each loop). Edit the format pull
+wrote.
+
+Commands (reads `LUNNOA_URL` and `LUNNOA_API_KEY` from the environment
+or `./.env`):
+
+```bash
+npx lunnoa-client status
+npx lunnoa-client status --json
+npx lunnoa-client pull
+npx lunnoa-client pull <slug>
+npx lunnoa-client pull agents/<slug>
+npx lunnoa-client pull workflows/<slug>
+npx lunnoa-client pull --all
+npx lunnoa-client push
+npx lunnoa-client push <path-or-slug>
+```
+
+Run `status` before editing. Run `pull` before `push` when the UI has
+moved. `pull` with no slug updates lock entries for this deployment.
+`pull --all` fetches every agent and workflow in the workspace. `push`
+with no path sends every JSON file, workflows first, then agents, with
+`codeSource: synced` and `baseRevision` from the lock. On success it
+rewrites the file from the stored definition and updates the lock.
+
+`status` columns: `LOCAL` is `unchanged`, `modified`, `new`, or
+`missing`. `REMOTE` is `unchanged`, `changed in UI`, or
+`missing in Lunnoa`. `CONFLICT` is true when both sides differ from the
+lock. `--json` prints `{ kind, slug, local, remote, conflict }`.
+`remote` uses the words `changed in UI`.
+
+How to read a conflict:
+
+- Pull exits 1 before it writes anything. The message starts with
+  `Local and server both changed. Run pull --force to overwrite.` Then
+  a diff: `--- local` / `+++ server`. `-` lines are the file. `+` lines
+  are the server. Secret values in that diff are `***`.
+- Push exits 1 and prints the server text. Stale lock:
+  `Changed in the UI since your last pull. Run pull first. (currentRevision: …)`.
+  First push of a file whose slug already exists and is not in the lock:
+  `A workflow with slug "<slug>" already exists in Lunnoa. Run pull first, or push with --force.`
+  Agents use `agent` in that sentence. Pull that slug, then push.
+- Ask the human before `--force`. `pull --force` overwrites the local
+  edit with the UI. `push --force` overwrites the UI with the file.
+  `agents deploy file.ts --force` does not send the flag. A `.json`
+  deploy is a push and does.
+
+To turn a generated resource into a synced one: `pull` the slug, then
+`push` the JSON. After that the UI can edit it, unless the workspace
+switch **Lock code-synced resources** is on (Admin Panel, workspace,
+Settings, LLM Audit Policy card). That switch makes synced resources
+read-only and shows **Managed by code**. Badges: **Synced with code**,
+**Changed in UI, not yet in code**, **Managed by code**. A successful
+push clears **Changed in UI, not yet in code**. The docs CI recipe runs
+that push on main.
+
+App code may pass a parsed file to the factories. `$schema` is stripped.
+`defineAgent` keeps `instructions: { file }` as that object. The CLI
+reads the markdown on push. Do not upsert from the app for this loop.
+
+```typescript
+import { readFileSync } from 'node:fs';
+import { defineAgent, defineWorkflow } from '@lunnoa/client';
+
+const agent = defineAgent(
+  JSON.parse(readFileSync('lunnoa/agents/triage.json', 'utf8')),
+);
+const workflow = defineWorkflow(
+  JSON.parse(readFileSync('lunnoa/workflows/sync-orders.json', 'utf8')),
+);
+```
+
+Human detail: Lunnoa Docs, Develop, TypeScript client SDK, Sync with the
+UI (`/guides/develop/client/sync`), including the CI pull request and
+the main-branch push. Do not add that workflow to a brand-new repo that
+has no secrets.
 
 ---
 
@@ -568,7 +701,7 @@ for await (const chunk of stream) {
 }
 ```
 
-A turn from an app runs in **preview**: 10 model rounds, so the agent can call tools a few times and still send a final reply. The SDK sends `chatMode: 'preview'` for you. Do not pass `chatMode: 'builder'` from an app. That is the agent-editor interview: 4 rounds, and it stops a tool-using agent halfway. The workflow then fails with "Agent did not generate a response" even when a tool already saved the data. A workflow Message Agent step uses the same preview budget. For a job that chains many tool calls (read every record, then write a result), turn on **Long-horizon mode** on that agent in Lunnoa. That raises the budget to 50 rounds. `defineAgent` cannot set the switch, and a later deploy leaves it as you set it.
+A turn from an app runs in **preview**: 10 model rounds, so the agent can call tools a few times and still send a final reply. The SDK sends `chatMode: 'preview'` for you. Do not pass `chatMode: 'builder'` from an app. That is the agent-editor interview: 4 rounds, and it stops a tool-using agent halfway. The workflow then fails with "Agent did not generate a response" even when a tool already saved the data. A workflow Message Agent step uses the same preview budget. For a job that chains many tool calls (read every record, then write a result), turn on **Long-horizon mode** on that agent in Lunnoa. That raises the budget to 50 rounds. A JSON definition includes `settings.longHorizonMode`, and a push writes it. A TypeScript `defineAgent` does not set the switch, and a later TypeScript deploy leaves it as you set it.
 
 - **React apps:** prefer `useAgentChat` from `@lunnoa/client/react`, which wraps AI SDK `useChat` + `DefaultChatTransport`
   pointed at
@@ -666,7 +799,7 @@ with emails (capped; not Azure object IDs).
 3. Call `discovery.enabledFeatures()` and hide unsupported areas.
 4. Build forms/tables from `attributeSchema` / `customInputConfig` (or the generated types).
 5. Render workflow progress from `executionPath`; handle `NEEDS_INPUT` with `submitInput`.
-6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Deploy with `npx @lunnoa/client workflows|agents deploy`. Discover actions via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover triggers via `apps get <appId> --json` and pass `defineTrigger` on `defineWorkflow` (omit it for Manually Run with no fields). `runs.start` does not save the trigger. Pass trigger inputs and earlier step outputs into step settings with `ref.trigger` / `ref.step` (key the source step). Branch with `paths` on Request Approval or Conditional Paths (last step only). Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
+6. For single-action calls, use `actions.run`; for linear multi-step, use `runs.start` / `defineWorkflow`. Save agents and workflows as JSON in `lunnoa/` and use `npx lunnoa-client status`, then `pull`, then `push` (section 5d). Ask the human before `--force`. Use `npx @lunnoa/client workflows|agents deploy` for a TypeScript file that needs code (`codeSource: generated`). Discover actions via `npx @lunnoa/client tools list|get|search` (or `workflowApps.list()`). Discover triggers via `apps get <appId> --json` and pass `defineTrigger` on `defineWorkflow` (omit it for Manually Run with no fields). `runs.start` does not save the trigger. Pass trigger inputs and earlier step outputs into step settings with `ref.trigger` / `ref.step` (key the source step). Branch with `paths` on Request Approval or Conditional Paths (last step only). Discover agent models via `npx @lunnoa/client ai-connections list --json` (or `aiConnections.list()`).
 7. For Request Approval nodes, use `approvals.inbox` / `approvals.decide` (or `executions.submitApproval`).
 8. Chat: stream via SSE, handle resume (reconnects) and stop, load history from the task.
 9. Handle `LunnoaApiError`: 401 → re-auth; 403 → hide the capability; 429 → back off.

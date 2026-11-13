@@ -283,7 +283,11 @@ npx @lunnoa/client status
 npx @lunnoa/client push
 ```
 
-`pull` writes the current definition (and refreshes the lock). `push` sends it back with `codeSource: synced` and writes the returned definition. If the file and the UI both changed, pull prints a diff and exits 1; `pull --force` overwrites the file, `push --force` overwrites the UI. `agents deploy file.json` / `workflows deploy file.json` is a push of that file. A `.ts` / `.js` / `.mjs` deploy stays code-generated (`codeSource: generated`).
+`pull` writes a definition when the server revision differs from the lock and the local file is unchanged. When the lock revision already matches, pull leaves the file alone, including local edits. `push` sends `codeSource: synced` and `baseRevision` from the lock (omitted when the slug is not in the lock), then writes the definition Lunnoa stored.
+
+If the file and the UI both changed, pull prints a diff (`--- local` / `+++ server`) and exits 1 before it writes anything. `pull --force` overwrites the file. `push --force` overwrites the UI. A first push onto a slug that already exists and is not in the lock exits 1: `A workflow with slug "…" already exists in Lunnoa. Run pull first, or push with --force.` `status` prints local and remote state.
+
+`agents deploy file.json` and `workflows deploy file.json` are a push of that file. A `.ts`, `.js`, or `.mjs` deploy stays code-generated (`codeSource: generated`) and does not send `--force`. `codeSource` replaces `managedByCode` on agents and workflows.
 
 ### CLI discovery
 

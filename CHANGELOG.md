@@ -1,3 +1,20 @@
+## [3.0.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.5.0...v3.0.0) (2026-11-13)
+
+### ⚠ BREAKING CHANGES
+
+* **cli:** agents and workflows use codeSource instead of
+managedByCode in types and upsert payloads.
+
+Co-authored-by: Sasa Kelebuda <sasakelebuda@lunnoalabs.ch>
+
+### Features
+
+* **cli:** pull, push and status for a synced definitions folder ([4a6d2b0](https://github.com/lunnoa-automate/lunnoa_client/commit/4a6d2b00a11deac4082d3b3c3b177a5897038837))
+
+### Bug Fixes
+
+* **cli:** clear a description or model removed from a definition file ([a11f6ef](https://github.com/lunnoa-automate/lunnoa_client/commit/a11f6ef754219d787b2155258edb55ef19103a2c))
+
 ## [2.5.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.4.0...v2.5.0) (2026-11-11)
 
 ### Features

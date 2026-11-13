@@ -100,6 +100,7 @@ export function pickEntityTypeDefinition(
 export async function loadOptionalConfig(): Promise<{
   url?: string;
   apiKey?: string;
+  definitionsDir?: string;
 }> {
   const candidates = [
     'lunnoa.config.ts',
@@ -118,8 +119,9 @@ export async function loadOptionalConfig(): Promise<{
       const cfg = JSON.parse(raw) as {
         url?: string;
         apiKey?: string;
+        definitionsDir?: string;
       };
-      return { url: cfg.url, apiKey: cfg.apiKey };
+      return { url: cfg.url, apiKey: cfg.apiKey, definitionsDir: cfg.definitionsDir };
     }
     const mod = (await import(pathToFileURL(absolute).href)) as {
       default?: Record<string, unknown>;
@@ -127,10 +129,12 @@ export async function loadOptionalConfig(): Promise<{
     const cfg = (mod.default ?? mod) as {
       url?: string;
       apiKey?: string;
+      definitionsDir?: string;
     };
     return {
       url: cfg.url,
       apiKey: cfg.apiKey,
+      definitionsDir: cfg.definitionsDir,
     };
   }
   return {};

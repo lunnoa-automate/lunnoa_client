@@ -19,6 +19,12 @@ export interface CliArgs {
   forAgent: boolean;
   /** `init` template: GitHub `owner/repo[#ref]` or a local folder. */
   template?: string;
+  /** Definitions folder for pull / push / status. Overrides `definitionsDir`. */
+  dir?: string;
+  /** `pull --all`: every agent and workflow in the workspace. */
+  all: boolean;
+  /** Overwrite a sync conflict (`pull`) or skip the revision check (`push`). */
+  force: boolean;
   help: boolean;
 }
 
@@ -41,6 +47,7 @@ const VALUE_FLAGS = new Set([
   '--out',
   '--app',
   '--template',
+  '--dir',
 ]);
 
 function requireFlagValue(flag: string, value: string | undefined): string {
@@ -56,6 +63,8 @@ export function parseArgs(argv: string[]): CliArgs {
     out: './src/lunnoa',
     json: false,
     forAgent: false,
+    all: false,
+    force: false,
     help: false,
   };
   let i = 1;
@@ -86,6 +95,14 @@ export function parseArgs(argv: string[]): CliArgs {
       args.forAgent = true;
       continue;
     }
+    if (flag === '--all') {
+      args.all = true;
+      continue;
+    }
+    if (flag === '--force') {
+      args.force = true;
+      continue;
+    }
     if (flag && VALUE_FLAGS.has(flag)) {
       const value = requireFlagValue(flag, argv[i + 1]);
       switch (flag) {
@@ -106,6 +123,9 @@ export function parseArgs(argv: string[]): CliArgs {
           break;
         case '--template':
           args.template = value;
+          break;
+        case '--dir':
+          args.dir = value;
           break;
         default:
           break;
@@ -147,6 +167,12 @@ export const USAGE = `Usage:
   npx @lunnoa/client workflows deploy <path> --url <url> --api-key <key>
   npx @lunnoa/client agents deploy <path> --url <url> --api-key <key>
   npx @lunnoa/client entity-types deploy <path> --url <url> --api-key <key>
+  .json is pushed (code synced). .ts / .js / .mjs is deployed from TypeScript (code generated).
+
+  Definitions folder (default ./lunnoa, or definitionsDir in lunnoa.config.*, or --dir):
+  npx @lunnoa/client pull [--all | <slug> | agents/<slug> | workflows/<slug>] [--force]
+  npx @lunnoa/client push [<path|slug>] [--force]
+  npx @lunnoa/client status [--json]
 
   Agent skills (copies this version's skills into .claude/skills and .cursor/skills):
   npx @lunnoa/client skills install [projectDir]
@@ -160,6 +186,9 @@ Options:
   --for-agent     Only catalogue entries with availableForAgent
   --template      init starter: GitHub owner/repo[#ref] or local folder (default: lunnoa-automate/lunnoa-starter)
   --json          Machine-readable JSON (preferred for coding agents)
+  --dir           Definitions folder (default: ./lunnoa or definitionsDir in lunnoa.config)
+  --all           pull every agent and workflow in the workspace
+  --force         pull: overwrite a local edit; push: skip the revision check
   --help          Show this help
 
 Environment: LUNNOA_URL, LUNNOA_API_KEY (also read from ./.env)

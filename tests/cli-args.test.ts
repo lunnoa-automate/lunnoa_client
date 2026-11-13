@@ -68,6 +68,18 @@ describe('parseArgs', () => {
     expect(args.forAgent).toBe(true);
   });
 
+  it('parses pull, push, and status flags', () => {
+    const pull = parseArgs(['pull', 'agents/triage', '--all', '--force', '--dir', 'defs']);
+    expect(pull.command).toBe('pull');
+    expect(pull.path).toBe('agents/triage');
+    expect(pull.all).toBe(true);
+    expect(pull.force).toBe(true);
+    expect(pull.dir).toBe('defs');
+    expect(parseArgs(['status', '--json']).json).toBe(true);
+    expect(parseArgs(['push', '--force']).force).toBe(true);
+    expect(parseArgs(['push']).path).toBeUndefined();
+  });
+
   it('rejects unknown flags', () => {
     expect(() => parseArgs(['tools', 'list', '--wat'])).toThrow(/Unknown option/);
   });

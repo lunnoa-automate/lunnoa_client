@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lunnoa.com/schemas/workflow.schema.json",
+  "title": "Lunnoa workflow definition",
+  "oneOf": [
+    { "$ref": "#/$defs/steps" },
+    { "$ref": "#/$defs/graph" }
+  ],
+  "$defs": {
+    "idRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": { "id": { "type": "string" } }
+    },
+    "retrySettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "maxAttempts", "delaySeconds"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "maxAttempts": { "type": "number" },
+        "delaySeconds": { "type": "number" }
+      }
+    },
+    "continueOnFailure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": { "enabled": { "type": "boolean" } }
+    },
+    "use": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "appId": { "type": "string" },
+        "connection": { "$ref": "#/$defs/idRef" }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "name", "use", "input"],
+      "properties": {
+        "key": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "use": { "$ref": "#/$defs/use" },
+        "input": { "type": "object" },
+        "retrySettings": { "$ref": "#/$defs/retrySettings" },
+        "continueOnFailure": { "$ref": "#/$defs/continueOnFailure" },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "steps"],
+            "properties": {
+              "label": { "type": "string" },
+              "when": { "type": "array" },
+              "steps": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/step" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "format", "slug", "name", "trigger", "steps"],
+      "properties": {
+        "$schema": { "type": "string" },
+        "kind": { "const": "workflow" },
+        "format": { "const": "steps" },
+        "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "trigger": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name"],
+          "properties": {
+            "id": { "type": "string" },
+            "appId": { "type": "string" },
+            "connection": { "$ref": "#/$defs/idRef" },
+            "input": { "type": "object" },
+            "inputs": { "type": "array" },
+            "name": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/step" }
+        }
+      }
+    },
+    "graphNode": {
+      "type": "object",
+      "required": ["key", "nodeType", "appId", "name", "value"],
+      "properties": {
+        "id": { "type": "string" },
+        "key": { "type": "string" },
+        "nodeType": { "enum": ["trigger", "action"] },
+        "appId": { "type": "string" },
+        "actionId": { "type": "string" },
+        "triggerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "value": { "type": "object" },
+        "retrySettings": { "type": "object" },
+        "continueOnFailure": { "type": "object" }
+      }
+    },
+    "graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "format", "slug", "name", "nodes", "edges"],
+      "properties": {
+        "$schema": { "type": "string" },
+        "kind": { "const": "workflow" },
+        "format": { "const": "graph" },
+        "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/graphNode" }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "target"],
+            "properties": {
+              "id": { "type": "string" },
+              "source": { "type": "string" },
+              "target": { "type": "string" },
+              "sourceHandle": { "type": "string" },
+              "targetHandle": { "type": "string" },
+              "type": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

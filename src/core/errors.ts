@@ -8,6 +8,8 @@ export class LunnoaApiError extends Error {
   readonly method: string;
   /** Path of the failed request (without the base URL). */
   readonly path: string;
+  /** Present on definition-sync 409s when the server sends the current revision. */
+  readonly currentRevision?: string;
 
   constructor(args: {
     status: number;
@@ -16,14 +18,19 @@ export class LunnoaApiError extends Error {
     path: string;
   }) {
     const detail = extractMessage(args.body);
+    const currentRevision = extractCurrentRevision(args.body);
+    const shown = [detail, currentRevision ? `currentRevision: ${currentRevision}` : undefined]
+      .filter(Boolean)
+      .join(' ');
     super(
-      `Lunnoa API request failed: ${args.method} ${args.path} → ${args.status}${detail ? ` (${detail})` : ''}`,
+      `Lunnoa API request failed: ${args.method} ${args.path} → ${args.status}${shown ? ` (${shown})` : ''}`,
     );
     this.name = 'LunnoaApiError';
     this.status = args.status;
     this.body = args.body;
     this.method = args.method;
     this.path = args.path;
+    this.currentRevision = currentRevision;
   }
 
   /** True for 401 responses (missing, revoked, or expired credential). */
@@ -45,6 +52,19 @@ export class LunnoaApiError extends Error {
   get isRateLimited(): boolean {
     return this.status === 429;
   }
+}
+
+export function publicApiMessage(error: LunnoaApiError): string {
+  const message = extractMessage(error.body) ?? error.message;
+  return error.currentRevision
+    ? `${message} (currentRevision: ${error.currentRevision})`
+    : message;
+}
+
+function extractCurrentRevision(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object') return undefined;
+  const revision = (body as Record<string, unknown>).currentRevision;
+  return typeof revision === 'string' ? revision : undefined;
 }
 
 function extractMessage(body: unknown): string | undefined {

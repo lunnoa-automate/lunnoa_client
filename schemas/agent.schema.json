@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lunnoa.com/schemas/agent.schema.json",
+  "title": "Lunnoa agent definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "slug", "name", "instructions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "kind": { "const": "agent" },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "model": { "type": "string" },
+    "aiConnection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": { "id": { "type": "string" } }
+    },
+    "instructions": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file"],
+          "properties": { "file": { "type": "string" } }
+        }
+      ]
+    },
+    "settings": { "$ref": "#/$defs/settings" },
+    "tools": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tool" }
+    },
+    "workflows": { "type": "array", "items": { "$ref": "#/$defs/slugOrId" } },
+    "agents": { "type": "array", "items": { "$ref": "#/$defs/slugOrId" } },
+    "connections": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
+    "knowledge": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
+    "variables": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
+    "objects": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
+    "objectTypes": { "type": "array", "items": { "$ref": "#/$defs/idRef" } },
+    "mcpServers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "connectionId": { "type": "string" }
+        }
+      }
+    },
+    "a2aAgents": { "type": "array", "items": { "$ref": "#/$defs/idRef" } }
+  },
+  "$defs": {
+    "idRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": { "id": { "type": "string" } }
+    },
+    "slugOrId": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "slug": { "type": "string" },
+        "id": { "type": "string" }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "id", "name", "input"],
+      "properties": {
+        "key": { "type": "string" },
+        "id": { "type": "string" },
+        "appId": { "type": "string" },
+        "connection": { "$ref": "#/$defs/idRef" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "input": { "type": "object" }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "temperature": { "type": "number" },
+        "topP": { "type": "number" },
+        "maxOutputTokens": { "type": ["number", "null"] },
+        "frequencyPenalty": { "type": "number" },
+        "presencePenalty": { "type": "number" },
+        "seed": { "type": ["number", "null"] },
+        "maxRetries": { "type": "number" },
+        "maxToolRoundtrips": { "type": "number" },
+        "messageLookbackLimit": { "type": "number" },
+        "taskNamingInstructions": { "type": ["string", "null"] },
+        "enabledBuiltInTools": { "type": "array", "items": { "type": "string" } },
+        "enabledPlatformTools": { "type": "array", "items": { "type": "string" } },
+        "enabledToolPolicies": { "type": "array", "items": { "type": "string" } },
+        "forcedTools": {},
+        "suggestedPrompts": { "type": "array", "items": { "type": "string" } },
+        "dynamicActionDiscoveryEnabled": { "type": "boolean" },
+        "dynamicMcpDiscoveryEnabled": { "type": "boolean" },
+        "dynamicSelfInstructionsEnabled": { "type": "boolean" },
+        "memoryEnabled": { "type": "boolean" },
+        "memoryScope": { "type": "string" },
+        "memoryRetentionDays": { "type": "number" },
+        "enablePlanning": { "type": "boolean" },
+        "requirePlanApproval": { "type": "boolean" },
+        "enableToolResultOffload": { "type": "boolean" },
+        "toolResultOffloadThresholdBytes": { "type": "number" },
+        "longHorizonMode": { "type": "boolean" },
+        "longHorizonMaxSteps": { "type": ["number", "null"] },
+        "longHorizonMaxTokensPerRun": { "type": ["number", "null"] },
+        "piiRoutingMode": { "type": "string" },
+        "piiFallbackConnectionId": { "type": ["string", "null"] },
+        "piiFallbackModelId": { "type": ["string", "null"] },
+        "webAccess": { "type": ["boolean", "null"] },
+        "phoneAccess": { "type": ["boolean", "null"] }
+      }
+    }
+  }
+}

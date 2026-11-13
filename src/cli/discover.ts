@@ -293,13 +293,13 @@ export async function runAgentsList(
   args: CliArgs,
 ): Promise<void> {
   const agents = await client.agents.list({
-    expansion: ['description', 'slug', 'managedByCode'],
+    expansion: ['description', 'slug', 'codeSource'],
   });
   const rows = agents.map((agent) => ({
     id: agent.id,
     name: agent.name,
     slug: agent.slug ?? '',
-    managedByCode: Boolean(agent.managedByCode),
+    codeSource: agent.codeSource ?? 'none',
     description: agent.description ?? '',
   }));
   if (args.json) {
@@ -310,7 +310,7 @@ export async function runAgentsList(
     { key: 'id', header: 'ID' },
     { key: 'slug', header: 'SLUG' },
     { key: 'name', header: 'NAME' },
-    { key: 'managedByCode', header: 'CODE' },
+    { key: 'codeSource', header: 'SOURCE' },
   ]);
 }
 
@@ -319,14 +319,14 @@ export async function runWorkflowsList(
   args: CliArgs,
 ): Promise<void> {
   const workflows = await client.workflows.list({
-    expansion: ['description', 'isActive', 'slug', 'managedByCode'],
+    expansion: ['description', 'isActive', 'slug', 'codeSource'],
   });
   const rows = workflows.map((workflow) => ({
     id: workflow.id,
     name: workflow.name,
     slug: workflow.slug ?? '',
     isActive: Boolean(workflow.isActive),
-    managedByCode: Boolean(workflow.managedByCode),
+    codeSource: workflow.codeSource ?? 'none',
   }));
   if (args.json) {
     printJson(rows);
@@ -337,7 +337,7 @@ export async function runWorkflowsList(
     { key: 'slug', header: 'SLUG' },
     { key: 'name', header: 'NAME' },
     { key: 'isActive', header: 'ACTIVE' },
-    { key: 'managedByCode', header: 'CODE' },
+    { key: 'codeSource', header: 'SOURCE' },
   ]);
 }
 

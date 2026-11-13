@@ -1,3 +1,9 @@
+## [3.1.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v3.0.0...v3.1.0) (2026-11-13)
+
+### Features
+
+* **agents:** send profile, canvas, skills, drive, and shares on push ([026820c](https://github.com/lunnoa-automate/lunnoa_client/commit/026820c2f926c97576e73c012bd1d16084d23fdd))
+
 ## [3.0.0](https://github.com/lunnoa-automate/lunnoa_client/compare/v2.5.0...v3.0.0) (2026-11-13)
 
 ### ⚠ BREAKING CHANGES

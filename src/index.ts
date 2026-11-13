@@ -54,16 +54,20 @@ export {
 } from './resources/auth';
 export { AgentsResource } from './resources/agents';
 export type {
+  AgentUpsertOptions,
   UpsertAgentBySlugInput,
   UpsertAgentToolInput,
 } from './resources/agents';
+export { CodeSyncResource } from './resources/code-sync';
 export { TasksResource } from './resources/tasks';
 export { WorkflowsResource } from './resources/workflows';
 export type {
   UpsertWorkflowBySlugInput,
+  UpsertWorkflowGraphInput,
   UpsertWorkflowStepInput,
   UpsertWorkflowTriggerInput,
   UpsertWorkflowPathInput,
+  WorkflowUpsertOptions,
 } from './resources/workflows';
 export {
   ActionsResource,
@@ -104,6 +108,17 @@ export {
   type PathCondition,
   type PathConditionType,
   PATH_CONDITIONS,
+  type AgentFileDefinition,
+  type AgentFileInput,
+  type AgentFileSettings,
+  type AgentFileTool,
+  type AgentSlugOrId,
+  type WorkflowFileDefinition,
+  type WorkflowGraphFileDefinition,
+  type WorkflowStepFile,
+  type WorkflowStepsFileDefinition,
+  type WorkflowTriggerFile,
+  isAgentFileShape,
 } from './define';
 export {
   EntitiesResource,

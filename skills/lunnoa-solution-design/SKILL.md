@@ -74,7 +74,7 @@ interrogation.
 | End users | Auth |
 |---|---|
 | People using the app | Lunnoa user JWT: `createBrowserClient` + `lunnoa.auth.login` (or SSO). Provision missing people with invite, SSO, or SCIM first. |
-| Coding agent / CLI | `LUNNOA_API_KEY` for discovery, codegen, and deploy. Not the app session. |
+| Coding agent / CLI | `LUNNOA_API_KEY` for discovery, codegen, deploy, pull, and push. Not the app session. |
 | Anonymous embed chat (no full login) | Out of scope for v1 client path; scoped embed tokens are a later platform bet |
 
 ---
@@ -86,7 +86,7 @@ interrogation.
 | One catalogue call | `actions.run` | One-step Execution (`source: SDK`) |
 | Linear multi-step, experiment | `runs.start` / `defineWorkflow` then run | One Execution; optional later deploy |
 | Reusable automation + triggers | Saved **Workflow** (`defineWorkflow` + `defineTrigger`, or the UI) | Discover trigger ids with `apps get <appId> --json`. Omit `trigger` for Manually Run with no fields. `runs.start` ignores the trigger. Wire step settings to trigger fields and earlier steps with `ref.trigger` / `ref.step`. |
-| Branches (approve / reject, if/else) | `defineWorkflow` with `paths` on Request Approval or Conditional Paths | Paths do not merge back. For steps shared after a branch, repeat them in each path or use the builder. A later code deploy replaces builder edits. |
+| Branches (approve / reject, if/else) | `defineWorkflow` with `paths` on Request Approval or Conditional Paths | The steps format does not merge paths. Repeat shared steps in each path, or build the join in the UI and `pull`: the file becomes graph JSON and `push` keeps the join. A TypeScript deploy (`codeSource: generated`) replaces the stored graph and locks the UI. |
 | Reasoning + tools + conversation | **Agent** | Tools = workflows, actions, knowledge |
 | Structured CRUD / portals | **Entities** + schemas | Codegen for typed accessors |
 | Reference / lookup data | **Tables** | `tables.upsertBySlug`; workflows use the Tables Lookup action |
@@ -131,8 +131,13 @@ interrogation.
    as a fixed value, "from trigger `caseId`", or "from step `load` →
    `rows.0.status`". The build uses `ref.trigger` / `ref.step` for these, so
    "connect it in the builder" is not a fallback for data wiring.
-5. **Durable vs ephemeral:** experiments → `runs.start`; shared production
-   automation → CLI `workflows deploy` / `agents deploy` by slug.
+5. **Durable vs ephemeral:** experiments → `runs.start`. Shared production
+   agents and workflows → JSON in `lunnoa/` (`npx lunnoa-client status`,
+   `pull`, `push`), `codeSource: synced`. TypeScript
+   `workflows deploy` / `agents deploy` only when the definition needs
+   code (`codeSource: generated`, locked in the UI). A `.json` deploy is
+   a push. `codeSource` replaces `managedByCode` on agents and workflows.
+   Ask the human before `--force`. Commit `lunnoa/lunnoa.lock.json`.
 6. **UI is headless.** `@lunnoa/client` has no design system. Optional React
    hooks in `@lunnoa/client/react`. Partners bring their own UI.
 7. **Reuse before create.** Before proposing any new entity type, table,
@@ -176,6 +181,7 @@ can execute. Use this shape:
 - [ ] `npx @lunnoa/client ai-connections list --json` before choosing an agent model
 - [ ] agents / workflows / entity-types / tables list — reuse before create
 - [ ] codegen — if building typed entity/workflow accessors
+- [ ] `npx lunnoa-client status` before editing `lunnoa/`, then `pull` before `push`
 
 ### Resources (every row says REUSED or CREATED)
 | Kind | Slug / id | Reused / created | Notes |
@@ -188,7 +194,8 @@ can execute. Use this shape:
 
 ### Runtime paths
 - Ad-hoc: actions.run / runs.start / workflows.execute
-- Deploy: npx @lunnoa/client workflows|agents deploy …
+- Sync: JSON in `lunnoa/`. `npx lunnoa-client status`, then pull, then push. Commit `lunnoa/lunnoa.lock.json`. No `--force` without a yes from the human.
+- TypeScript deploy (generated, locked in the UI): npx lunnoa-client workflows|agents deploy …
 - Chat: agent stream-message / useAgentChat
 
 ### UI surfaces (headless)

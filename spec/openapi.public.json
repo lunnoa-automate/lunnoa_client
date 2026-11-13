@@ -1,6 +1,38 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/api/ai-connections": {
+      "get": {
+        "description": "Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model`. `isDefault` marks the connection and model applied when a deploy omits them. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.",
+        "operationId": "AiConnectionsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "AI connections and the models each one accepts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicAiConnectionResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List AI connections available to the caller",
+        "tags": [
+          "AI Connections"
+        ],
+        "x-public": true
+      }
+    },
     "/api/discovery/enabled-features": {
       "get": {
         "description": "Returns the feature flags for this deployment, letting a custom UI adapt to the features that are enabled. Flags reflect the current server configuration, such as storage, vector database, email and SSO settings.",
@@ -1628,7 +1660,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, slug, codeSource, codeSyncStatus, description, output, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive",
             "schema": {
               "type": "string"
             }
@@ -1663,7 +1695,7 @@
     },
     "/api/workflows/upsert": {
       "post": {
-        "description": "Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (one catalogue trigger, Manually Run when omitted, then catalogue-action steps; the last step may branch with `paths`). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.",
+        "description": "Creates or replaces the workflow identified by a workspace-scoped slug. Send either catalogue steps (optional trigger; Manually Run when the trigger is omitted; the last step may branch with paths) or a graph of nodes and edges. Not both. codeSource defaults to generated. Updating a workflow the UI can edit is refused with 409 unless baseRevision is the current revision or force is true; both sides generated skips that check. A lost update race is the same 409. isActive changes only when the request sends it. Prefer the CLI (`npx @lunnoa/client workflows deploy`).",
         "operationId": "WorkflowsController_upsertBySlug",
         "parameters": [],
         "requestBody": {
@@ -1678,14 +1710,17 @@
         },
         "responses": {
           "200": {
-            "description": "The created or updated workflow.",
+            "description": "The created or updated workflow, including its stored revision and definition.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WorkflowResponseDto"
+                  "$ref": "#/components/schemas/UpsertWorkflowResponseDto"
                 }
               }
             }
+          },
+          "409": {
+            "description": "The slug already exists and baseRevision was omitted, or the workflow changed in the UI since baseRevision. The body message explains which, and currentRevision is set when the revision check failed. A lost optimistic-concurrency race returns the same 409."
           }
         },
         "security": [
@@ -1693,7 +1728,48 @@
             "bearer": []
           }
         ],
-        "summary": "Upsert a workflow by slug from a linear step list",
+        "summary": "Upsert a workflow by slug",
+        "tags": [
+          "Workflows"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/workflows/slug/{slug}/definition": {
+      "get": {
+        "description": "Returns the steps format when the stored graph round-trips through it, otherwise the graph format. Placeholder nodes are omitted.",
+        "operationId": "WorkflowsController_getDefinitionBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workflow id, code source, revision, and definition.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDefinitionResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No workflow with this slug exists in the workspace."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a workflow definition by slug",
         "tags": [
           "Workflows"
         ],
@@ -1717,7 +1793,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, subWorkflowIds, agentIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,nodes,edges",
+            "description": "Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, slug, codeSource, codeSyncStatus, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, subWorkflowIds, agentIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,nodes,edges",
             "schema": {
               "type": "string"
             }
@@ -1743,6 +1819,35 @@
         "summary": "Get workflow by ID",
         "tags": [
           "Workflows"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/code-sync/context": {
+      "get": {
+        "description": "Returns the workspace id and whether code-synced agents and workflows are locked so they can only be changed by a push.",
+        "operationId": "CodeSyncController_getContext",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Workspace id and the lock-code-synced-resources preference.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeSyncContextResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get code-sync context for the current workspace",
+        "tags": [
+          "Code sync"
         ],
         "x-public": true
       }
@@ -1774,7 +1879,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode",
+            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, codeSource, codeSyncStatus",
             "schema": {
               "type": "string"
             }
@@ -1809,7 +1914,7 @@
     },
     "/api/agents/upsert": {
       "post": {
-        "description": "Creates or updates an agent identified by workspace-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.",
+        "description": "Creates or updates an agent identified by workspace-scoped `slug`. A field that is omitted is left unchanged on update. `codeSource` defaults to `generated`. Conflict rules: a generated redeploy over a generated agent needs no revision; otherwise an existing agent requires `baseRevision` equal to the current revision, or `force`. A missing or stale `baseRevision` answers 409, and so does a lost race with a UI edit. The 409 body includes `currentRevision` when it is known. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.",
         "operationId": "AgentsController_upsertBySlug",
         "parameters": [],
         "requestBody": {
@@ -1824,14 +1929,17 @@
         },
         "responses": {
           "200": {
-            "description": "The created or updated agent.",
+            "description": "The created or updated agent, including its stored definition and revision.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentResponseDto"
+                  "$ref": "#/components/schemas/AgentUpsertResponseDto"
                 }
               }
             }
+          },
+          "409": {
+            "description": "The slug already exists and baseRevision is missing or stale, or the agent changed during the write. The body includes the server message and, when known, currentRevision."
           }
         },
         "security": [
@@ -1840,6 +1948,47 @@
           }
         ],
         "summary": "Upsert an agent by slug",
+        "tags": [
+          "Agents"
+        ],
+        "x-public": true
+      }
+    },
+    "/api/agents/slug/{slug}/definition": {
+      "get": {
+        "description": "Returns the agent definition in the file shape used by code sync, plus its id, code source, and revision.",
+        "operationId": "AgentsController_getDefinitionBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The agent definition and its revision.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDefinitionResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No agent with this slug exists in the workspace."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an agent definition by slug",
         "tags": [
           "Agents"
         ],
@@ -1863,7 +2012,7 @@
             "name": "expansion",
             "required": false,
             "in": "query",
-            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode",
+            "description": "Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, codeSource, codeSyncStatus",
             "schema": {
               "type": "string"
             }
@@ -3932,38 +4081,6 @@
         "x-public": true
       }
     },
-    "/api/ai-connections": {
-      "get": {
-        "description": "Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model`. `isDefault` marks the connection and model applied when a deploy omits them. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.",
-        "operationId": "AiConnectionsController_list",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "AI connections and the models each one accepts.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PublicAiConnectionResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "List AI connections available to the caller",
-        "tags": [
-          "AI Connections"
-        ],
-        "x-public": true
-      }
-    },
     "/api/connections": {
       "get": {
         "description": "Returns all connections available to the current user: OAuth connections belonging to the workspace and managed connections assigned to the user. Credential values are never returned.",
@@ -4804,6 +4921,78 @@
       }
     },
     "schemas": {
+      "PublicAiModelResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Catalogue model id passed to agent deploy as `model`. Example: `deepseek-ai/DeepSeek-V4-Pro`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name."
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "True when this is the model used if an agent deploy omits `model` on this connection."
+          },
+          "supportsTools": {
+            "type": "boolean",
+            "description": "Whether the model can call tools."
+          },
+          "supportsVision": {
+            "type": "boolean",
+            "description": "Whether the model accepts image input."
+          },
+          "supportsReasoning": {
+            "type": "boolean",
+            "description": "Whether the model exposes a reasoning mode."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isDefault",
+          "supportsTools",
+          "supportsVision",
+          "supportsReasoning"
+        ]
+      },
+      "PublicAiConnectionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })` when this connection is not the default."
+          },
+          "name": {
+            "type": "string",
+            "description": "Connection display name. Example: `Lunnoa LLMs`."
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider slug. Example: `featherless` or `openai`."
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "True for the connection used when an agent deploy omits `aiConnectionId`."
+          },
+          "models": {
+            "description": "Models this connection accepts. Inactive models are omitted.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicAiModelResponseDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "provider",
+          "isDefault",
+          "models"
+        ]
+      },
       "AuthMethodFlagsDto": {
         "type": "object",
         "properties": {
@@ -6266,53 +6455,6 @@
           "requestedCount"
         ]
       },
-      "UpsertWorkflowStepDto": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string",
-            "description": "Name later steps use in ={{step:<key>,path}}. Keyed steps keep their node id across deploys. \"trigger\" is reserved.",
-            "example": "loadCase",
-            "maxLength": 100
-          },
-          "appId": {
-            "type": "string",
-            "description": "Workflow app id (catalogue slug)."
-          },
-          "actionId": {
-            "type": "string",
-            "description": "Catalogue action id."
-          },
-          "connectionId": {
-            "type": "string",
-            "description": "Connection instance UUID for this step."
-          },
-          "input": {
-            "type": "object",
-            "description": "Action input / config fields. String values may use ={{step:trigger,field}} or ={{step:<key>,path,to,value}}.",
-            "additionalProperties": true
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name for the step node."
-          },
-          "description": {
-            "type": "string",
-            "description": "Step description."
-          },
-          "paths": {
-            "description": "Branches after this step. Only on flow-control_action_conditional-paths, flow-control_action_manually-decide-paths, or flow-control_action_request-approval (approved path first, then rejected), and only on the last step of a list.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpsertWorkflowPathDto"
-            }
-          }
-        },
-        "required": [
-          "appId",
-          "actionId"
-        ]
-      },
       "UpsertWorkflowPathConditionDto": {
         "type": "object",
         "properties": {
@@ -6334,37 +6476,6 @@
           "condition"
         ]
       },
-      "UpsertWorkflowPathDto": {
-        "type": "object",
-        "properties": {
-          "label": {
-            "type": "string",
-            "description": "Path label, unique on its step.",
-            "maxLength": 100
-          },
-          "when": {
-            "description": "Conditional Paths only. Groups are OR-ed, conditions inside a group AND-ed. Omit to always take this path.",
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/UpsertWorkflowPathConditionDto"
-              }
-            }
-          },
-          "steps": {
-            "description": "Steps on this path.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpsertWorkflowStepDto"
-            }
-          }
-        },
-        "required": [
-          "label",
-          "steps"
-        ]
-      },
       "UpsertWorkflowTriggerInputFieldDto": {
         "type": "object",
         "properties": {
@@ -6384,26 +6495,17 @@
             "description": "text, number, date, or select. Defaults to text."
           },
           "required": {
-            "description": "true, or { missingMessage, missingStatus }.",
-            "oneOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "object",
-                "additionalProperties": true
-              }
-            ]
+            "type": "object",
+            "description": "true, or { missingMessage, missingStatus }."
           },
           "defaultValue": {
-            "description": "Used when the caller omits the field.",
-            "nullable": true
+            "type": "object",
+            "description": "Used when the caller omits the field."
           },
           "selectOptions": {
             "type": "array",
             "items": {
-              "type": "object",
-              "additionalProperties": true
+              "type": "object"
             }
           }
         },
@@ -6450,6 +6552,147 @@
           "triggerId"
         ]
       },
+      "UpsertWorkflowRetrySettingsDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "maxAttempts": {
+            "type": "number",
+            "description": "How many times to attempt the step."
+          },
+          "delaySeconds": {
+            "type": "number",
+            "description": "Delay between attempts, in seconds."
+          }
+        },
+        "required": [
+          "enabled",
+          "maxAttempts",
+          "delaySeconds"
+        ]
+      },
+      "UpsertWorkflowContinueOnFailureDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "UpsertWorkflowPathDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Path label, unique on its step.",
+            "maxLength": 100
+          },
+          "when": {
+            "type": "array",
+            "description": "Conditional Paths only. Groups are OR-ed, conditions inside a group AND-ed. Omit to always take this path.",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/UpsertWorkflowPathConditionDto"
+              }
+            }
+          },
+          "steps": {
+            "description": "Steps on this path.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertWorkflowStepDto"
+            }
+          }
+        },
+        "required": [
+          "label",
+          "steps"
+        ]
+      },
+      "UpsertWorkflowStepDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Name later steps use in ={{step:<key>,path}}. Keyed steps keep their node id across deploys. \"trigger\" is reserved.",
+            "example": "loadCase",
+            "maxLength": 100
+          },
+          "appId": {
+            "type": "string",
+            "description": "Workflow app id (catalogue slug)."
+          },
+          "actionId": {
+            "type": "string",
+            "description": "Catalogue action id."
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "Connection instance UUID for this step."
+          },
+          "input": {
+            "type": "object",
+            "description": "Action input / config fields. String values may use ={{step:trigger,field}} or ={{step:<key>,path,to,value}}.",
+            "additionalProperties": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the step node."
+          },
+          "description": {
+            "type": "string",
+            "description": "Step description."
+          },
+          "retrySettings": {
+            "$ref": "#/components/schemas/UpsertWorkflowRetrySettingsDto"
+          },
+          "continueOnFailure": {
+            "$ref": "#/components/schemas/UpsertWorkflowContinueOnFailureDto"
+          },
+          "paths": {
+            "description": "Branches after this step. Only on flow-control_action_conditional-paths, flow-control_action_manually-decide-paths, or flow-control_action_request-approval (approved path first, then rejected), and only on the last step of a list.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertWorkflowPathDto"
+            }
+          }
+        },
+        "required": [
+          "appId",
+          "actionId"
+        ]
+      },
+      "UpsertWorkflowGraphDto": {
+        "type": "object",
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "description": "Graph-file nodes. Each node has key, nodeType, appId, name, and value. The trigger key is \"trigger\".",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "edges": {
+            "type": "array",
+            "description": "Edges. source and target are node keys.",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": [
+          "nodes",
+          "edges"
+        ]
+      },
       "UpsertWorkflowBySlugDto": {
         "type": "object",
         "properties": {
@@ -6472,7 +6715,7 @@
             "description": "Whether the workflow is active."
           },
           "trigger": {
-            "description": "Catalogue trigger. Omit for a Manually Run trigger with no input fields.",
+            "description": "Catalogue trigger for a steps body. Omit for a Manually Run trigger with no input fields. Not valid with `graph`.",
             "allOf": [
               {
                 "$ref": "#/components/schemas/UpsertWorkflowTriggerDto"
@@ -6480,20 +6723,212 @@
             ]
           },
           "steps": {
-            "description": "Catalogue-action steps in order. The last step may branch with `paths`.",
+            "description": "Catalogue-action steps in order. The last step may branch with `paths`. Send this or `graph`, not both.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/UpsertWorkflowStepDto"
             }
           },
-          "managedByCode": {
+          "graph": {
+            "description": "Full graph in the graph-file shape. Send this or `steps`, not both. `trigger` is not valid with a graph.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertWorkflowGraphDto"
+              }
+            ]
+          },
+          "baseRevision": {
+            "type": "string",
+            "description": "Revision from the last pull. Required when updating a workflow that the UI can edit, unless `force` is true.",
+            "maxLength": 64
+          },
+          "force": {
             "type": "boolean",
-            "description": "Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint."
+            "description": "Overwrite an existing workflow even when `baseRevision` is missing or stale."
+          },
+          "codeSource": {
+            "type": "string",
+            "enum": [
+              "synced",
+              "generated"
+            ],
+            "description": "How code owns this workflow. Defaults to generated on this endpoint."
           }
         },
         "required": [
-          "slug",
-          "steps"
+          "slug"
+        ]
+      },
+      "UpsertWorkflowResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Workflow ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Workflow name"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested.",
+            "nullable": true
+          },
+          "codeSource": {
+            "type": "string",
+            "enum": [
+              "none",
+              "synced",
+              "generated"
+            ],
+            "description": "Code source stored by this push. `generated` when the request omits it."
+          },
+          "codeSyncStatus": {
+            "type": "string",
+            "enum": [
+              "none",
+              "in_sync",
+              "changed_in_ui",
+              "locked"
+            ],
+            "description": "Sync state against the definitions folder. Included when `expansion=codeSyncStatus` is requested."
+          },
+          "description": {
+            "type": "string",
+            "description": "Workflow description. Included when `expansion=description` is requested.",
+            "nullable": true
+          },
+          "output": {
+            "type": "object",
+            "description": "Declared output schema from the workflow's Output Workflow Data node. Shape is a map of field ID to `{ type, description? }`. Included when `expansion=output` is requested. Null when the workflow has no declared output schema.",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation timestamp. Included when `expansion=createdAt` is requested.",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested.",
+            "format": "date-time"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the workflow is active and can be triggered. Included when `expansion=isActive` is requested."
+          },
+          "isInternal": {
+            "type": "boolean",
+            "description": "Whether the workflow is internal (hidden from default listings). Included when `expansion=isInternal` is requested."
+          },
+          "objectTypeId": {
+            "type": "string",
+            "description": "Object type whose records list this workflow's runs. Included when `expansion=objectLink` is requested.",
+            "nullable": true
+          },
+          "objectIdPath": {
+            "type": "string",
+            "description": "Dot path on the trigger payload. A Lunnoa id when the type has no unique key, otherwise that key's value. Included when `expansion=objectLink` is requested.",
+            "nullable": true
+          },
+          "createObjectIfMissing": {
+            "type": "boolean",
+            "description": "Create a record when the unique key value is not found, then file the run on it. Included when `expansion=objectLink` is requested."
+          },
+          "uniqueKeyField": {
+            "type": "string",
+            "description": "Unique key on the linked object type (`name` or `attribute:<field>`). Included when `expansion=objectLink` is requested.",
+            "nullable": true
+          },
+          "nodes": {
+            "type": "array",
+            "description": "Workflow node definitions (JSON). Included when `expansion=nodes` is requested.",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "edges": {
+            "type": "array",
+            "description": "Workflow edge definitions connecting nodes (JSON). Included when `expansion=edges` is requested.",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "triggerNode": {
+            "type": "object",
+            "description": "The workflow trigger node definition (JSON). Included when `expansion=triggerNode` is requested.",
+            "additionalProperties": true,
+            "nullable": true
+          },
+          "triggerAndActionIds": {
+            "type": "array",
+            "description": "IDs of the triggers and actions used by the workflow. Included when `expansion=triggerAndActionIds` is requested.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "subWorkflowIds": {
+            "type": "array",
+            "description": "IDs of sub-workflows referenced by the workflow. Included when `expansion=subWorkflowIds` is requested. Only returned by GET /workflows/{workflowId}.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "agentIds": {
+            "type": "array",
+            "description": "IDs of agents referenced by the workflow. Included when `expansion=agentIds` is requested. Only returned by GET /workflows/{workflowId}.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pollStorage": {
+            "type": "string",
+            "description": "Internal polling trigger storage value. Included when `expansion=pollStorage` is requested.",
+            "nullable": true
+          },
+          "nextScheduledExecution": {
+            "type": "string",
+            "description": "Timestamp of the next scheduled execution, if the workflow runs on a schedule. Included when `expansion=nextScheduledExecution` is requested.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "workflowOrientation": {
+            "type": "string",
+            "description": "Editor orientation of the workflow canvas. Included when `expansion=orientation` is requested.",
+            "enum": [
+              "HORIZONTAL",
+              "VERTICAL"
+            ]
+          },
+          "aiConnectionId": {
+            "type": "string",
+            "description": "AI provider connection used by the workflow builder chat. Always returned on GET /workflows/{workflowId}.",
+            "nullable": true
+          },
+          "selectedModelId": {
+            "type": "string",
+            "description": "Selected model ID within the AI provider connection for workflow builder chat. Always returned on GET /workflows/{workflowId}.",
+            "nullable": true
+          },
+          "revision": {
+            "type": "string",
+            "description": "sha256 hex of the canonical definition that was stored."
+          },
+          "definition": {
+            "type": "object",
+            "description": "Definition that was stored. Steps format when it round-trips, otherwise graph format.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "revision",
+          "definition"
         ]
       },
       "WorkflowResponseDto": {
@@ -6512,9 +6947,24 @@
             "description": "Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested.",
             "nullable": true
           },
-          "managedByCode": {
-            "type": "boolean",
-            "description": "True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested."
+          "codeSource": {
+            "type": "string",
+            "enum": [
+              "none",
+              "synced",
+              "generated"
+            ],
+            "description": "Where this workflow is defined. Included when `expansion=codeSource` is requested."
+          },
+          "codeSyncStatus": {
+            "type": "string",
+            "enum": [
+              "none",
+              "in_sync",
+              "changed_in_ui",
+              "locked"
+            ],
+            "description": "Sync state against the definitions folder. Included when `expansion=codeSyncStatus` is requested."
           },
           "description": {
             "type": "string",
@@ -6642,9 +7092,107 @@
           "name"
         ]
       },
+      "WorkflowDefinitionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Workflow ID."
+          },
+          "slug": {
+            "type": "string",
+            "description": "Workspace-scoped slug."
+          },
+          "workspaceId": {
+            "type": "string",
+            "description": "Workspace that owns the workflow."
+          },
+          "codeSource": {
+            "type": "string",
+            "enum": [
+              "none",
+              "synced",
+              "generated"
+            ],
+            "description": "Where this workflow is defined."
+          },
+          "revision": {
+            "type": "string",
+            "description": "sha256 hex of the canonical workflow definition."
+          },
+          "definition": {
+            "type": "object",
+            "description": "Steps format when the graph round-trips through it, otherwise the graph format.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "workspaceId",
+          "codeSource",
+          "revision",
+          "definition"
+        ]
+      },
+      "CodeSyncContextResponseDto": {
+        "type": "object",
+        "properties": {
+          "workspaceId": {
+            "type": "string",
+            "description": "Active workspace id."
+          },
+          "lockCodeSyncedResources": {
+            "type": "boolean",
+            "description": "When true, synced agents and workflows can only be changed by a code push."
+          }
+        },
+        "required": [
+          "workspaceId",
+          "lockCodeSyncedResources"
+        ]
+      },
+      "AgentSlugOrIdDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Workspace slug. Send exactly one of slug or id.",
+            "example": "support-triage"
+          },
+          "id": {
+            "type": "string",
+            "description": "Resource UUID. Send exactly one of slug or id.",
+            "format": "uuid"
+          }
+        }
+      },
+      "UpsertAgentMcpServerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "MCP server UUID.",
+            "format": "uuid"
+          },
+          "connectionId": {
+            "type": "string",
+            "description": "User connection UUID for this server. Null clears a pinned connection.",
+            "nullable": true,
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "UpsertAgentToolDto": {
         "type": "object",
         "properties": {
+          "key": {
+            "type": "string",
+            "description": "Stable tool key. Omitted keys are assigned from the tool name. Pattern: ^[A-Za-z][A-Za-z0-9_-]*$."
+          },
           "appId": {
             "type": "string",
             "description": "Workflow app id (catalogue slug)."
@@ -6676,6 +7224,203 @@
           "actionId"
         ]
       },
+      "UpsertAgentSettingsDto": {
+        "type": "object",
+        "properties": {
+          "temperature": {
+            "type": "number",
+            "description": "Model temperature.",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "topP": {
+            "type": "number",
+            "description": "Top-p sampling.",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxOutputTokens": {
+            "type": "number",
+            "description": "Maximum output tokens per turn. Null clears the cap.",
+            "nullable": true,
+            "minimum": 1,
+            "maximum": 4095
+          },
+          "frequencyPenalty": {
+            "type": "number",
+            "description": "Frequency penalty.",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "presencePenalty": {
+            "type": "number",
+            "description": "Presence penalty.",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "seed": {
+            "type": "number",
+            "description": "Fixed sampling seed. Null clears it.",
+            "nullable": true
+          },
+          "maxRetries": {
+            "type": "number",
+            "description": "Maximum retries for a failed model call.",
+            "minimum": 0
+          },
+          "maxToolRoundtrips": {
+            "type": "number",
+            "description": "Maximum tool roundtrips per turn.",
+            "minimum": 0
+          },
+          "messageLookbackLimit": {
+            "type": "number",
+            "description": "How many previous messages are sent to the model.",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "taskNamingInstructions": {
+            "type": "string",
+            "description": "Instructions used when auto-naming new tasks. Null clears them.",
+            "nullable": true,
+            "maxLength": 1000
+          },
+          "enabledBuiltInTools": {
+            "description": "IDs of enabled provider built-in tools.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabledPlatformTools": {
+            "description": "IDs of enabled platform tools.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabledToolPolicies": {
+            "description": "Enabled tool-policy ids.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "forcedTools": {
+            "type": "array",
+            "description": "Per-tool force overrides, stored as JSON.",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "suggestedPrompts": {
+            "description": "Suggested prompts, in stored order.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dynamicActionDiscoveryEnabled": {
+            "type": "boolean",
+            "description": "Index the workflow-app catalogue for discovery."
+          },
+          "dynamicMcpDiscoveryEnabled": {
+            "type": "boolean",
+            "description": "Index MCP servers visible to the user for discovery."
+          },
+          "dynamicSelfInstructionsEnabled": {
+            "type": "boolean",
+            "description": "Let the agent propose updates to its own instructions."
+          },
+          "memoryEnabled": {
+            "type": "boolean",
+            "description": "Whether agent memory is enabled."
+          },
+          "memoryScope": {
+            "type": "string",
+            "enum": [
+              "PER_USER",
+              "PER_AGENT",
+              "PER_USER_PER_AGENT"
+            ],
+            "description": "Whose memories this agent reads and writes."
+          },
+          "memoryRetentionDays": {
+            "type": "number",
+            "description": "How many days memories are kept.",
+            "minimum": 1,
+            "maximum": 3650
+          },
+          "enablePlanning": {
+            "type": "boolean",
+            "description": "Opt in to runtime planning tools."
+          },
+          "requirePlanApproval": {
+            "type": "boolean",
+            "description": "Gate heavy tools until the user approves a runtime plan."
+          },
+          "enableToolResultOffload": {
+            "type": "boolean",
+            "description": "Offload oversized tool results."
+          },
+          "toolResultOffloadThresholdBytes": {
+            "type": "number",
+            "description": "Byte threshold for tool-result offload.",
+            "minimum": 1024,
+            "maximum": 2000000
+          },
+          "longHorizonMode": {
+            "type": "boolean",
+            "description": "Elevated step budget for long-running work."
+          },
+          "longHorizonMaxSteps": {
+            "type": "number",
+            "description": "Step budget when long-horizon mode is on. Null clears it.",
+            "nullable": true,
+            "minimum": 11,
+            "maximum": 100
+          },
+          "longHorizonMaxTokensPerRun": {
+            "type": "number",
+            "description": "Soft token budget for a long-horizon run. Null clears it.",
+            "nullable": true,
+            "minimum": 1
+          },
+          "piiRoutingMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "AUTO_FALLBACK",
+              "ASK",
+              "BLOCK",
+              "ANONYMIZE"
+            ],
+            "description": "How this agent routes prompts that contain PII."
+          },
+          "piiFallbackConnectionId": {
+            "type": "string",
+            "description": "AI connection used when PII routing falls back. Null clears it.",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "piiFallbackModelId": {
+            "type": "string",
+            "description": "Model used when PII routing falls back. Null clears it.",
+            "nullable": true
+          },
+          "webAccess": {
+            "type": "boolean",
+            "description": "Web search access. Null removes the web-access row.",
+            "nullable": true
+          },
+          "phoneAccess": {
+            "type": "boolean",
+            "description": "Outbound phone access. Null removes the phone-access row.",
+            "nullable": true
+          }
+        }
+      },
       "UpsertAgentBySlugDto": {
         "type": "object",
         "properties": {
@@ -6686,11 +7431,13 @@
           },
           "name": {
             "type": "string",
-            "description": "Display name. Defaults to the slug when omitted.",
+            "description": "Display name. Defaults to the slug when omitted on create.",
             "maxLength": 100
           },
           "description": {
             "type": "string",
+            "description": "Agent description. Null clears it.",
+            "nullable": true,
             "maxLength": 1000
           },
           "instructions": {
@@ -6699,11 +7446,14 @@
           },
           "model": {
             "type": "string",
-            "description": "Catalogue model id enabled on the AI connection. Example: `deepseek-ai/DeepSeek-V4-Pro`. Discover ids with GET /api/ai-connections."
+            "description": "Catalogue model id enabled on the AI connection. Omit or null when the definition has no model. Example: `deepseek-ai/DeepSeek-V4-Pro`.",
+            "nullable": true
           },
           "aiConnectionId": {
             "type": "string",
-            "description": "AiProviderConnection UUID. When omitted, platform AI defaults apply."
+            "description": "AiProviderConnection UUID. When omitted on create, platform AI defaults apply. Null clears it.",
+            "nullable": true,
+            "format": "uuid"
           },
           "connectionIds": {
             "description": "App Connection UUIDs the agent may use for tools.",
@@ -6719,25 +7469,101 @@
               "type": "string"
             }
           },
+          "workflows": {
+            "description": "Workflows the agent may run, each by slug or id. Combined with workflowIds when both are sent.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentSlugOrIdDto"
+            }
+          },
+          "agents": {
+            "description": "Sub-agents, each by slug or id.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentSlugOrIdDto"
+            }
+          },
+          "knowledgeIds": {
+            "description": "Knowledge item UUIDs attached to the agent.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "variableIds": {
+            "description": "Variable UUIDs attached to the agent.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objectIds": {
+            "description": "Object UUIDs attached to the agent.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objectTypeIds": {
+            "description": "Object type UUIDs attached to the agent.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "a2aAgentIds": {
+            "description": "A2A agent UUIDs attached to the agent.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mcpServers": {
+            "description": "MCP servers pinned on the agent.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertAgentMcpServerDto"
+            }
+          },
           "tools": {
-            "description": "Catalogue action tools (WorkflowNodeForRunner-shaped).",
+            "description": "Catalogue action tools. A tool key is kept across pushes.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/UpsertAgentToolDto"
             }
           },
-          "managedByCode": {
+          "settings": {
+            "description": "Agent settings. Omitted keys are left unchanged on update.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UpsertAgentSettingsDto"
+              }
+            ]
+          },
+          "codeSource": {
+            "type": "string",
+            "enum": [
+              "synced",
+              "generated"
+            ],
+            "description": "How code owns this agent. Defaults to generated on this endpoint."
+          },
+          "baseRevision": {
+            "type": "string",
+            "description": "Revision from the last pull. Required when updating an agent that is not a generated redeploy, unless force is set.",
+            "maxLength": 64
+          },
+          "force": {
             "type": "boolean",
-            "description": "Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint."
+            "description": "Overwrite even when baseRevision is missing or stale."
           }
         },
         "required": [
           "slug",
-          "instructions",
-          "model"
+          "instructions"
         ]
       },
-      "AgentResponseDto": {
+      "AgentUpsertResponseDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -6755,9 +7581,24 @@
             "description": "Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested.",
             "nullable": true
           },
-          "managedByCode": {
-            "type": "boolean",
-            "description": "True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested."
+          "codeSource": {
+            "type": "string",
+            "enum": [
+              "none",
+              "synced",
+              "generated"
+            ],
+            "description": "Where this agent is defined. Taken from the request, or generated when omitted."
+          },
+          "codeSyncStatus": {
+            "type": "string",
+            "enum": [
+              "none",
+              "in_sync",
+              "changed_in_ui",
+              "locked"
+            ],
+            "description": "Sync state against the definitions folder. Included when `expansion=codeSyncStatus` is requested."
           },
           "FK_aiConnectionId": {
             "type": "string",
@@ -6952,7 +7793,626 @@
           },
           "builderSetupCompletedAt": {
             "type": "string",
-            "description": "When the first-time builder setup wizard was completed. Included when `expansion=builderSetupCompletedAt` is requested.",
+            "description": "When builder setup was completed (the first-time wizard, or a code deploy). Included when `expansion=builderSetupCompletedAt` is requested.",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "builderCanvasPositions": {
+            "type": "object",
+            "description": "Saved canvas node positions for the agent builder. Included when `expansion=builderCanvasPositions` is requested.",
+            "nullable": true,
+            "additionalProperties": true
+          },
+          "selectedModelId": {
+            "type": "string",
+            "description": "Selected model ID within the AI provider connection. Included when `expansion=selectedModelId` is requested.",
+            "nullable": true
+          },
+          "aiConnection": {
+            "type": "object",
+            "description": "Assigned AI provider connection. Included when `expansion=aiConnection` is requested.",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "providerConfig": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "providerSlug": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "agentKnowledge": {
+            "type": "array",
+            "description": "Knowledge notebooks attached to the agent. Included when `expansion=knowledge` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "knowledge": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentObjectTypes": {
+            "type": "array",
+            "description": "Object types attached to the agent. Included when `expansion=objectTypes` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                },
+                "objectType": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "color": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentObjects": {
+            "type": "array",
+            "description": "Objects attached to the agent. Included when `expansion=objects` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                },
+                "object": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "objectType": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "icon": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "color": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "connections": {
+            "type": "array",
+            "description": "App connections available to the agent. Included when `expansion=connections` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "agentVariables": {
+            "type": "array",
+            "description": "Variables attached to the agent. Included when `expansion=variables` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "variable": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentWorkflows": {
+            "type": "array",
+            "description": "Workflows the agent can trigger. Included when `expansion=workflows` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "workflow": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentSubAgents": {
+            "type": "array",
+            "description": "Sub-agent links for the agent. Included when `expansion=subAgents` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "subagent": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "parentAgent": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentMcpServers": {
+            "type": "array",
+            "description": "MCP servers attached to the agent, with per-tool overrides. Included when `expansion=mcpServers` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "mcpServer": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "provider": {
+                      "type": "string"
+                    },
+                    "logoUrl": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                },
+                "toolOverrides": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "toolName": {
+                        "type": "string"
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "requireApproval": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentA2aAgents": {
+            "type": "array",
+            "description": "A2A (agent-to-agent) endpoints attached to the agent. Included when `expansion=a2aAgents` is requested.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "a2aAgent": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "logoUrl": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "authType": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "agentWebAccess": {
+            "type": "object",
+            "description": "Web access configuration. Included when `expansion=webAccess` is requested.",
+            "nullable": true,
+            "properties": {
+              "service": {
+                "type": "string"
+              },
+              "webSearchEnabled": {
+                "type": "boolean"
+              },
+              "websiteAccessEnabled": {
+                "type": "boolean"
+              }
+            }
+          },
+          "agentPhoneAccess": {
+            "type": "object",
+            "description": "Phone access configuration. Included when `expansion=phoneAccess` is requested.",
+            "nullable": true,
+            "properties": {
+              "service": {
+                "type": "string"
+              },
+              "outboundCallsEnabled": {
+                "type": "boolean"
+              },
+              "inboundCallsEnabled": {
+                "type": "boolean"
+              }
+            }
+          },
+          "revision": {
+            "type": "string",
+            "description": "sha256 hex of the stored agent definition."
+          },
+          "definition": {
+            "type": "object",
+            "description": "Stored agent definition in the file shape, including settings, tools, and linked resources.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "FK_aiConnectionId",
+          "revision",
+          "definition"
+        ]
+      },
+      "AgentResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Agent ID (UUID)",
+            "example": "4f7c9d2e-8a1b-4c3d-9e5f-6a7b8c9d0e1f"
+          },
+          "name": {
+            "type": "string",
+            "description": "Agent name",
+            "example": "Invoice Triage Agent"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested.",
+            "nullable": true
+          },
+          "codeSource": {
+            "type": "string",
+            "enum": [
+              "none",
+              "synced",
+              "generated"
+            ],
+            "description": "Where this agent is defined. Included when `expansion=codeSource` is requested."
+          },
+          "codeSyncStatus": {
+            "type": "string",
+            "enum": [
+              "none",
+              "in_sync",
+              "changed_in_ui",
+              "locked"
+            ],
+            "description": "Sync state against the definitions folder. Included when `expansion=codeSyncStatus` is requested."
+          },
+          "FK_aiConnectionId": {
+            "type": "string",
+            "description": "ID of the AI provider connection assigned to the agent. Always included. Null when the agent falls back to the workspace default connection.",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "Agent description. Included when `expansion=description` is requested.",
+            "nullable": true
+          },
+          "profileImageUrl": {
+            "type": "string",
+            "description": "Public URL of the agent profile image. Included when `expansion=profileImageUrl` is requested.",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation timestamp. Included when `expansion=createdAt` is requested.",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update timestamp. Included when `expansion=updatedAt` is requested.",
+            "format": "date-time"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "System instructions authored for the agent. Included when `expansion=instructions` is requested.",
+            "nullable": true
+          },
+          "temperature": {
+            "type": "number",
+            "description": "Model temperature. Included when `expansion=temperature` is requested.",
+            "example": 1
+          },
+          "maxOutputTokens": {
+            "type": "number",
+            "description": "Maximum output tokens per turn. Included when `expansion=maxOutputTokens` is requested.",
+            "nullable": true
+          },
+          "topP": {
+            "type": "number",
+            "description": "Top-p sampling. Included when `expansion=topP` is requested.",
+            "example": 1
+          },
+          "frequencyPenalty": {
+            "type": "number",
+            "description": "Frequency penalty. Included when `expansion=frequencyPenalty` is requested.",
+            "example": 0
+          },
+          "presencePenalty": {
+            "type": "number",
+            "description": "Presence penalty. Included when `expansion=presencePenalty` is requested.",
+            "example": 0
+          },
+          "maxRetries": {
+            "type": "number",
+            "description": "Maximum retries for a failed model call. Included when `expansion=maxRetries` is requested.",
+            "example": 0
+          },
+          "seed": {
+            "type": "number",
+            "description": "Fixed sampling seed. Included when `expansion=seed` is requested.",
+            "nullable": true
+          },
+          "maxToolRoundtrips": {
+            "type": "number",
+            "description": "Maximum tool roundtrips per turn. Included when `expansion=maxToolRoundtrips` is requested.",
+            "example": 5
+          },
+          "messageLookbackLimit": {
+            "type": "number",
+            "description": "How many previous messages are sent to the model. Included when `expansion=messageLookbackLimit` is requested.",
+            "example": 40
+          },
+          "tools": {
+            "type": "array",
+            "description": "Configured tool nodes (app actions) for the agent. Included when `expansion=tools` is requested.",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "toolIds": {
+            "description": "Action IDs of the configured tools. Included when `expansion=toolIds` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "taskNamingInstructions": {
+            "type": "string",
+            "description": "Instructions used when auto-naming new tasks. Included when `expansion=taskNamingInstructions` is requested.",
+            "nullable": true
+          },
+          "enabledBuiltInTools": {
+            "description": "IDs of enabled provider built-in tools. Included when `expansion=enabledBuiltInTools` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabledPlatformTools": {
+            "description": "IDs of enabled platform tools. Included when `expansion=enabledPlatformTools` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dynamicActionDiscoveryEnabled": {
+            "type": "boolean",
+            "description": "Whether dynamic workflow-app action discovery is enabled. Included when `expansion=dynamicActionDiscoveryEnabled` is requested."
+          },
+          "dynamicMcpDiscoveryEnabled": {
+            "type": "boolean",
+            "description": "Whether dynamic MCP server discovery is enabled. Included when `expansion=dynamicMcpDiscoveryEnabled` is requested."
+          },
+          "dynamicSelfInstructionsEnabled": {
+            "type": "boolean",
+            "description": "Whether the agent maintains its own instructions. Included when `expansion=dynamicSelfInstructionsEnabled` is requested."
+          },
+          "memoryEnabled": {
+            "type": "boolean",
+            "description": "Whether long-term memory is enabled. Included when `expansion=memoryEnabled` is requested."
+          },
+          "enablePlanning": {
+            "type": "boolean",
+            "description": "Whether runtime planning tools are enabled. Included when `expansion=enablePlanning` is requested."
+          },
+          "enableToolResultOffload": {
+            "type": "boolean",
+            "description": "Whether oversized tool-result offload is enabled. Included when `expansion=enableToolResultOffload` is requested."
+          },
+          "toolResultOffloadThresholdBytes": {
+            "type": "number",
+            "description": "Byte threshold for tool-result offload. Included when `expansion=toolResultOffloadThresholdBytes` is requested."
+          },
+          "longHorizonMode": {
+            "type": "boolean",
+            "description": "Whether long-horizon mode is enabled. Included when `expansion=longHorizonMode` is requested."
+          },
+          "enabledToolPolicies": {
+            "description": "prepareStep safety-net policy ids. Included when `expansion=enabledToolPolicies` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "forcedTools": {
+            "description": "Per-tool force overrides. Included when `expansion=forcedTools` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requirePlanApproval": {
+            "type": "boolean",
+            "description": "When true with planning, gate heavy tools until plan approval. Included when `expansion=requirePlanApproval` is requested."
+          },
+          "longHorizonMaxSteps": {
+            "type": "number",
+            "description": "Optional elevated max steps for long-horizon mode. Included when `expansion=longHorizonMaxSteps` is requested.",
+            "nullable": true
+          },
+          "longHorizonMaxTokensPerRun": {
+            "type": "number",
+            "description": "Optional max tokens per run hint for long-horizon mode. Included when `expansion=longHorizonMaxTokensPerRun` is requested.",
+            "nullable": true
+          },
+          "memoryScope": {
+            "type": "string",
+            "description": "Memory partitioning scope. Included when `expansion=memoryScope` is requested.",
+            "enum": [
+              "PER_USER",
+              "PER_AGENT",
+              "PER_USER_PER_AGENT"
+            ]
+          },
+          "memoryRetentionDays": {
+            "type": "number",
+            "description": "Days memories are retained. Included when `expansion=memoryRetentionDays` is requested.",
+            "example": 90
+          },
+          "suggestedPrompts": {
+            "description": "Suggested prompts shown to users starting a conversation. Included when `expansion=suggestedPrompts` is requested.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "builderSetupCompletedAt": {
+            "type": "string",
+            "description": "When builder setup was completed (the first-time wizard, or a code deploy). Included when `expansion=builderSetupCompletedAt` is requested.",
             "nullable": true,
             "format": "date-time"
           },
@@ -7328,6 +8788,49 @@
           "id",
           "name",
           "FK_aiConnectionId"
+        ]
+      },
+      "AgentDefinitionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Agent ID (UUID)."
+          },
+          "slug": {
+            "type": "string",
+            "description": "Workspace-scoped slug."
+          },
+          "workspaceId": {
+            "type": "string",
+            "description": "Workspace that owns the agent."
+          },
+          "codeSource": {
+            "type": "string",
+            "enum": [
+              "none",
+              "synced",
+              "generated"
+            ],
+            "description": "Where this agent is defined."
+          },
+          "revision": {
+            "type": "string",
+            "description": "sha256 hex of the canonical agent definition."
+          },
+          "definition": {
+            "type": "object",
+            "description": "Agent definition in the file shape (kind, slug, settings, tools, and linked resources).",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "workspaceId",
+          "codeSource",
+          "revision",
+          "definition"
         ]
       },
       "WorkflowAppResponseDto": {
@@ -9400,78 +10903,6 @@
           "updatedAt"
         ]
       },
-      "PublicAiModelResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Catalogue model id passed to agent deploy as `model`. Example: `deepseek-ai/DeepSeek-V4-Pro`."
-          },
-          "name": {
-            "type": "string",
-            "description": "Display name."
-          },
-          "isDefault": {
-            "type": "boolean",
-            "description": "True when this is the model used if an agent deploy omits `model` on this connection."
-          },
-          "supportsTools": {
-            "type": "boolean",
-            "description": "Whether the model can call tools."
-          },
-          "supportsVision": {
-            "type": "boolean",
-            "description": "Whether the model accepts image input."
-          },
-          "supportsReasoning": {
-            "type": "boolean",
-            "description": "Whether the model exposes a reasoning mode."
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "isDefault",
-          "supportsTools",
-          "supportsVision",
-          "supportsReasoning"
-        ]
-      },
-      "PublicAiConnectionResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })` when this connection is not the default."
-          },
-          "name": {
-            "type": "string",
-            "description": "Connection display name. Example: `Lunnoa LLMs`."
-          },
-          "provider": {
-            "type": "string",
-            "description": "Provider slug. Example: `featherless` or `openai`."
-          },
-          "isDefault": {
-            "type": "boolean",
-            "description": "True for the connection used when an agent deploy omits `aiConnectionId`."
-          },
-          "models": {
-            "description": "Models this connection accepts. Inactive models are omitted.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublicAiModelResponseDto"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "provider",
-          "isDefault",
-          "models"
-        ]
-      },
       "ConnectionWorkspaceDto": {
         "type": "object",
         "properties": {
@@ -9712,6 +11143,41 @@
               }
             ]
           },
+          "runtimePlan": {
+            "type": "array",
+            "description": "Runtime todo/plan for this task when the agent has planning enabled (CTO-258). Always returned from the single-task endpoints.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "in_progress",
+                    "completed",
+                    "cancelled"
+                  ]
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "nullable": true
+          },
+          "planApprovedAt": {
+            "type": "string",
+            "description": "When the current runtime plan was approved (HITL). Null until approved or after the plan is rewritten.",
+            "nullable": true,
+            "format": "date-time"
+          },
           "description": {
             "type": "string",
             "description": "Task description. Included when `expansion=description` is requested.",
@@ -9930,7 +11396,7 @@
           },
           "chatMode": {
             "type": "string",
-            "description": "Agent chat mode",
+            "description": "Loop to run. Omit or send `preview` for an app, public chat, or workflow turn (10 model rounds). `builder` is the agent-editor interview and stops after 4 rounds.",
             "enum": [
               "builder",
               "preview"

@@ -9,11 +9,35 @@ import type { components } from './generated/schema';
 
 type Schemas = components['schemas'];
 
+/** Where an agent or workflow definition was last written from. */
+export type CodeSource = 'none' | 'synced' | 'generated';
+
+/** Computed on read. `locked` means the UI cannot edit the definition. */
+export type CodeSyncStatus = 'none' | 'in_sync' | 'changed_in_ui' | 'locked';
+
+export interface CodeSyncContext {
+  workspaceId: string;
+  lockCodeSyncedResources: boolean;
+}
+
+/** `GET /api/{agents|workflows}/slug/:slug/definition`. */
+export interface CodeDefinitionResponse<TDefinition> {
+  id: string;
+  slug: string;
+  workspaceId: string;
+  codeSource: CodeSource;
+  revision: string;
+  definition: TDefinition;
+}
+
 // Discovery
 export type EnabledFeatures = Schemas['EnabledFeaturesResponseDto'];
 
 // Agents & tasks
-export type Agent = Schemas['AgentResponseDto'];
+export type Agent = Omit<Schemas['AgentResponseDto'], 'managedByCode'> & {
+  codeSource?: CodeSource;
+  codeSyncStatus?: CodeSyncStatus;
+};
 export type Task = Schemas['TaskResponseDto'];
 export type TaskListItem = Schemas['TaskListItemResponseDto'];
 export type CreateTaskInput = Schemas['CreateTaskDto'];
@@ -22,7 +46,10 @@ export type DeletedTask = Schemas['DeletedTaskResponseDto'];
 export type MessageTaskInput = Schemas['MessageTaskDto'];
 
 // Workflows & executions
-export type Workflow = Schemas['WorkflowResponseDto'];
+export type Workflow = Omit<Schemas['WorkflowResponseDto'], 'managedByCode'> & {
+  codeSource?: CodeSource;
+  codeSyncStatus?: CodeSyncStatus;
+};
 export type Execution = Schemas['ExecutionResponseDto'];
 export type ExecutionPathStep = Schemas['ExecutionPathStepDto'];
 export type ExecuteWorkflowResult = Schemas['ExecuteWorkflowResponseDto'];

@@ -1,12 +1,25 @@
 import type { HttpClient } from '../core/http';
-import type { ExecuteWorkflowResult, Execution, Workflow } from '../types';
 import type {
+  CodeDefinitionResponse,
+  CodeSource,
+  ExecuteWorkflowResult,
+  Execution,
+  Workflow,
+} from '../types';
+import type {
+  ActionDefinition,
   TriggerDefinition,
   WorkflowDefinition,
+  WorkflowFileDefinition,
+  WorkflowGraphFileDefinition,
   WorkflowPathDefinition,
   WorkflowStepDefinition,
+  WorkflowStepFile,
+  WorkflowStepsFileDefinition,
+  WorkflowTriggerFile,
 } from '../define';
 import {
+  DEFINE_KINDS,
   resolveActionAppId,
   resolveActionId,
   resolveTriggerAppId,
@@ -27,6 +40,12 @@ export interface UpsertWorkflowStepInput {
   input?: Record<string, unknown>;
   name?: string;
   description?: string;
+  retrySettings?: {
+    enabled: boolean;
+    maxAttempts: number;
+    delaySeconds: number;
+  };
+  continueOnFailure?: { enabled: boolean };
   /** Branches after this step (last step of a list only). */
   paths?: UpsertWorkflowPathInput[];
 }
@@ -49,15 +68,32 @@ export interface UpsertWorkflowTriggerInput {
   description?: string;
 }
 
+export interface UpsertWorkflowGraphInput {
+  nodes: WorkflowGraphFileDefinition['nodes'];
+  edges: WorkflowGraphFileDefinition['edges'];
+}
+
 export interface UpsertWorkflowBySlugInput {
   slug: string;
   name?: string;
-  description?: string;
+  /** Null clears a description that was removed from the definition file. */
+  description?: string | null;
   isActive?: boolean;
   /** Omit for Manually Run with no input fields. */
   trigger?: UpsertWorkflowTriggerInput;
-  steps: UpsertWorkflowStepInput[];
-  managedByCode?: boolean;
+  steps?: UpsertWorkflowStepInput[];
+  /** Lossless graph. Not sent together with `trigger` / `steps`. */
+  graph?: UpsertWorkflowGraphInput;
+  /** `generated` for TypeScript deploys, `synced` for definition files. */
+  codeSource?: Extract<CodeSource, 'synced' | 'generated'>;
+  baseRevision?: string;
+  force?: boolean;
+}
+
+export interface WorkflowUpsertOptions {
+  codeSource?: Extract<CodeSource, 'synced' | 'generated'>;
+  baseRevision?: string;
+  force?: boolean;
 }
 
 function triggerToUpsertInput(
@@ -74,10 +110,47 @@ function triggerToUpsertInput(
   };
 }
 
+function asAction(use: ActionDefinition | WorkflowStepFile['use']): ActionDefinition {
+  if (use && typeof use === 'object' && 'kind' in use && use.kind === DEFINE_KINDS.action) {
+    return use;
+  }
+  const fileUse = use as WorkflowStepFile['use'];
+  return {
+    kind: DEFINE_KINDS.action,
+    id: fileUse.id,
+    appId: fileUse.appId,
+    connection: fileUse.connection?.id
+      ? { kind: DEFINE_KINDS.connection, id: fileUse.connection.id }
+      : undefined,
+  };
+}
+
+function asTrigger(trigger: TriggerDefinition | WorkflowTriggerFile): TriggerDefinition {
+  if ('kind' in trigger && trigger.kind === DEFINE_KINDS.trigger) {
+    return trigger;
+  }
+  const fileTrigger = trigger as WorkflowTriggerFile;
+  return {
+    kind: DEFINE_KINDS.trigger,
+    id: fileTrigger.id,
+    appId: fileTrigger.appId,
+    connection: fileTrigger.connection?.id
+      ? { kind: DEFINE_KINDS.connection, id: fileTrigger.connection.id }
+      : undefined,
+    input: fileTrigger.input,
+    inputs: fileTrigger.inputs as TriggerDefinition['inputs'],
+    name: fileTrigger.name,
+    description: fileTrigger.description,
+  };
+}
+
 function stepToUpsertInput(
-  step: WorkflowStepDefinition,
+  step: WorkflowStepDefinition | WorkflowStepFile,
 ): UpsertWorkflowStepInput {
-  const use = step.use;
+  const use = asAction(step.use);
+  const retry = 'retrySettings' in step ? step.retrySettings : undefined;
+  const continueOnFailure =
+    'continueOnFailure' in step ? step.continueOnFailure : undefined;
   return {
     ...(step.key ? { key: step.key } : {}),
     appId: resolveActionAppId(use),
@@ -88,30 +161,83 @@ function stepToUpsertInput(
       ...(step.input ?? {}),
     },
     name: step.name ?? use.name,
-    description: use.description,
+    description: step.description ?? use.description,
+    ...(retry ? { retrySettings: retry } : {}),
+    ...(continueOnFailure ? { continueOnFailure } : {}),
     ...(step.paths?.length
       ? {
           paths: step.paths.map((path) => ({
             label: path.label,
-            ...(path.when ? { when: path.when } : {}),
-            steps: path.steps.map(stepToUpsertInput),
+            ...(path.when
+              ? { when: path.when as WorkflowPathDefinition['when'] }
+              : {}),
+            steps: path.steps.map((nested) =>
+              stepToUpsertInput(nested as WorkflowStepDefinition | WorkflowStepFile),
+            ),
           })),
         }
       : {}),
   };
 }
 
+function syncFields(
+  options?: WorkflowUpsertOptions,
+): Pick<UpsertWorkflowBySlugInput, 'baseRevision' | 'force'> {
+  return {
+    ...(options?.baseRevision ? { baseRevision: options.baseRevision } : {}),
+    ...(options?.force ? { force: true } : {}),
+  };
+}
+
 export function workflowDefinitionToUpsert(
   def: WorkflowDefinition,
+  options?: WorkflowUpsertOptions,
+): UpsertWorkflowBySlugInput & { steps: UpsertWorkflowStepInput[] };
+export function workflowDefinitionToUpsert(
+  def: WorkflowFileDefinition,
+  options?: WorkflowUpsertOptions,
+): UpsertWorkflowBySlugInput;
+export function workflowDefinitionToUpsert(
+  def: WorkflowDefinition | WorkflowFileDefinition,
+  options?: WorkflowUpsertOptions,
+): UpsertWorkflowBySlugInput;
+export function workflowDefinitionToUpsert(
+  def: WorkflowDefinition | WorkflowFileDefinition,
+  options?: WorkflowUpsertOptions,
 ): UpsertWorkflowBySlugInput {
+  if ('format' in def && def.format === 'graph') {
+    return {
+      slug: def.slug,
+      name: def.name,
+      // A file is the whole definition: an omitted description is empty, not "leave it".
+      description: def.description ?? null,
+      codeSource: 'synced',
+      graph: { nodes: def.nodes, edges: def.edges ?? [] },
+      ...syncFields(options),
+    };
+  }
+  if ('format' in def && def.format === 'steps') {
+    const file = def as WorkflowStepsFileDefinition;
+    return {
+      slug: file.slug,
+      name: file.name,
+      description: file.description ?? null,
+      ...(file.trigger ? { trigger: triggerToUpsertInput(asTrigger(file.trigger)) } : {}),
+      codeSource: 'synced',
+      steps: file.steps.map((step) => stepToUpsertInput(step)),
+      ...syncFields(options),
+    };
+  }
+  const authored = def as WorkflowDefinition;
   return {
-    slug: def.slug,
-    name: def.name,
-    description: def.description,
-    isActive: def.isActive,
-    ...(def.trigger ? { trigger: triggerToUpsertInput(def.trigger) } : {}),
-    managedByCode: true,
-    steps: def.steps.map(stepToUpsertInput),
+    slug: authored.slug,
+    name: authored.name,
+    description: authored.description,
+    isActive: authored.isActive,
+    ...(authored.trigger ? { trigger: triggerToUpsertInput(authored.trigger) } : {}),
+    codeSource: options?.codeSource ?? 'generated',
+    ...syncFields(options),
+    steps: authored.steps.map((step) => stepToUpsertInput(step)),
   };
 }
 
@@ -141,20 +267,31 @@ export class WorkflowsResource {
     });
   }
 
+  /** Exported definition for `lunnoa/workflows/<slug>.json`. */
+  getDefinition(
+    slug: string,
+  ): Promise<CodeDefinitionResponse<WorkflowFileDefinition>> {
+    return this.http.get<CodeDefinitionResponse<WorkflowFileDefinition>>(
+      `/api/workflows/slug/${encodeURIComponent(slug)}/definition`,
+    );
+  }
+
   /**
    * Upsert a workflow by slug inside the workspace on the API key.
    * Prefer the CLI (`npx @lunnoa/client workflows deploy`) for happy-path deploy.
    */
   upsertBySlug(
-    body: UpsertWorkflowBySlugInput | WorkflowDefinition,
-  ): Promise<Workflow> {
+    body: UpsertWorkflowBySlugInput | WorkflowDefinition | WorkflowFileDefinition,
+    options?: WorkflowUpsertOptions,
+  ): Promise<Workflow & CodeDefinitionResponse<WorkflowFileDefinition>> {
     const payload =
       'kind' in body && body.kind === 'workflow'
-        ? workflowDefinitionToUpsert(body)
+        ? workflowDefinitionToUpsert(body, options)
         : body;
-    return this.http.post<Workflow>('/api/workflows/upsert', {
-      body: payload,
-    });
+    return this.http.post<Workflow & CodeDefinitionResponse<WorkflowFileDefinition>>(
+      '/api/workflows/upsert',
+      { body: payload },
+    );
   }
 
   /**

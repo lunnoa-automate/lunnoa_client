@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/ai-connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List AI connections available to the caller
+         * @description Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model`. `isDefault` marks the connection and model applied when a deploy omits them. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.
+         */
+        get: operations["AiConnectionsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/discovery/enabled-features": {
         parameters: {
             query?: never;
@@ -486,10 +506,30 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Upsert a workflow by slug from a linear step list
-         * @description Creates or updates a workflow identified by workspace-scoped `slug`. Builds a minimal valid graph (one catalogue trigger, Manually Run when omitted, then catalogue-action steps; the last step may branch with `paths`). Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client workflows deploy`) over calling this from application code.
+         * Upsert a workflow by slug
+         * @description Creates or replaces the workflow identified by a workspace-scoped slug. Send either catalogue steps (optional trigger; Manually Run when the trigger is omitted; the last step may branch with paths) or a graph of nodes and edges. Not both. codeSource defaults to generated. Updating a workflow the UI can edit is refused with 409 unless baseRevision is the current revision or force is true; both sides generated skips that check. A lost update race is the same 409. isActive changes only when the request sends it. Prefer the CLI (`npx @lunnoa/client workflows deploy`).
          */
         post: operations["WorkflowsController_upsertBySlug"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workflows/slug/{slug}/definition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a workflow definition by slug
+         * @description Returns the steps format when the stored graph round-trips through it, otherwise the graph format. Placeholder nodes are omitted.
+         */
+        get: operations["WorkflowsController_getDefinitionBySlug"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -508,6 +548,26 @@ export interface paths {
          * @description Returns a single workflow. By default only the ID and name are returned; use the expansion query parameter to include further fields.
          */
         get: operations["WorkflowsController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/code-sync/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get code-sync context for the current workspace
+         * @description Returns the workspace id and whether code-synced agents and workflows are locked so they can only be changed by a push.
+         */
+        get: operations["CodeSyncController_getContext"];
         put?: never;
         post?: never;
         delete?: never;
@@ -547,9 +607,29 @@ export interface paths {
         put?: never;
         /**
          * Upsert an agent by slug
-         * @description Creates or updates an agent identified by workspace-scoped `slug`. Accepts instructions, model, optional aiConnectionId / connectionIds / workflowIds, and catalogue action tools. Marks `managedByCode` by default. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.
+         * @description Creates or updates an agent identified by workspace-scoped `slug`. A field that is omitted is left unchanged on update. `codeSource` defaults to `generated`. Conflict rules: a generated redeploy over a generated agent needs no revision; otherwise an existing agent requires `baseRevision` equal to the current revision, or `force`. A missing or stale `baseRevision` answers 409, and so does a lost race with a UI edit. The 409 body includes `currentRevision` when it is known. Prefer the CLI (`npx @lunnoa/client agents deploy`) over calling this from application code.
          */
         post: operations["AgentsController_upsertBySlug"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/slug/{slug}/definition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an agent definition by slug
+         * @description Returns the agent definition in the file shape used by code sync, plus its id, code source, and revision.
+         */
+        get: operations["AgentsController_getDefinitionBySlug"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1224,26 +1304,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/ai-connections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List AI connections available to the caller
-         * @description Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model`. `isDefault` marks the connection and model applied when a deploy omits them. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.
-         */
-        get: operations["AiConnectionsController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/connections": {
         parameters: {
             query?: never;
@@ -1468,6 +1528,32 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        PublicAiModelResponseDto: {
+            /** @description Catalogue model id passed to agent deploy as `model`. Example: `deepseek-ai/DeepSeek-V4-Pro`. */
+            id: string;
+            /** @description Display name. */
+            name: string;
+            /** @description True when this is the model used if an agent deploy omits `model` on this connection. */
+            isDefault: boolean;
+            /** @description Whether the model can call tools. */
+            supportsTools: boolean;
+            /** @description Whether the model accepts image input. */
+            supportsVision: boolean;
+            /** @description Whether the model exposes a reasoning mode. */
+            supportsReasoning: boolean;
+        };
+        PublicAiConnectionResponseDto: {
+            /** @description AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })` when this connection is not the default. */
+            id: string;
+            /** @description Connection display name. Example: `Lunnoa LLMs`. */
+            name: string;
+            /** @description Provider slug. Example: `featherless` or `openai`. */
+            provider: string;
+            /** @description True for the connection used when an agent deploy omits `aiConnectionId`. */
+            isDefault: boolean;
+            /** @description Models this connection accepts. Inactive models are omitted. */
+            models: components["schemas"]["PublicAiModelResponseDto"][];
+        };
         AuthMethodFlagsDto: {
             /** @description True when password-based login is disabled for this deployment (via AUTH_DISABLED_METHODS). */
             passwordDisabled: boolean;
@@ -2071,6 +2157,63 @@ export interface components {
             /** @description Number of item IDs submitted for deletion. */
             requestedCount: number;
         };
+        UpsertWorkflowPathConditionDto: {
+            /** @description One step reference, e.g. ={{step:load,amount}}. */
+            field: string;
+            /** @description contains, does_not_contain, equals, does_not_equal, exists, does_not_exist, starts_with, ends_with, is_empty, is_not_empty, comes_before, comes_after, is_in_the_past, is_in_the_future, is_true, is_false, is_truthy, is_falsey, is_greater_than, is_less_than, is_greater_than_or_equal_to, is_less_than_or_equal_to, matches_regex, does_not_match_regex. */
+            condition: string;
+            /** @description Value to compare with. */
+            value?: string;
+        };
+        UpsertWorkflowTriggerInputFieldDto: {
+            /** @description Field id. Callers pass this key to workflows.execute. */
+            id: string;
+            /** @description Label shown on the Manually Run form. */
+            label?: string;
+            description?: string;
+            /** @description text, number, date, or select. Defaults to text. */
+            inputType?: string;
+            /** @description true, or { missingMessage, missingStatus }. */
+            required?: Record<string, never>;
+            /** @description Used when the caller omits the field. */
+            defaultValue?: Record<string, never>;
+            selectOptions?: Record<string, never>[];
+        };
+        UpsertWorkflowTriggerDto: {
+            /** @description Catalogue trigger id, for example flow-control_trigger_manual. */
+            triggerId: string;
+            /** @description Workflow app id. Inferred from triggerId when it contains _trigger_. */
+            appId?: string;
+            /** @description Connection instance UUID for this trigger. */
+            connectionId?: string;
+            /** @description Trigger config fields from the catalogue inputConfig. */
+            input?: {
+                [key: string]: unknown;
+            };
+            /** @description Manual-trigger fields. Stored on the trigger as customInputConfig. */
+            inputs?: components["schemas"]["UpsertWorkflowTriggerInputFieldDto"][];
+            /** @description Display name for the trigger node. */
+            name?: string;
+            description?: string;
+        };
+        UpsertWorkflowRetrySettingsDto: {
+            enabled: boolean;
+            /** @description How many times to attempt the step. */
+            maxAttempts: number;
+            /** @description Delay between attempts, in seconds. */
+            delaySeconds: number;
+        };
+        UpsertWorkflowContinueOnFailureDto: {
+            enabled: boolean;
+        };
+        UpsertWorkflowPathDto: {
+            /** @description Path label, unique on its step. */
+            label: string;
+            /** @description Conditional Paths only. Groups are OR-ed, conditions inside a group AND-ed. Omit to always take this path. */
+            when?: components["schemas"]["UpsertWorkflowPathConditionDto"][][];
+            /** @description Steps on this path. */
+            steps: components["schemas"]["UpsertWorkflowStepDto"][];
+        };
         UpsertWorkflowStepDto: {
             /**
              * @description Name later steps use in ={{step:<key>,path}}. Keyed steps keep their node id across deploys. "trigger" is reserved.
@@ -2091,59 +2234,20 @@ export interface components {
             name?: string;
             /** @description Step description. */
             description?: string;
+            retrySettings?: components["schemas"]["UpsertWorkflowRetrySettingsDto"];
+            continueOnFailure?: components["schemas"]["UpsertWorkflowContinueOnFailureDto"];
             /** @description Branches after this step. Only on flow-control_action_conditional-paths, flow-control_action_manually-decide-paths, or flow-control_action_request-approval (approved path first, then rejected), and only on the last step of a list. */
             paths?: components["schemas"]["UpsertWorkflowPathDto"][];
         };
-        UpsertWorkflowPathConditionDto: {
-            /** @description One step reference, e.g. ={{step:load,amount}}. */
-            field: string;
-            /** @description contains, does_not_contain, equals, does_not_equal, exists, does_not_exist, starts_with, ends_with, is_empty, is_not_empty, comes_before, comes_after, is_in_the_past, is_in_the_future, is_true, is_false, is_truthy, is_falsey, is_greater_than, is_less_than, is_greater_than_or_equal_to, is_less_than_or_equal_to, matches_regex, does_not_match_regex. */
-            condition: string;
-            /** @description Value to compare with. */
-            value?: string;
-        };
-        UpsertWorkflowPathDto: {
-            /** @description Path label, unique on its step. */
-            label: string;
-            /** @description Conditional Paths only. Groups are OR-ed, conditions inside a group AND-ed. Omit to always take this path. */
-            when?: components["schemas"]["UpsertWorkflowPathConditionDto"][][];
-            /** @description Steps on this path. */
-            steps: components["schemas"]["UpsertWorkflowStepDto"][];
-        };
-        UpsertWorkflowTriggerInputFieldDto: {
-            /** @description Field id. Callers pass this key to workflows.execute. */
-            id: string;
-            /** @description Label shown on the Manually Run form. */
-            label?: string;
-            description?: string;
-            /** @description text, number, date, or select. Defaults to text. */
-            inputType?: string;
-            /** @description true, or { missingMessage, missingStatus }. */
-            required?: boolean | {
-                [key: string]: unknown;
-            };
-            /** @description Used when the caller omits the field. */
-            defaultValue?: unknown;
-            selectOptions?: {
+        UpsertWorkflowGraphDto: {
+            /** @description Graph-file nodes. Each node has key, nodeType, appId, name, and value. The trigger key is "trigger". */
+            nodes: {
                 [key: string]: unknown;
             }[];
-        };
-        UpsertWorkflowTriggerDto: {
-            /** @description Catalogue trigger id, for example flow-control_trigger_manual. */
-            triggerId: string;
-            /** @description Workflow app id. Inferred from triggerId when it contains _trigger_. */
-            appId?: string;
-            /** @description Connection instance UUID for this trigger. */
-            connectionId?: string;
-            /** @description Trigger config fields from the catalogue inputConfig. */
-            input?: {
+            /** @description Edges. source and target are node keys. */
+            edges: {
                 [key: string]: unknown;
-            };
-            /** @description Manual-trigger fields. Stored on the trigger as customInputConfig. */
-            inputs?: components["schemas"]["UpsertWorkflowTriggerInputFieldDto"][];
-            /** @description Display name for the trigger node. */
-            name?: string;
-            description?: string;
+            }[];
         };
         UpsertWorkflowBySlugDto: {
             /**
@@ -2156,12 +2260,107 @@ export interface components {
             description?: string;
             /** @description Whether the workflow is active. */
             isActive?: boolean;
-            /** @description Catalogue trigger. Omit for a Manually Run trigger with no input fields. */
+            /** @description Catalogue trigger for a steps body. Omit for a Manually Run trigger with no input fields. Not valid with `graph`. */
             trigger?: components["schemas"]["UpsertWorkflowTriggerDto"];
-            /** @description Catalogue-action steps in order. The last step may branch with `paths`. */
-            steps: components["schemas"]["UpsertWorkflowStepDto"][];
-            /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
-            managedByCode?: boolean;
+            /** @description Catalogue-action steps in order. The last step may branch with `paths`. Send this or `graph`, not both. */
+            steps?: components["schemas"]["UpsertWorkflowStepDto"][];
+            /** @description Full graph in the graph-file shape. Send this or `steps`, not both. `trigger` is not valid with a graph. */
+            graph?: components["schemas"]["UpsertWorkflowGraphDto"];
+            /** @description Revision from the last pull. Required when updating a workflow that the UI can edit, unless `force` is true. */
+            baseRevision?: string;
+            /** @description Overwrite an existing workflow even when `baseRevision` is missing or stale. */
+            force?: boolean;
+            /**
+             * @description How code owns this workflow. Defaults to generated on this endpoint.
+             * @enum {string}
+             */
+            codeSource?: "synced" | "generated";
+        };
+        UpsertWorkflowResponseDto: {
+            /** @description Workflow ID */
+            id: string;
+            /** @description Workflow name */
+            name: string;
+            /** @description Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
+            slug?: string | null;
+            /**
+             * @description Code source stored by this push. `generated` when the request omits it.
+             * @enum {string}
+             */
+            codeSource?: "none" | "synced" | "generated";
+            /**
+             * @description Sync state against the definitions folder. Included when `expansion=codeSyncStatus` is requested.
+             * @enum {string}
+             */
+            codeSyncStatus?: "none" | "in_sync" | "changed_in_ui" | "locked";
+            /** @description Workflow description. Included when `expansion=description` is requested. */
+            description?: string | null;
+            /** @description Declared output schema from the workflow's Output Workflow Data node. Shape is a map of field ID to `{ type, description? }`. Included when `expansion=output` is requested. Null when the workflow has no declared output schema. */
+            output?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Format: date-time
+             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
+             */
+            updatedAt?: string;
+            /** @description Whether the workflow is active and can be triggered. Included when `expansion=isActive` is requested. */
+            isActive?: boolean;
+            /** @description Whether the workflow is internal (hidden from default listings). Included when `expansion=isInternal` is requested. */
+            isInternal?: boolean;
+            /** @description Object type whose records list this workflow's runs. Included when `expansion=objectLink` is requested. */
+            objectTypeId?: string | null;
+            /** @description Dot path on the trigger payload. A Lunnoa id when the type has no unique key, otherwise that key's value. Included when `expansion=objectLink` is requested. */
+            objectIdPath?: string | null;
+            /** @description Create a record when the unique key value is not found, then file the run on it. Included when `expansion=objectLink` is requested. */
+            createObjectIfMissing?: boolean;
+            /** @description Unique key on the linked object type (`name` or `attribute:<field>`). Included when `expansion=objectLink` is requested. */
+            uniqueKeyField?: string | null;
+            /** @description Workflow node definitions (JSON). Included when `expansion=nodes` is requested. */
+            nodes?: {
+                [key: string]: unknown;
+            }[];
+            /** @description Workflow edge definitions connecting nodes (JSON). Included when `expansion=edges` is requested. */
+            edges?: {
+                [key: string]: unknown;
+            }[];
+            /** @description The workflow trigger node definition (JSON). Included when `expansion=triggerNode` is requested. */
+            triggerNode?: {
+                [key: string]: unknown;
+            } | null;
+            /** @description IDs of the triggers and actions used by the workflow. Included when `expansion=triggerAndActionIds` is requested. */
+            triggerAndActionIds?: string[];
+            /** @description IDs of sub-workflows referenced by the workflow. Included when `expansion=subWorkflowIds` is requested. Only returned by GET /workflows/{workflowId}. */
+            subWorkflowIds?: string[];
+            /** @description IDs of agents referenced by the workflow. Included when `expansion=agentIds` is requested. Only returned by GET /workflows/{workflowId}. */
+            agentIds?: string[];
+            /** @description Internal polling trigger storage value. Included when `expansion=pollStorage` is requested. */
+            pollStorage?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the next scheduled execution, if the workflow runs on a schedule. Included when `expansion=nextScheduledExecution` is requested.
+             */
+            nextScheduledExecution?: string | null;
+            /**
+             * @description Editor orientation of the workflow canvas. Included when `expansion=orientation` is requested.
+             * @enum {string}
+             */
+            workflowOrientation?: "HORIZONTAL" | "VERTICAL";
+            /** @description AI provider connection used by the workflow builder chat. Always returned on GET /workflows/{workflowId}. */
+            aiConnectionId?: string | null;
+            /** @description Selected model ID within the AI provider connection for workflow builder chat. Always returned on GET /workflows/{workflowId}. */
+            selectedModelId?: string | null;
+            /** @description sha256 hex of the canonical definition that was stored. */
+            revision: string;
+            /** @description Definition that was stored. Steps format when it round-trips, otherwise graph format. */
+            definition: {
+                [key: string]: unknown;
+            };
         };
         WorkflowResponseDto: {
             /** @description Workflow ID */
@@ -2170,8 +2369,16 @@ export interface components {
             name: string;
             /** @description Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
             slug?: string | null;
-            /** @description True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested. */
-            managedByCode?: boolean;
+            /**
+             * @description Where this workflow is defined. Included when `expansion=codeSource` is requested.
+             * @enum {string}
+             */
+            codeSource?: "none" | "synced" | "generated";
+            /**
+             * @description Sync state against the definitions folder. Included when `expansion=codeSyncStatus` is requested.
+             * @enum {string}
+             */
+            codeSyncStatus?: "none" | "in_sync" | "changed_in_ui" | "locked";
             /** @description Workflow description. Included when `expansion=description` is requested. */
             description?: string | null;
             /** @description Declared output schema from the workflow's Output Workflow Data node. Shape is a map of field ID to `{ type, description? }`. Included when `expansion=output` is requested. Null when the workflow has no declared output schema. */
@@ -2235,7 +2442,58 @@ export interface components {
             /** @description Selected model ID within the AI provider connection for workflow builder chat. Always returned on GET /workflows/{workflowId}. */
             selectedModelId?: string | null;
         };
+        WorkflowDefinitionResponseDto: {
+            /** @description Workflow ID. */
+            id: string;
+            /** @description Workspace-scoped slug. */
+            slug: string;
+            /** @description Workspace that owns the workflow. */
+            workspaceId: string;
+            /**
+             * @description Where this workflow is defined.
+             * @enum {string}
+             */
+            codeSource: "none" | "synced" | "generated";
+            /** @description sha256 hex of the canonical workflow definition. */
+            revision: string;
+            /** @description Steps format when the graph round-trips through it, otherwise the graph format. */
+            definition: {
+                [key: string]: unknown;
+            };
+        };
+        CodeSyncContextResponseDto: {
+            /** @description Active workspace id. */
+            workspaceId: string;
+            /** @description When true, synced agents and workflows can only be changed by a code push. */
+            lockCodeSyncedResources: boolean;
+        };
+        AgentSlugOrIdDto: {
+            /**
+             * @description Workspace slug. Send exactly one of slug or id.
+             * @example support-triage
+             */
+            slug?: string;
+            /**
+             * Format: uuid
+             * @description Resource UUID. Send exactly one of slug or id.
+             */
+            id?: string;
+        };
+        UpsertAgentMcpServerDto: {
+            /**
+             * Format: uuid
+             * @description MCP server UUID.
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description User connection UUID for this server. Null clears a pinned connection.
+             */
+            connectionId?: string | null;
+        };
         UpsertAgentToolDto: {
+            /** @description Stable tool key. Omitted keys are assigned from the tool name. Pattern: ^[A-Za-z][A-Za-z0-9_-]*$. */
+            key?: string;
             /** @description Workflow app id (catalogue slug). */
             appId: string;
             /** @description Catalogue action id. */
@@ -2251,31 +2509,139 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        UpsertAgentSettingsDto: {
+            /** @description Model temperature. */
+            temperature?: number;
+            /** @description Top-p sampling. */
+            topP?: number;
+            /** @description Maximum output tokens per turn. Null clears the cap. */
+            maxOutputTokens?: number | null;
+            /** @description Frequency penalty. */
+            frequencyPenalty?: number;
+            /** @description Presence penalty. */
+            presencePenalty?: number;
+            /** @description Fixed sampling seed. Null clears it. */
+            seed?: number | null;
+            /** @description Maximum retries for a failed model call. */
+            maxRetries?: number;
+            /** @description Maximum tool roundtrips per turn. */
+            maxToolRoundtrips?: number;
+            /** @description How many previous messages are sent to the model. */
+            messageLookbackLimit?: number;
+            /** @description Instructions used when auto-naming new tasks. Null clears them. */
+            taskNamingInstructions?: string | null;
+            /** @description IDs of enabled provider built-in tools. */
+            enabledBuiltInTools?: string[];
+            /** @description IDs of enabled platform tools. */
+            enabledPlatformTools?: string[];
+            /** @description Enabled tool-policy ids. */
+            enabledToolPolicies?: string[];
+            /** @description Per-tool force overrides, stored as JSON. */
+            forcedTools?: {
+                [key: string]: unknown;
+            }[];
+            /** @description Suggested prompts, in stored order. */
+            suggestedPrompts?: string[];
+            /** @description Index the workflow-app catalogue for discovery. */
+            dynamicActionDiscoveryEnabled?: boolean;
+            /** @description Index MCP servers visible to the user for discovery. */
+            dynamicMcpDiscoveryEnabled?: boolean;
+            /** @description Let the agent propose updates to its own instructions. */
+            dynamicSelfInstructionsEnabled?: boolean;
+            /** @description Whether agent memory is enabled. */
+            memoryEnabled?: boolean;
+            /**
+             * @description Whose memories this agent reads and writes.
+             * @enum {string}
+             */
+            memoryScope?: "PER_USER" | "PER_AGENT" | "PER_USER_PER_AGENT";
+            /** @description How many days memories are kept. */
+            memoryRetentionDays?: number;
+            /** @description Opt in to runtime planning tools. */
+            enablePlanning?: boolean;
+            /** @description Gate heavy tools until the user approves a runtime plan. */
+            requirePlanApproval?: boolean;
+            /** @description Offload oversized tool results. */
+            enableToolResultOffload?: boolean;
+            /** @description Byte threshold for tool-result offload. */
+            toolResultOffloadThresholdBytes?: number;
+            /** @description Elevated step budget for long-running work. */
+            longHorizonMode?: boolean;
+            /** @description Step budget when long-horizon mode is on. Null clears it. */
+            longHorizonMaxSteps?: number | null;
+            /** @description Soft token budget for a long-horizon run. Null clears it. */
+            longHorizonMaxTokensPerRun?: number | null;
+            /**
+             * @description How this agent routes prompts that contain PII.
+             * @enum {string}
+             */
+            piiRoutingMode?: "INHERIT" | "AUTO_FALLBACK" | "ASK" | "BLOCK" | "ANONYMIZE";
+            /**
+             * Format: uuid
+             * @description AI connection used when PII routing falls back. Null clears it.
+             */
+            piiFallbackConnectionId?: string | null;
+            /** @description Model used when PII routing falls back. Null clears it. */
+            piiFallbackModelId?: string | null;
+            /** @description Web search access. Null removes the web-access row. */
+            webAccess?: boolean | null;
+            /** @description Outbound phone access. Null removes the phone-access row. */
+            phoneAccess?: boolean | null;
+        };
         UpsertAgentBySlugDto: {
             /**
              * @description Stable workspace-scoped slug (lowercase, digits, hyphens). Used as the upsert key.
              * @example support-triage
              */
             slug: string;
-            /** @description Display name. Defaults to the slug when omitted. */
+            /** @description Display name. Defaults to the slug when omitted on create. */
             name?: string;
-            description?: string;
+            /** @description Agent description. Null clears it. */
+            description?: string | null;
             /** @description System instructions / prompt for the agent. */
             instructions: string;
-            /** @description Catalogue model id enabled on the AI connection. Example: `deepseek-ai/DeepSeek-V4-Pro`. Discover ids with GET /api/ai-connections. */
-            model: string;
-            /** @description AiProviderConnection UUID. When omitted, platform AI defaults apply. */
-            aiConnectionId?: string;
+            /** @description Catalogue model id enabled on the AI connection. Omit or null when the definition has no model. Example: `deepseek-ai/DeepSeek-V4-Pro`. */
+            model?: string | null;
+            /**
+             * Format: uuid
+             * @description AiProviderConnection UUID. When omitted on create, platform AI defaults apply. Null clears it.
+             */
+            aiConnectionId?: string | null;
             /** @description App Connection UUIDs the agent may use for tools. */
             connectionIds?: string[];
             /** @description Workflow UUIDs the agent may run (AgentWorkflow links). */
             workflowIds?: string[];
-            /** @description Catalogue action tools (WorkflowNodeForRunner-shaped). */
+            /** @description Workflows the agent may run, each by slug or id. Combined with workflowIds when both are sent. */
+            workflows?: components["schemas"]["AgentSlugOrIdDto"][];
+            /** @description Sub-agents, each by slug or id. */
+            agents?: components["schemas"]["AgentSlugOrIdDto"][];
+            /** @description Knowledge item UUIDs attached to the agent. */
+            knowledgeIds?: string[];
+            /** @description Variable UUIDs attached to the agent. */
+            variableIds?: string[];
+            /** @description Object UUIDs attached to the agent. */
+            objectIds?: string[];
+            /** @description Object type UUIDs attached to the agent. */
+            objectTypeIds?: string[];
+            /** @description A2A agent UUIDs attached to the agent. */
+            a2aAgentIds?: string[];
+            /** @description MCP servers pinned on the agent. */
+            mcpServers?: components["schemas"]["UpsertAgentMcpServerDto"][];
+            /** @description Catalogue action tools. A tool key is kept across pushes. */
             tools?: components["schemas"]["UpsertAgentToolDto"][];
-            /** @description Marks the row as managed by code (CLI / SDK). Defaults to true on this endpoint. */
-            managedByCode?: boolean;
+            /** @description Agent settings. Omitted keys are left unchanged on update. */
+            settings?: components["schemas"]["UpsertAgentSettingsDto"];
+            /**
+             * @description How code owns this agent. Defaults to generated on this endpoint.
+             * @enum {string}
+             */
+            codeSource?: "synced" | "generated";
+            /** @description Revision from the last pull. Required when updating an agent that is not a generated redeploy, unless force is set. */
+            baseRevision?: string;
+            /** @description Overwrite even when baseRevision is missing or stale. */
+            force?: boolean;
         };
-        AgentResponseDto: {
+        AgentUpsertResponseDto: {
             /**
              * @description Agent ID (UUID)
              * @example 4f7c9d2e-8a1b-4c3d-9e5f-6a7b8c9d0e1f
@@ -2288,8 +2654,16 @@ export interface components {
             name: string;
             /** @description Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
             slug?: string | null;
-            /** @description True when last written by code (CLI / SDK). Included when `expansion=managedByCode` is requested. */
-            managedByCode?: boolean;
+            /**
+             * @description Where this agent is defined. Taken from the request, or generated when omitted.
+             * @enum {string}
+             */
+            codeSource?: "none" | "synced" | "generated";
+            /**
+             * @description Sync state against the definitions folder. Included when `expansion=codeSyncStatus` is requested.
+             * @enum {string}
+             */
+            codeSyncStatus?: "none" | "in_sync" | "changed_in_ui" | "locked";
             /** @description ID of the AI provider connection assigned to the agent. Always included. Null when the agent falls back to the workspace default connection. */
             FK_aiConnectionId: string | null;
             /** @description Agent description. Included when `expansion=description` is requested. */
@@ -2399,7 +2773,7 @@ export interface components {
             suggestedPrompts?: string[];
             /**
              * Format: date-time
-             * @description When the first-time builder setup wizard was completed. Included when `expansion=builderSetupCompletedAt` is requested.
+             * @description When builder setup was completed (the first-time wizard, or a code deploy). Included when `expansion=builderSetupCompletedAt` is requested.
              */
             builderSetupCompletedAt?: string | null;
             /** @description Saved canvas node positions for the agent builder. Included when `expansion=builderCanvasPositions` is requested. */
@@ -2529,6 +2903,294 @@ export interface components {
                 outboundCallsEnabled?: boolean;
                 inboundCallsEnabled?: boolean;
             } | null;
+            /** @description sha256 hex of the stored agent definition. */
+            revision: string;
+            /** @description Stored agent definition in the file shape, including settings, tools, and linked resources. */
+            definition: {
+                [key: string]: unknown;
+            };
+        };
+        AgentResponseDto: {
+            /**
+             * @description Agent ID (UUID)
+             * @example 4f7c9d2e-8a1b-4c3d-9e5f-6a7b8c9d0e1f
+             */
+            id: string;
+            /**
+             * @description Agent name
+             * @example Invoice Triage Agent
+             */
+            name: string;
+            /** @description Stable workspace-scoped slug for CLI / code deploy upserts. Included when `expansion=slug` is requested. */
+            slug?: string | null;
+            /**
+             * @description Where this agent is defined. Included when `expansion=codeSource` is requested.
+             * @enum {string}
+             */
+            codeSource?: "none" | "synced" | "generated";
+            /**
+             * @description Sync state against the definitions folder. Included when `expansion=codeSyncStatus` is requested.
+             * @enum {string}
+             */
+            codeSyncStatus?: "none" | "in_sync" | "changed_in_ui" | "locked";
+            /** @description ID of the AI provider connection assigned to the agent. Always included. Null when the agent falls back to the workspace default connection. */
+            FK_aiConnectionId: string | null;
+            /** @description Agent description. Included when `expansion=description` is requested. */
+            description?: string | null;
+            /** @description Public URL of the agent profile image. Included when `expansion=profileImageUrl` is requested. */
+            profileImageUrl?: string | null;
+            /**
+             * Format: date-time
+             * @description Creation timestamp. Included when `expansion=createdAt` is requested.
+             */
+            createdAt?: string;
+            /**
+             * Format: date-time
+             * @description Last update timestamp. Included when `expansion=updatedAt` is requested.
+             */
+            updatedAt?: string;
+            /** @description System instructions authored for the agent. Included when `expansion=instructions` is requested. */
+            instructions?: string | null;
+            /**
+             * @description Model temperature. Included when `expansion=temperature` is requested.
+             * @example 1
+             */
+            temperature?: number;
+            /** @description Maximum output tokens per turn. Included when `expansion=maxOutputTokens` is requested. */
+            maxOutputTokens?: number | null;
+            /**
+             * @description Top-p sampling. Included when `expansion=topP` is requested.
+             * @example 1
+             */
+            topP?: number;
+            /**
+             * @description Frequency penalty. Included when `expansion=frequencyPenalty` is requested.
+             * @example 0
+             */
+            frequencyPenalty?: number;
+            /**
+             * @description Presence penalty. Included when `expansion=presencePenalty` is requested.
+             * @example 0
+             */
+            presencePenalty?: number;
+            /**
+             * @description Maximum retries for a failed model call. Included when `expansion=maxRetries` is requested.
+             * @example 0
+             */
+            maxRetries?: number;
+            /** @description Fixed sampling seed. Included when `expansion=seed` is requested. */
+            seed?: number | null;
+            /**
+             * @description Maximum tool roundtrips per turn. Included when `expansion=maxToolRoundtrips` is requested.
+             * @example 5
+             */
+            maxToolRoundtrips?: number;
+            /**
+             * @description How many previous messages are sent to the model. Included when `expansion=messageLookbackLimit` is requested.
+             * @example 40
+             */
+            messageLookbackLimit?: number;
+            /** @description Configured tool nodes (app actions) for the agent. Included when `expansion=tools` is requested. */
+            tools?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** @description Action IDs of the configured tools. Included when `expansion=toolIds` is requested. */
+            toolIds?: string[];
+            /** @description Instructions used when auto-naming new tasks. Included when `expansion=taskNamingInstructions` is requested. */
+            taskNamingInstructions?: string | null;
+            /** @description IDs of enabled provider built-in tools. Included when `expansion=enabledBuiltInTools` is requested. */
+            enabledBuiltInTools?: string[];
+            /** @description IDs of enabled platform tools. Included when `expansion=enabledPlatformTools` is requested. */
+            enabledPlatformTools?: string[];
+            /** @description Whether dynamic workflow-app action discovery is enabled. Included when `expansion=dynamicActionDiscoveryEnabled` is requested. */
+            dynamicActionDiscoveryEnabled?: boolean;
+            /** @description Whether dynamic MCP server discovery is enabled. Included when `expansion=dynamicMcpDiscoveryEnabled` is requested. */
+            dynamicMcpDiscoveryEnabled?: boolean;
+            /** @description Whether the agent maintains its own instructions. Included when `expansion=dynamicSelfInstructionsEnabled` is requested. */
+            dynamicSelfInstructionsEnabled?: boolean;
+            /** @description Whether long-term memory is enabled. Included when `expansion=memoryEnabled` is requested. */
+            memoryEnabled?: boolean;
+            /** @description Whether runtime planning tools are enabled. Included when `expansion=enablePlanning` is requested. */
+            enablePlanning?: boolean;
+            /** @description Whether oversized tool-result offload is enabled. Included when `expansion=enableToolResultOffload` is requested. */
+            enableToolResultOffload?: boolean;
+            /** @description Byte threshold for tool-result offload. Included when `expansion=toolResultOffloadThresholdBytes` is requested. */
+            toolResultOffloadThresholdBytes?: number;
+            /** @description Whether long-horizon mode is enabled. Included when `expansion=longHorizonMode` is requested. */
+            longHorizonMode?: boolean;
+            /** @description prepareStep safety-net policy ids. Included when `expansion=enabledToolPolicies` is requested. */
+            enabledToolPolicies?: string[];
+            /** @description Per-tool force overrides. Included when `expansion=forcedTools` is requested. */
+            forcedTools?: string[];
+            /** @description When true with planning, gate heavy tools until plan approval. Included when `expansion=requirePlanApproval` is requested. */
+            requirePlanApproval?: boolean;
+            /** @description Optional elevated max steps for long-horizon mode. Included when `expansion=longHorizonMaxSteps` is requested. */
+            longHorizonMaxSteps?: number | null;
+            /** @description Optional max tokens per run hint for long-horizon mode. Included when `expansion=longHorizonMaxTokensPerRun` is requested. */
+            longHorizonMaxTokensPerRun?: number | null;
+            /**
+             * @description Memory partitioning scope. Included when `expansion=memoryScope` is requested.
+             * @enum {string}
+             */
+            memoryScope?: "PER_USER" | "PER_AGENT" | "PER_USER_PER_AGENT";
+            /**
+             * @description Days memories are retained. Included when `expansion=memoryRetentionDays` is requested.
+             * @example 90
+             */
+            memoryRetentionDays?: number;
+            /** @description Suggested prompts shown to users starting a conversation. Included when `expansion=suggestedPrompts` is requested. */
+            suggestedPrompts?: string[];
+            /**
+             * Format: date-time
+             * @description When builder setup was completed (the first-time wizard, or a code deploy). Included when `expansion=builderSetupCompletedAt` is requested.
+             */
+            builderSetupCompletedAt?: string | null;
+            /** @description Saved canvas node positions for the agent builder. Included when `expansion=builderCanvasPositions` is requested. */
+            builderCanvasPositions?: {
+                [key: string]: unknown;
+            } | null;
+            /** @description Selected model ID within the AI provider connection. Included when `expansion=selectedModelId` is requested. */
+            selectedModelId?: string | null;
+            /** @description Assigned AI provider connection. Included when `expansion=aiConnection` is requested. */
+            aiConnection?: {
+                id?: string;
+                name?: string;
+                providerConfig?: {
+                    id?: string;
+                    providerSlug?: string;
+                };
+            } | null;
+            /** @description Knowledge notebooks attached to the agent. Included when `expansion=knowledge` is requested. */
+            agentKnowledge?: {
+                id?: string;
+                knowledge?: {
+                    id?: string;
+                    name?: string;
+                };
+            }[];
+            /** @description Object types attached to the agent. Included when `expansion=objectTypes` is requested. */
+            agentObjectTypes?: {
+                id?: string;
+                scope?: string;
+                objectType?: {
+                    id?: string;
+                    name?: string;
+                    slug?: string;
+                    icon?: string | null;
+                    color?: string | null;
+                };
+            }[];
+            /** @description Objects attached to the agent. Included when `expansion=objects` is requested. */
+            agentObjects?: {
+                id?: string;
+                scope?: string;
+                object?: {
+                    id?: string;
+                    name?: string;
+                    state?: string;
+                    objectType?: {
+                        id?: string;
+                        name?: string;
+                        slug?: string;
+                        icon?: string | null;
+                        color?: string | null;
+                    };
+                };
+            }[];
+            /** @description App connections available to the agent. Included when `expansion=connections` is requested. */
+            connections?: {
+                id?: string;
+                name?: string;
+            }[];
+            /** @description Variables attached to the agent. Included when `expansion=variables` is requested. */
+            agentVariables?: {
+                id?: string;
+                variable?: {
+                    id?: string;
+                    name?: string;
+                };
+            }[];
+            /** @description Workflows the agent can trigger. Included when `expansion=workflows` is requested. */
+            agentWorkflows?: {
+                id?: string;
+                workflow?: {
+                    id?: string;
+                    name?: string;
+                };
+            }[];
+            /** @description Sub-agent links for the agent. Included when `expansion=subAgents` is requested. */
+            agentSubAgents?: {
+                id?: string;
+                subagent?: {
+                    id?: string;
+                    name?: string;
+                };
+                parentAgent?: {
+                    id?: string;
+                    name?: string;
+                };
+            }[];
+            /** @description MCP servers attached to the agent, with per-tool overrides. Included when `expansion=mcpServers` is requested. */
+            agentMcpServers?: {
+                id?: string;
+                mcpServer?: {
+                    id?: string;
+                    slug?: string;
+                    name?: string;
+                    provider?: string;
+                    logoUrl?: string | null;
+                    description?: string | null;
+                };
+                toolOverrides?: {
+                    id?: string;
+                    toolName?: string;
+                    enabled?: boolean;
+                    requireApproval?: boolean;
+                }[];
+            }[];
+            /** @description A2A (agent-to-agent) endpoints attached to the agent. Included when `expansion=a2aAgents` is requested. */
+            agentA2aAgents?: {
+                id?: string;
+                a2aAgent?: {
+                    id?: string;
+                    slug?: string;
+                    name?: string;
+                    logoUrl?: string | null;
+                    description?: string | null;
+                    authType?: string;
+                };
+            }[];
+            /** @description Web access configuration. Included when `expansion=webAccess` is requested. */
+            agentWebAccess?: {
+                service?: string;
+                webSearchEnabled?: boolean;
+                websiteAccessEnabled?: boolean;
+            } | null;
+            /** @description Phone access configuration. Included when `expansion=phoneAccess` is requested. */
+            agentPhoneAccess?: {
+                service?: string;
+                outboundCallsEnabled?: boolean;
+                inboundCallsEnabled?: boolean;
+            } | null;
+        };
+        AgentDefinitionResponseDto: {
+            /** @description Agent ID (UUID). */
+            id: string;
+            /** @description Workspace-scoped slug. */
+            slug: string;
+            /** @description Workspace that owns the agent. */
+            workspaceId: string;
+            /**
+             * @description Where this agent is defined.
+             * @enum {string}
+             */
+            codeSource: "none" | "synced" | "generated";
+            /** @description sha256 hex of the canonical agent definition. */
+            revision: string;
+            /** @description Agent definition in the file shape (kind, slug, settings, tools, and linked resources). */
+            definition: {
+                [key: string]: unknown;
+            };
         };
         WorkflowAppResponseDto: {
             /** @description App ID, e.g. `gmail`. Matches the appId used in workflow execution steps. */
@@ -3401,32 +4063,6 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
-        PublicAiModelResponseDto: {
-            /** @description Catalogue model id passed to agent deploy as `model`. Example: `deepseek-ai/DeepSeek-V4-Pro`. */
-            id: string;
-            /** @description Display name. */
-            name: string;
-            /** @description True when this is the model used if an agent deploy omits `model` on this connection. */
-            isDefault: boolean;
-            /** @description Whether the model can call tools. */
-            supportsTools: boolean;
-            /** @description Whether the model accepts image input. */
-            supportsVision: boolean;
-            /** @description Whether the model exposes a reasoning mode. */
-            supportsReasoning: boolean;
-        };
-        PublicAiConnectionResponseDto: {
-            /** @description AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })` when this connection is not the default. */
-            id: string;
-            /** @description Connection display name. Example: `Lunnoa LLMs`. */
-            name: string;
-            /** @description Provider slug. Example: `featherless` or `openai`. */
-            provider: string;
-            /** @description True for the connection used when an agent deploy omits `aiConnectionId`. */
-            isDefault: boolean;
-            /** @description Models this connection accepts. Inactive models are omitted. */
-            models: components["schemas"]["PublicAiModelResponseDto"][];
-        };
         ConnectionWorkspaceDto: {
             /** @description Workspace ID. */
             id: string;
@@ -3548,6 +4184,20 @@ export interface components {
             activeStreamId?: string;
             /** @description Durable outcome of the most recent agent-turn run. Omitted when the task has never run. */
             latestRun?: components["schemas"]["TaskLatestRunDto"];
+            /** @description Runtime todo/plan for this task when the agent has planning enabled (CTO-258). Always returned from the single-task endpoints. */
+            runtimePlan?: {
+                id?: string;
+                content?: string;
+                /** @enum {string} */
+                status?: "pending" | "in_progress" | "completed" | "cancelled";
+                /** Format: date-time */
+                updatedAt?: string;
+            }[] | null;
+            /**
+             * Format: date-time
+             * @description When the current runtime plan was approved (HITL). Null until approved or after the plan is rewritten.
+             */
+            planApprovedAt?: string | null;
             /** @description Task description. Included when `expansion=description` is requested. */
             description?: string | null;
             /**
@@ -3659,7 +4309,7 @@ export interface components {
                 [key: string]: unknown;
             }[];
             /**
-             * @description Agent chat mode
+             * @description Loop to run. Omit or send `preview` for an app, public chat, or workflow turn (10 model rounds). `builder` is the agent-editor interview and stops after 4 rounds.
              * @example preview
              * @enum {string}
              */
@@ -3692,6 +4342,26 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AiConnectionsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description AI connections and the models each one accepts. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicAiConnectionResponseDto"][];
+                };
+            };
+        };
+    };
     DiscoveryController_getEnabledWorkspaceFeatures: {
         parameters: {
             query?: never;
@@ -4479,7 +5149,7 @@ export interface operations {
                 includeType?: string;
                 /** @description Comma-separated key:value filters. Available: agentCanTrigger. Example: filterBy=agentCanTrigger:true */
                 filterBy?: string;
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, slug, codeSource, codeSyncStatus, description, output, nodes, edges, triggerNode, triggerAndActionIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,isActive */
                 expansion?: string;
             };
             header?: never;
@@ -4512,21 +5182,57 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The created or updated workflow. */
+            /** @description The created or updated workflow, including its stored revision and definition. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WorkflowResponseDto"];
+                    "application/json": components["schemas"]["UpsertWorkflowResponseDto"];
                 };
+            };
+            /** @description The slug already exists and baseRevision was omitted, or the workflow changed in the UI since baseRevision. The body message explains which, and currentRevision is set when the revision check failed. A lost optimistic-concurrency race returns the same 409. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WorkflowsController_getDefinitionBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The workflow id, code source, revision, and definition. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkflowDefinitionResponseDto"];
+                };
+            };
+            /** @description No workflow with this slug exists in the workspace. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
     WorkflowsController_findOne: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, subWorkflowIds, agentIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,nodes,edges */
+                /** @description Comma-separated fields to expand. Available: createdAt, updatedAt, isActive, isInternal, slug, codeSource, codeSyncStatus, description, output, project, nodes, edges, triggerNode, triggerAndActionIds, subWorkflowIds, agentIds, pollStorage, nextScheduledExecution, orientation. Example: expansion=description,nodes,edges */
                 expansion?: string;
             };
             header?: never;
@@ -4548,6 +5254,26 @@ export interface operations {
             };
         };
     };
+    CodeSyncController_getContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Workspace id and the lock-code-synced-resources preference. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeSyncContextResponseDto"];
+                };
+            };
+        };
+    };
     AgentsController_findAllForWorkspace: {
         parameters: {
             query?: {
@@ -4555,7 +5281,7 @@ export interface operations {
                 includeType?: string;
                 /** @description Filters in `key:value` format, comma-separated. */
                 filterBy?: string;
-                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
+                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, codeSource, codeSyncStatus */
                 expansion?: string;
             };
             header?: never;
@@ -4588,21 +5314,57 @@ export interface operations {
             };
         };
         responses: {
-            /** @description The created or updated agent. */
+            /** @description The created or updated agent, including its stored definition and revision. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AgentResponseDto"];
+                    "application/json": components["schemas"]["AgentUpsertResponseDto"];
                 };
+            };
+            /** @description The slug already exists and baseRevision is missing or stale, or the agent changed during the write. The body includes the server message and, when known, currentRevision. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AgentsController_getDefinitionBySlug: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The agent definition and its revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentDefinitionResponseDto"];
+                };
+            };
+            /** @description No agent with this slug exists in the workspace. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
     AgentsController_findOne: {
         parameters: {
             query?: {
-                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, managedByCode */
+                /** @description Comma-separated fields to expand, e.g. `expansion=description,createdAt`. Available: createdAt, updatedAt, description, profileImageUrl, instructions, temperature, maxOutputTokens, topP, frequencyPenalty, presencePenalty, maxRetries, seed, maxToolRoundtrips, messageLookbackLimit, tools, toolIds, knowledge, objects, objectTypes, connections, variables, workflows, subAgents, webAccess, phoneAccess, aiConnection, selectedModelId, taskNamingInstructions, enabledBuiltInTools, enabledPlatformTools, mcpServers, a2aAgents, dynamicActionDiscoveryEnabled, dynamicMcpDiscoveryEnabled, dynamicSelfInstructionsEnabled, memoryEnabled, memoryScope, memoryRetentionDays, enablePlanning, enableToolResultOffload, toolResultOffloadThresholdBytes, longHorizonMode, longHorizonMaxSteps, longHorizonMaxTokensPerRun, enabledToolPolicies, forcedTools, requirePlanApproval, suggestedPrompts, builderSetupCompletedAt, builderCanvasPositions, slug, codeSource, codeSyncStatus */
                 expansion?: string;
             };
             header?: never;
@@ -5693,26 +6455,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TableResponseDto"];
-                };
-            };
-        };
-    };
-    AiConnectionsController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description AI connections and the models each one accepts. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PublicAiConnectionResponseDto"][];
                 };
             };
         };

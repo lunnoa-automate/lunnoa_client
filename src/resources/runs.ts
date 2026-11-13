@@ -91,6 +91,11 @@ function stepFromDefinition(
 
 function normalizeStartRunInput(input: StartRunInput): StartRunOptions {
   if (isWorkflowDefinition(input)) {
+    if ('format' in input && (input as { format?: string }).format === 'graph') {
+      throw new Error(
+        'runs.start runs straight lines only. Push the graph workflow, then execute it.',
+      );
+    }
     // Ad-hoc runs have no trigger node. `trigger` is for deploy only.
     return {
       steps: input.steps.map(stepFromDefinition),

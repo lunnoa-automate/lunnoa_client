@@ -266,6 +266,29 @@ npx @lunnoa/client agents deploy ./agents/triage.ts \
 
 `defineAction` binds catalogue actions only; toolkit `createAction` is for in-platform apps. `defineWorkflow` takes an optional `defineTrigger`. Omit it for Manually Run with no input fields. `runs.start` ignores the trigger and runs the steps only. Pass data into step settings with `ref.trigger('caseId')` or `ref.step('load', 'rows', 0)` (give the source step a `key`); the server resolves them on deploy and the builder shows them as mapped fields. See Lunnoa Docs under `guides/develop/client/define`, `runs`, and `cli-deploy`.
 
+### Definitions folder
+
+JSON definitions round-trip with the UI through `lunnoa/` (override with `definitionsDir` in `lunnoa.config.*` or `--dir`):
+
+```text
+lunnoa/agents/<slug>.json
+lunnoa/agents/<slug>.instructions.md
+lunnoa/workflows/<slug>.json
+lunnoa/lunnoa.lock.json
+```
+
+```bash
+npx @lunnoa/client pull --all --url https://lunnoa.example --api-key lna_...
+npx @lunnoa/client status
+npx @lunnoa/client push
+```
+
+`pull` writes a definition when the server revision differs from the lock and the local file is unchanged. When the lock revision already matches, pull leaves the file alone, including local edits. `push` sends `codeSource: synced` and `baseRevision` from the lock (omitted when the slug is not in the lock), then writes the definition Lunnoa stored.
+
+If the file and the UI both changed, pull prints a diff (`--- local` / `+++ server`) and exits 1 before it writes anything. `pull --force` overwrites the file. `push --force` overwrites the UI. A first push onto a slug that already exists and is not in the lock exits 1: `A workflow with slug "…" already exists in Lunnoa. Run pull first, or push with --force.` `status` prints local and remote state.
+
+`agents deploy file.json` and `workflows deploy file.json` are a push of that file. A `.ts`, `.js`, or `.mjs` deploy stays code-generated (`codeSource: generated`) and does not send `--force`. `codeSource` replaces `managedByCode` on agents and workflows.
+
 ### CLI discovery
 
 Coding agents (and humans) should list the catalogue for a given key instead of guessing action ids. `--json` is the machine-readable form.

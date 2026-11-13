@@ -4,11 +4,21 @@
  * `npx @lunnoa/client workflows|agents|entity-types deploy <path>`
  */
 import { mkdir, writeFile } from 'node:fs/promises';
+
 import { resolve } from 'node:path';
 
 import { LunnoaClient } from '../client';
 import { DEFINE_KINDS } from '../define';
 import { parseArgs, USAGE, type CliArgs } from './args';
+import { printJson, printTable } from './print';
+import {
+  pullResources,
+  pushResources,
+  statusResources,
+  type PullSelector,
+  type PushSelector,
+  type ResourceKind,
+} from './sync/engine';
 import {
   runAgentsList,
   runAiConnectionsList,
@@ -48,8 +58,15 @@ import { workflowDefinitionToUpsert } from '../resources/workflows';
 async function bindClient(args: CliArgs): Promise<{
   client: LunnoaClient;
   url: string;
+  definitionsDir: string;
+  projectRoot: string;
 }> {
   const fileConfig = await loadOptionalConfig();
+  const projectRoot = process.cwd();
+  const definitionsDir = resolve(
+    projectRoot,
+    args.dir ?? fileConfig.definitionsDir ?? 'lunnoa',
+  );
   const url = args.url ?? process.env.LUNNOA_URL ?? fileConfig.url;
   const apiKey =
     args.apiKey ?? process.env.LUNNOA_API_KEY ?? fileConfig.apiKey;
@@ -67,7 +84,125 @@ async function bindClient(args: CliArgs): Promise<{
   return {
     client: new LunnoaClient({ baseUrl: url, apiKey, accessToken }),
     url,
+    definitionsDir,
+    projectRoot,
   };
+}
+
+function resourceSelector(path: string): {
+  kind?: ResourceKind;
+  slug: string;
+  file?: string;
+} {
+  const normalized = path.replace(/\\/g, '/');
+  const file = /^(?:.*\/)?(agents|workflows)\/([^/]+)\.json$/.exec(normalized);
+  if (file) {
+    return {
+      kind: file[1] === 'agents' ? 'agent' : 'workflow',
+      slug: file[2]!,
+      file: path,
+    };
+  }
+  const prefixed = /^(agents|workflows)\/([^/]+)$/.exec(normalized);
+  if (prefixed) {
+    return {
+      kind: prefixed[1] === 'agents' ? 'agent' : 'workflow',
+      slug: prefixed[2]!,
+    };
+  }
+  if (normalized.endsWith('.json') || normalized.includes('/')) {
+    return { slug: '', file: path };
+  }
+  return { slug: normalized };
+}
+
+function pullSelector(args: CliArgs): PullSelector {
+  if (args.all && args.path) {
+    throw new Error('pull --all does not take a slug.');
+  }
+  if (args.all || !args.path) {
+    return args.all ? { scope: 'all' } : { scope: 'tracked' };
+  }
+  const parsed = resourceSelector(args.path);
+  if (parsed.file && !parsed.kind) {
+    throw new Error('Pass a slug, agents/<slug>, or workflows/<slug>.');
+  }
+  return { scope: 'one', kind: parsed.kind, slug: parsed.slug };
+}
+
+function pushSelector(args: CliArgs, deploy?: { kind: ResourceKind; file: string }): PushSelector {
+  if (deploy) return { scope: 'one', kind: deploy.kind, file: deploy.file };
+  if (args.all && args.path) {
+    throw new Error('push --all does not take a path.');
+  }
+  if (!args.path) return { scope: 'all' };
+  const parsed = resourceSelector(args.path);
+  if (parsed.file) return { scope: 'one', kind: parsed.kind, file: parsed.file };
+  return { scope: 'one', kind: parsed.kind, slug: parsed.slug };
+}
+
+async function runPull(args: CliArgs): Promise<void> {
+  const bound = await bindClient(args);
+  const report = await pullResources(
+    {
+      client: bound.client,
+      definitionsDir: bound.definitionsDir,
+      projectRoot: bound.projectRoot,
+      force: args.force,
+    },
+    pullSelector(args),
+  );
+  if (report.written.length === 0) {
+    console.log('Nothing to pull.');
+    return;
+  }
+  for (const file of report.written) console.log(`Pulled ${file}`);
+}
+
+async function runPush(
+  args: CliArgs,
+  deploy?: { kind: ResourceKind; file: string },
+): Promise<void> {
+  const bound = await bindClient(args);
+  const report = await pushResources(
+    {
+      client: bound.client,
+      definitionsDir: bound.definitionsDir,
+      projectRoot: bound.projectRoot,
+      force: args.force,
+    },
+    pushSelector(args, deploy),
+  );
+  for (const file of report.pushed) console.log(`Pushed ${file}`);
+}
+
+async function runStatus(args: CliArgs): Promise<void> {
+  const bound = await bindClient(args);
+  const rows = await statusResources({
+    client: bound.client,
+    definitionsDir: bound.definitionsDir,
+    projectRoot: bound.projectRoot,
+  });
+  if (args.json) {
+    printJson(rows);
+    return;
+  }
+  printTable(
+    rows.map((row) => ({
+      kind: row.kind,
+      slug: row.slug,
+      local: row.local,
+      remote: row.remote,
+      conflict: row.conflict,
+    })),
+    [
+      { key: 'kind', header: 'KIND' },
+      { key: 'slug', header: 'SLUG' },
+      { key: 'local', header: 'LOCAL' },
+      { key: 'remote', header: 'REMOTE' },
+      { key: 'conflict', header: 'CONFLICT' },
+    ],
+  );
 }
 
 async function fetchDefinitions(
@@ -128,6 +263,10 @@ async function deployWorkflow(args: CliArgs): Promise<void> {
   if (!args.path) {
     throw new Error('Missing definition path. Example: workflows deploy ./workflow.ts');
   }
+  if (args.path.endsWith('.json')) {
+    await runPush(args, { kind: 'workflow', file: args.path });
+    return;
+  }
   const { client } = await bindClient(args);
 
   const mod = await loadDefinitionModule(args.path);
@@ -141,6 +280,10 @@ async function deployWorkflow(args: CliArgs): Promise<void> {
 async function deployAgent(args: CliArgs): Promise<void> {
   if (!args.path) {
     throw new Error('Missing definition path. Example: agents deploy ./agent.ts');
+  }
+  if (args.path.endsWith('.json')) {
+    await runPush(args, { kind: 'agent', file: args.path });
+    return;
   }
   const { client } = await bindClient(args);
 
@@ -313,8 +456,13 @@ async function runDiscovery(args: CliArgs): Promise<boolean> {
   return false;
 }
 
-async function main(): Promise<void> {
-  const args = parseArgs(process.argv.slice(2));
+export function reportCliError(error: unknown): void {
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
+}
+
+export async function run(argv: string[]): Promise<void> {
+  const args = parseArgs(argv);
   try {
     process.loadEnvFile(); // ./.env; real env vars win. Missing file or Node < 20.12: ignore.
   } catch {}
@@ -347,6 +495,21 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (args.command === 'pull') {
+    await runPull(args);
+    return;
+  }
+
+  if (args.command === 'push') {
+    await runPush(args);
+    return;
+  }
+
+  if (args.command === 'status') {
+    await runStatus(args);
+    return;
+  }
+
   if (await runDiscovery(args)) {
     return;
   }
@@ -371,7 +534,14 @@ async function main(): Promise<void> {
   process.exitCode = 1;
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+async function main(): Promise<void> {
+  try {
+    await run(process.argv.slice(2));
+  } catch (error) {
+    reportCliError(error);
+  }
+}
+
+if (process.env.VITEST !== 'true') {
+  void main();
+}

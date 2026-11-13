@@ -5,6 +5,23 @@
  * Not the same as `@lunnoa/toolkit` `createAction` / `createApp` (in-platform apps).
  */
 
+import {
+  acceptAgentFile,
+  acceptWorkflowGraphFile,
+  acceptWorkflowStepsFile,
+  isAgentFileInput,
+  isWorkflowGraphInput,
+  isWorkflowStepsFile,
+} from './files';
+import type {
+  AgentFileDefinition,
+  AgentFileInput,
+  WorkflowGraphFileDefinition,
+  WorkflowGraphFileInput,
+  WorkflowStepsFileDefinition,
+  WorkflowStepsFileInput,
+} from './files';
+
 export const DEFINE_KINDS = {
   connection: 'connection',
   aiConnection: 'aiConnection',
@@ -94,6 +111,13 @@ export interface WorkflowStepDefinition {
   /** Per-step input overrides. Values may contain `ref.trigger` / `ref.step`. */
   input?: Record<string, unknown>;
   name?: string;
+  description?: string;
+  retrySettings?: {
+    enabled: boolean;
+    maxAttempts: number;
+    delaySeconds: number;
+  };
+  continueOnFailure?: { enabled: boolean };
   /**
    * Branches after this step. Only on Conditional Paths, Manually Decide Path,
    * or Request Approval (approved path first, then rejected), and only on the
@@ -386,33 +410,60 @@ function assertStepRefs(config: Omit<WorkflowDefinition, 'kind'>): void {
 
 export function defineWorkflow(
   config: Omit<WorkflowDefinition, 'kind'>,
-): WorkflowDefinition {
-  if (!config.slug?.trim()) {
+): WorkflowDefinition;
+export function defineWorkflow(config: WorkflowStepsFileInput): WorkflowStepsFileDefinition;
+export function defineWorkflow(config: WorkflowGraphFileInput): WorkflowGraphFileDefinition;
+export function defineWorkflow(
+  config:
+    | Omit<WorkflowDefinition, 'kind'>
+    | WorkflowStepsFileInput
+    | WorkflowGraphFileInput,
+): WorkflowDefinition | WorkflowStepsFileDefinition | WorkflowGraphFileDefinition {
+  const record = config as { format?: string; nodes?: unknown; steps?: unknown };
+  if (
+    isWorkflowGraphInput(config) ||
+    (Array.isArray(record.nodes) && !Array.isArray(record.steps))
+  ) {
+    return acceptWorkflowGraphFile(config as WorkflowGraphFileInput);
+  }
+  if (isWorkflowStepsFile(config)) {
+    return acceptWorkflowStepsFile(config);
+  }
+  const authored = { ...(config as Omit<WorkflowDefinition, 'kind'> & { $schema?: string }) };
+  delete authored.$schema;
+  if (!authored.slug?.trim()) {
     throw new Error('defineWorkflow requires slug');
   }
-  if (!config.steps?.length) {
+  if (!authored.steps?.length) {
     throw new Error('defineWorkflow requires at least one step');
   }
-  if (config.trigger) {
-    assertTriggerConfig(config.trigger);
+  if (authored.trigger) {
+    assertTriggerConfig(authored.trigger);
   }
-  assertStepRefs(config);
-  return { kind: DEFINE_KINDS.workflow, ...config };
+  assertStepRefs(authored);
+  return { kind: DEFINE_KINDS.workflow, ...authored };
 }
 
+export function defineAgent(config: Omit<AgentDefinition, 'kind'>): AgentDefinition;
+export function defineAgent(config: AgentFileInput): AgentFileDefinition;
 export function defineAgent(
-  config: Omit<AgentDefinition, 'kind'>,
-): AgentDefinition {
-  if (!config.slug?.trim()) {
+  config: Omit<AgentDefinition, 'kind'> | AgentFileInput,
+): AgentDefinition | AgentFileDefinition {
+  if (isAgentFileInput(config)) {
+    return acceptAgentFile(config);
+  }
+  const authored = { ...(config as Omit<AgentDefinition, 'kind'> & { $schema?: string }) };
+  delete authored.$schema;
+  if (!authored.slug?.trim()) {
     throw new Error('defineAgent requires slug');
   }
-  if (!config.model?.trim()) {
+  if (!authored.model?.trim()) {
     throw new Error('defineAgent requires model');
   }
-  if (config.instructions == null) {
+  if (authored.instructions == null) {
     throw new Error('defineAgent requires instructions');
   }
-  return { kind: DEFINE_KINDS.agent, ...config };
+  return { kind: DEFINE_KINDS.agent, ...authored };
 }
 
 export interface EntityTypeDefinition {
@@ -511,6 +562,29 @@ export function resolveTriggerId(trigger: TriggerDefinition): string {
   }
   return id;
 }
+
+export type {
+  AgentFileDefinition,
+  AgentFileInput,
+  AgentFileSettings,
+  AgentFileTool,
+  AgentLinkById,
+  AgentLinkBySlug,
+  AgentSlugOrId,
+  ContinueOnFailureSettings,
+  RetrySettings,
+  WorkflowFileDefinition,
+  WorkflowGraphEdge,
+  WorkflowGraphFileDefinition,
+  WorkflowGraphFileInput,
+  WorkflowGraphNode,
+  WorkflowStepFile,
+  WorkflowStepsFileDefinition,
+  WorkflowStepsFileInput,
+  WorkflowTriggerFile,
+  WorkflowUseFile,
+} from './files';
+export { isAgentFileShape } from './files';
 
 export function resolveActionId(action: ActionDefinition): string {
   const id = action.id.trim();

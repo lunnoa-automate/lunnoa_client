@@ -19,6 +19,7 @@ import { ScorecardsResource } from './resources/scorecards';
 import { TasksResource } from './resources/tasks';
 import { VariablesResource } from './resources/variables';
 import { WorkflowAppsResource } from './resources/workflow-apps';
+import { CodeSyncResource } from './resources/code-sync';
 import { WorkflowsResource } from './resources/workflows';
 
 /**
@@ -70,6 +71,8 @@ export class LunnoaClient {
   readonly aiConnections: AiConnectionsResource;
   readonly workflowApps: WorkflowAppsResource;
   readonly discovery: DiscoveryResource;
+  /** Workspace id for the definitions lock, and the code-sync lock flag. */
+  readonly codeSync: CodeSyncResource;
 
   constructor(options: LunnoaClientOptions) {
     this.http = new HttpClient(options);
@@ -95,5 +98,6 @@ export class LunnoaClient {
     this.connections = new ConnectionsResource(this.http);
     this.aiConnections = new AiConnectionsResource(this.http);
     this.discovery = new DiscoveryResource(this.http);
+    this.codeSync = new CodeSyncResource(this.http);
   }
 }

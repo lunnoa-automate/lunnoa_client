@@ -3,7 +3,7 @@
   "paths": {
     "/api/ai-connections": {
       "get": {
-        "description": "Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model`. `isDefault` marks the connection and model applied when a deploy omits them. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.",
+        "description": "Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model` and pass the connection id as `aiConnectionId`. Deploy does not assign a connection or model when those fields are omitted. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.",
         "operationId": "AiConnectionsController_list",
         "parameters": [],
         "responses": {
@@ -4926,7 +4926,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Catalogue model id passed to agent deploy as `model`. Example: `deepseek-ai/DeepSeek-V4-Pro`."
+            "description": "Catalogue model id passed to agent deploy as `model`. Example: `gpt-5.4`."
           },
           "name": {
             "type": "string",
@@ -4934,7 +4934,7 @@
           },
           "isDefault": {
             "type": "boolean",
-            "description": "True when this is the model used if an agent deploy omits `model` on this connection."
+            "description": "Always false. Agent deploy does not choose a model when `model` is omitted."
           },
           "supportsTools": {
             "type": "boolean",
@@ -4963,11 +4963,11 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })` when this connection is not the default."
+            "description": "AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })`."
           },
           "name": {
             "type": "string",
-            "description": "Connection display name. Example: `Lunnoa LLMs`."
+            "description": "Connection display name. Example: `Production OpenAI`."
           },
           "provider": {
             "type": "string",
@@ -4975,7 +4975,7 @@
           },
           "isDefault": {
             "type": "boolean",
-            "description": "True for the connection used when an agent deploy omits `aiConnectionId`."
+            "description": "Always false. Agent deploy does not choose a connection when `aiConnectionId` is omitted."
           },
           "models": {
             "description": "Models this connection accepts. Inactive models are omitted.",

@@ -515,10 +515,8 @@ npx @lunnoa/client ai-connections list --json
 
 `ai-connections list` returns the AI connections this key can assign to an
 agent. Set `defineAgent({ model })` to a `models[].id` from that JSON
-(on Lunnoa LLMs that is a catalogue id such as
-`deepseek-ai/DeepSeek-V4-Pro`). Omit `aiConnection` to
-use the connection with `isDefault: true`. Pass
-`defineAiConnection({ id })` only for a different connection. SDK:
+and pass `defineAiConnection({ id })` for the connection that accepts
+that model. Omitting `aiConnection` does not assign one. SDK:
 `lunnoa.aiConnections.list()`.
 
 Deploy to Automate UI (upsert by slug inside the workspace on the API key; prefer CLI):

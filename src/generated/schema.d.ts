@@ -13,7 +13,7 @@ export interface paths {
         };
         /**
          * List AI connections available to the caller
-         * @description Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model`. `isDefault` marks the connection and model applied when a deploy omits them. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.
+         * @description Returns AI provider connections the caller may assign to an agent, each with the catalogue model ids that connection accepts. Use `models[].id` as the agent `model` and pass the connection id as `aiConnectionId`. Deploy does not assign a connection or model when those fields are omitted. App connections (Gmail, HTTP, and similar) are listed separately at `GET /api/connections`. Credentials are never returned. Requires `agents:create`.
          */
         get: operations["AiConnectionsController_list"];
         put?: never;
@@ -1529,11 +1529,11 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         PublicAiModelResponseDto: {
-            /** @description Catalogue model id passed to agent deploy as `model`. Example: `deepseek-ai/DeepSeek-V4-Pro`. */
+            /** @description Catalogue model id passed to agent deploy as `model`. Example: `gpt-5.4`. */
             id: string;
             /** @description Display name. */
             name: string;
-            /** @description True when this is the model used if an agent deploy omits `model` on this connection. */
+            /** @description Always false. Agent deploy does not choose a model when `model` is omitted. */
             isDefault: boolean;
             /** @description Whether the model can call tools. */
             supportsTools: boolean;
@@ -1543,13 +1543,13 @@ export interface components {
             supportsReasoning: boolean;
         };
         PublicAiConnectionResponseDto: {
-            /** @description AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })` when this connection is not the default. */
+            /** @description AiProviderConnection UUID. Pass as `aiConnectionId` / `defineAiConnection({ id })`. */
             id: string;
-            /** @description Connection display name. Example: `Lunnoa LLMs`. */
+            /** @description Connection display name. Example: `Production OpenAI`. */
             name: string;
             /** @description Provider slug. Example: `featherless` or `openai`. */
             provider: string;
-            /** @description True for the connection used when an agent deploy omits `aiConnectionId`. */
+            /** @description Always false. Agent deploy does not choose a connection when `aiConnectionId` is omitted. */
             isDefault: boolean;
             /** @description Models this connection accepts. Inactive models are omitted. */
             models: components["schemas"]["PublicAiModelResponseDto"][];

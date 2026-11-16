@@ -123,8 +123,8 @@ interrogation.
    catalogue config. On Manually Run, `inputs` is the caller form
    (`customInputConfig`). Discover models with
    `npx @lunnoa/client ai-connections list --json` and use a returned
-   `models[].id` (Lunnoa LLMs uses catalogue ids such as
-   `deepseek-ai/DeepSeek-V4-Pro`). Client `defineAction` binds existing
+   `models[].id` with `defineAiConnection({ id })` for that connection.
+   Omitting `aiConnection` does not assign one. Client `defineAction` binds existing
    catalogue actions; toolkit `createAction` is a different product
    (in-platform apps).
 4b. **Every step input has a source.** In the brief, list each step's settings

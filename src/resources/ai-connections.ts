@@ -16,7 +16,7 @@ export interface AiConnection {
   name: string;
   /** Provider slug, for example `featherless` or `openai`. */
   provider: string;
-  /** True when agent deploy uses this connection if `aiConnection` is omitted. */
+  /** Always false. Agent deploy does not choose a connection when `aiConnection` is omitted. */
   isDefault: boolean;
   models: AiConnectionModel[];
 }
